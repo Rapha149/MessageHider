@@ -1,0 +1,120 @@
+package de.rapha149.messagehider;
+
+import de.rapha149.messagehider.util.JsonUtil;
+import de.rapha149.messagehider.util.ReflectionUtil;
+import de.rapha149.messagehider.util.ReflectionUtil.Param;
+import de.rapha149.messagehider.util.YamlUtil;
+import de.rapha149.messagehider.util.YamlUtil.YamlData.FilterData;
+import io.netty.channel.*;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
+
+import java.lang.reflect.Field;
+import java.util.UUID;
+
+public class Events implements Listener {
+
+    public Events() {
+        Bukkit.getOnlinePlayers().forEach(this::addHandler);
+    }
+
+    @EventHandler
+    public void onJoin(PlayerJoinEvent event) {
+        addHandler(event.getPlayer());
+    }
+
+    public void reloadHandlers() {
+        Bukkit.getOnlinePlayers().forEach(player -> {
+            getPipeline(player).remove("MessageHider");
+            addHandler(player);
+        });
+    }
+
+    public void removeHandlers() {
+        Bukkit.getOnlinePlayers().forEach(player -> getPipeline(player).remove("MessageHider"));
+    }
+
+    private void addHandler(Player player) {
+        getPipeline(player).addAfter("packet_handler", "MessageHider", new ChannelDuplexHandler() {
+
+            @Override
+            public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
+                try {
+                    if (msg.getClass() == ReflectionUtil.getClass(true, "PacketPlayOutChat")) {
+                        Object component = ReflectionUtil.getField(msg, "a");
+                        String json = (String) ReflectionUtil.invokeStaticMethod(true, "IChatBaseComponent$ChatSerializer",
+                                "a", new Param(true, "IChatBaseComponent", component));
+                        String plain = (String) ReflectionUtil.invokeMethod(component, ReflectionUtil.TO_PLAIN_TEXT);
+
+                        UUID sender = null;
+                        for (Field field : msg.getClass().getDeclaredFields()) {
+                            if (field.getType() == UUID.class) {
+                                field.setAccessible(true);
+                                sender = (UUID) field.get(msg);
+                                break;
+                            }
+                        }
+
+                        boolean hidden = false;
+                        UUID receiver = player.getUniqueId();
+                        for (FilterData filter : YamlUtil.getFilters()) {
+                            if (sender != null) {
+                                if (!filter.getSenderUUIDs().isEmpty() && !filter.getSenderUUIDs().contains(sender))
+                                    continue;
+                                if (filter.getExcludedSenderUUIDs().contains(sender))
+                                    continue;
+                            }
+
+                            if (!filter.getReceiverUUIDs().isEmpty() && !filter.getReceiverUUIDs().contains(receiver))
+                                continue;
+                            if (filter.getExcludedReceiverUUIDs().contains(receiver))
+                                continue;
+
+                            if (sender != null && sender.equals(receiver) && filter.isOnlyHideForOtherPlayers())
+                                continue;
+
+                            boolean regex = filter.isRegex();
+                            String filterMessage = filter.getMessage();
+                            if (filter.isJson()) {
+                                if (JsonUtil.matches(filterMessage, json, regex, filter.getJsonPrecisionLevel())) {
+                                    hidden = true;
+                                    break;
+                                }
+                            } else if (regex) {
+                                if (plain.matches(filterMessage)) {
+                                    hidden = true;
+                                    break;
+                                }
+                            } else if (plain.equals(filterMessage)) {
+                                hidden = true;
+                                break;
+                            }
+                        }
+
+                        MessageHiderCommand.log(receiver, sender, plain, json, hidden);
+                        if (hidden)
+                            return;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                super.write(ctx, msg, promise);
+            }
+        });
+    }
+
+    private ChannelPipeline getPipeline(Player player) {
+        return ((Channel) ReflectionUtil.getField(
+                ReflectionUtil.getField(
+                        ReflectionUtil.getField(
+                                ReflectionUtil.invokeMethod(player,
+                                        "getHandle"),
+                                "playerConnection"),
+                        "networkManager"),
+                "channel")).pipeline();
+    }
+}

@@ -1,0 +1,11 @@
+{
+  "italic": true,
+  "color": "gray",
+  "translate": "chat\\.type\\.admin",
+  "with": [
+    {},
+    {
+      "translate": "commands\\.gamemode\\.success\\.\\w+"
+    }
+  ]
+}

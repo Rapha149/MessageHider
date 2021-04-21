@@ -1,0 +1,347 @@
+package de.rapha149.messagehider.util;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
+import de.rapha149.messagehider.Main;
+import de.rapha149.messagehider.util.YamlUtil.YamlData.FilterData;
+import de.rapha149.messagehider.util.YamlUtil.YamlData.PresetsData;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.DumperOptions.FlowStyle;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.CustomClassLoaderConstructor;
+import org.yaml.snakeyaml.representer.Representer;
+
+import java.io.*;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+
+public class YamlUtil {
+
+    private static File file;
+    private static Yaml yaml;
+    private static YamlData data;
+    private static Map<String, UUID> uuidCache = new HashMap<>();
+
+    public static void load() throws IOException {
+        DumperOptions options = new DumperOptions();
+        options.setDefaultFlowStyle(FlowStyle.BLOCK);
+        options.setPrettyFlow(true);
+        yaml = new Yaml(new CustomClassLoaderConstructor(Main.getInstance().getClass().getClassLoader()), new Representer(), options);
+
+        file = new File(Main.getInstance().getDataFolder(), "config.yml");
+        if (!file.getParentFile().exists())
+            file.getParentFile().mkdirs();
+
+        if (file.exists())
+            data = yaml.loadAs(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8), YamlData.class);
+        else
+            data = new YamlData();
+        save();
+
+        JsonParser parser = new JsonParser();
+        data.messageFilters.forEach(filter -> {
+            if (filter.json) {
+                try {
+                    parser.parse(filter.message);
+                } catch (JsonParseException e) {
+                    Main.getInstance().getLogger().warning("You got a json error in '" + filter.message + "'");
+                }
+            }
+        });
+
+        PresetsData presets = data.presets;
+        if(presets.gamemodeChange && Presets.GAMEMODE_CHANGE == null)
+            Main.getInstance().getLogger().warning("You enabled the preset 'gamemodeChange' but it is not suitable for this server version.");
+        if(presets.onlySelfCommands && Presets.ONLY_SELF_COMMANDS == null)
+            Main.getInstance().getLogger().warning("You enabled the preset 'onlySelfCommands' but it is not suitable for this server version.");
+
+        uuidCache.clear();
+    }
+
+    private static void save() throws IOException {
+        OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(file));
+        writer.write(yaml.dumpAsMap(data));
+        writer.flush();
+        writer.close();
+    }
+
+    public static List<FilterData> getFilters() {
+        List<FilterData> filters = new ArrayList<>(data.messageFilters);
+
+        PresetsData presets = data.presets;
+        if(presets.idleTimeout)
+            filters.add(Presets.IDLE_TIMEOUT);
+        if(presets.gamemodeChange && Presets.GAMEMODE_CHANGE != null)
+            filters.add(Presets.GAMEMODE_CHANGE);
+        if(presets.onlySelfCommands && Presets.ONLY_SELF_COMMANDS != null)
+            filters.add(Presets.ONLY_SELF_COMMANDS);
+
+        return filters;
+    }
+
+    public static void addFilter(FilterData filter) throws IOException {
+        data.messageFilters.add(filter);
+        save();
+    }
+
+    public static class YamlData {
+
+        private PresetsData presets;
+        private List<FilterData> messageFilters;
+
+        public YamlData() {
+            presets = new PresetsData();
+            messageFilters = new ArrayList<>();
+        }
+
+        public PresetsData getPresets() {
+            return presets;
+        }
+
+        public void setPresets(PresetsData presets) {
+            this.presets = presets;
+        }
+
+        public List<FilterData> getMessageFilters() {
+            return messageFilters;
+        }
+
+        public void setMessageFilters(List<FilterData> messageFilters) {
+            this.messageFilters = messageFilters;
+        }
+
+        public static class PresetsData {
+
+            private boolean idleTimeout;
+            private boolean gamemodeChange;
+            private boolean onlySelfCommands;
+
+            public PresetsData() {
+                idleTimeout = false;
+                gamemodeChange = false;
+                onlySelfCommands = false;
+            }
+
+            public boolean isIdleTimeout() {
+                return idleTimeout;
+            }
+
+            public void setIdleTimeout(boolean idleTimeout) {
+                this.idleTimeout = idleTimeout;
+            }
+
+            public boolean isGamemodeChange() {
+                return gamemodeChange;
+            }
+
+            public void setGamemodeChange(boolean gamemodeChange) {
+                this.gamemodeChange = gamemodeChange;
+            }
+
+            public boolean isOnlySelfCommands() {
+                return onlySelfCommands;
+            }
+
+            public void setOnlySelfCommands(boolean onlySelfCommands) {
+                this.onlySelfCommands = onlySelfCommands;
+            }
+        }
+
+        public static class FilterData {
+
+            private boolean json;
+            private int jsonPrecisionLevel;
+            private boolean regex;
+            private boolean onlyHideForOtherPlayers;
+            private List<String> senders;
+            private List<String> excludedSenders;
+            private List<String> receivers;
+            private List<String> excludedReceivers;
+            private String message;
+
+            private transient List<UUID> senderUUIDs;
+            private transient List<UUID> excludedSenderUUIDs;
+            private transient List<UUID> receiverUUIDs;
+            private transient List<UUID> excludedReceiverUUIDs;
+
+            public FilterData() {
+                json = false;
+                jsonPrecisionLevel = 2;
+                regex = false;
+                onlyHideForOtherPlayers = false;
+                senders = new ArrayList<>();
+                excludedSenders = new ArrayList<>();
+                receivers = new ArrayList<>();
+                excludedReceivers = new ArrayList<>();
+                message = "";
+
+                senderUUIDs = new ArrayList<>();
+                excludedSenderUUIDs = new ArrayList<>();
+                receiverUUIDs = new ArrayList<>();
+                excludedReceiverUUIDs = new ArrayList<>();
+            }
+
+            public FilterData(boolean json, int jsonPrecisionLevel, boolean regex, boolean onlyHideForOtherPlayers, String message) {
+                this.json = json;
+                this.jsonPrecisionLevel = jsonPrecisionLevel;
+                this.regex = regex;
+                this.onlyHideForOtherPlayers = onlyHideForOtherPlayers;
+                this.senders = new ArrayList<>();
+                this.excludedSenders = new ArrayList<>();
+                this.receivers = new ArrayList<>();
+                this.excludedReceivers = new ArrayList<>();
+                this.message = message;
+
+                senderUUIDs = new ArrayList<>();
+                excludedSenderUUIDs = new ArrayList<>();
+                receiverUUIDs = new ArrayList<>();
+                excludedReceiverUUIDs = new ArrayList<>();
+            }
+
+            public boolean isJson() {
+                return json;
+            }
+
+            public void setJson(boolean json) {
+                this.json = json;
+            }
+
+            public int getJsonPrecisionLevel() {
+                return jsonPrecisionLevel;
+            }
+
+            public void setJsonPrecisionLevel(int jsonPrecisionLevel) {
+                this.jsonPrecisionLevel = jsonPrecisionLevel;
+            }
+
+            public boolean isRegex() {
+                return regex;
+            }
+
+            public void setRegex(boolean regex) {
+                this.regex = regex;
+            }
+
+            public boolean isOnlyHideForOtherPlayers() {
+                return onlyHideForOtherPlayers;
+            }
+
+            public void setOnlyHideForOtherPlayers(boolean onlyHideForOtherPlayers) {
+                this.onlyHideForOtherPlayers = onlyHideForOtherPlayers;
+            }
+
+            public List<String> getSenders() {
+                return senders;
+            }
+
+            public void setSenders(List<String> senders) {
+                this.senders = senders;
+                senderUUIDs = YamlUtil.getUUIDs(senders);
+            }
+
+            public List<String> getExcludedSenders() {
+                return excludedSenders;
+            }
+
+            public void setExcludedSenders(List<String> excludedSenders) {
+                this.excludedSenders = excludedSenders;
+                excludedSenderUUIDs = YamlUtil.getUUIDs(excludedSenders);
+            }
+
+            public List<String> getReceivers() {
+                return receivers;
+            }
+
+            public void setReceivers(List<String> receivers) {
+                this.receivers = receivers;
+                receiverUUIDs = YamlUtil.getUUIDs(receivers);
+            }
+
+            public List<String> getExcludedReceivers() {
+                return excludedReceivers;
+            }
+
+            public void setExcludedReceivers(List<String> excludedReceivers) {
+                this.excludedReceivers = excludedReceivers;
+                excludedReceiverUUIDs = YamlUtil.getUUIDs(excludedReceivers);
+            }
+
+            public String getMessage() {
+                return message;
+            }
+
+            public void setMessage(String message) {
+                this.message = message;
+            }
+
+            public List<UUID> getSenderUUIDs() {
+                return senderUUIDs;
+            }
+
+            public List<UUID> getExcludedSenderUUIDs() {
+                return excludedSenderUUIDs;
+            }
+
+            public List<UUID> getReceiverUUIDs() {
+                return receiverUUIDs;
+            }
+
+            public List<UUID> getExcludedReceiverUUIDs() {
+                return excludedReceiverUUIDs;
+            }
+        }
+    }
+
+    private static List<UUID> getUUIDs(List<String> players) {
+        List<UUID> uuids = new ArrayList<>();
+        players.forEach(player -> {
+            try {
+                uuids.add(UUID.fromString(player));
+            } catch (IllegalArgumentException e) {
+                if (uuidCache.containsKey(player))
+                    uuids.add(uuidCache.get(player));
+                else {
+                    UUID uuid = null;
+                    if (player.equals("CONSOLE"))
+                        uuid = Main.ZERO_UUID;
+                    else if (!player.isEmpty()) {
+                        try {
+                            uuid = getUUID(player);
+                            if (uuid == null)
+                                Main.getInstance().getLogger().warning(player + " is not a valid player.");
+                        } catch (IOException e1) {
+                            e1.printStackTrace();
+                        }
+                    } else
+                        Main.getInstance().getLogger().warning("You specified an empty player name.");
+
+                    if (uuid != null) {
+                        uuidCache.put(player, uuid);
+                        uuids.add(uuid);
+                    }
+                }
+            }
+        });
+        return uuids;
+    }
+
+    private static UUID getUUID(String name) throws IOException {
+        URLConnection conn = new URL("https://www.mc-heads.net/minecraft/profile/" + URLEncoder.encode(name, "UTF-8")).openConnection();
+        conn.addRequestProperty("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:86.0) Gecko/20100101 Firefox/86.0");
+        conn.connect();
+        JsonElement root = new JsonParser().parse(new InputStreamReader(conn.getInputStream()));
+        if (root.isJsonObject()) {
+            StringBuilder sb = new StringBuilder(root.getAsJsonObject().get("id").getAsString());
+            sb.insert(20, '-');
+            sb.insert(16, '-');
+            sb.insert(12, '-');
+            sb.insert(8, '-');
+            return UUID.fromString(sb.toString());
+        } else
+            return null;
+    }
+}

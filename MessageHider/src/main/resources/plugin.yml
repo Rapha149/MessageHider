@@ -10,12 +10,6 @@ commands:
     aliases: [mh]
 
 permissions:
-#  messagehider:
-#    description: Permission for '/messagehider'.
-#    children:
-#      messagehider.log: true
-#      messagehider.create: true
-#      messagehider.reload: true
   messagehider.log:
     description: Permission for '/messagehider log'.
     children:

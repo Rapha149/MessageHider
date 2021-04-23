@@ -17,12 +17,13 @@
 Erst mal: Danke, dass du dieses Plugin nutzt und auch diese Anleitung durchließt!  
 Ein paar Infos vorab:  
 
-1. Wenn du diese Anleitung in eine andere Sprache übersetzen willst, kannst du das gerne machen!  
-	Du kannst es dann gerne übersetzen und dich dann via Issue melden.  
-	Das Plugin muss aber denke ich nicht übersetzt werden, da es nur sehr wenige Nachrichten hat.
-2. Wenn du weißt, wie man diese Anleitung (vor allem den Config-Teil) verständlicher und allgemein besser machen kann, schreibe mir auch gerne via Issue :)
-3. Wenn du Fehler findest, Fragen oder Verbesserungsvorschläge hast, melde dich auch gerne via Issue.
-4. Dieses Plugin sammelt anonyme Serverstatistiken via [bStats](https://bstats.org), einen Open-Source-Statistikdienst für Minecraft-Software. Wenn du dies deaktivieren möchtest, kannst du die Datei `plugins/bStats/config.yml` bearbeiten.
+1. Allgemein, wenn du mir etwas mitteilen möchtest, erstelle bitte ein Issue hier.
+   Bitte melde dich in folgenden Fällen:
+	- Wenn du diese Anleitung in eine andere Sprache übersetzen willst, was ich sehr cool fände!   
+		Das Plugin muss aber denke ich nicht übersetzt werden, da es nur sehr wenige Nachrichten hat.
+	- Wenn du Anregungen hast, wie man diese Anleitung verbessern kann.
+	- Wenn du Fehler findest, Fragen oder allgemein Verbesserungsvorschläge hast.
+2. Dieses Plugin sammelt anonyme Serverstatistiken via [bStats](https://bstats.org), einen Open-Source-Statistikdienst für Minecraft-Software. Wenn du dies deaktivieren möchtest, kannst du die Datei `plugins/bStats/config.yml` bearbeiten.
 
 ## Commands
 

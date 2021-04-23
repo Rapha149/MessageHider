@@ -198,6 +198,7 @@ Weitere Infos:
 
 - Wenn du wirklich der Spieler namens `CONSOLE` bist, musst du leider deine UUID angeben.
 - Ich empfehle die UUIDs anzugeben, da das Plugin bei Namen die UUIDs aus dem Internet abrufen musst. Das kann das Neuladen der Config verlangsamen oder das Plugin unbrauchbar machen, wenn das Plugin aus irgendeinem Grund nicht auf das Internet oder die Website \([MC-Heads](https://www.mc-heads.net/)\) zugreifen kann.
+- Dieses Beispiel ist nicht logisch, da `excludedReceivers` und `receivers` (auch `excludedSenders` und `senders` angegeben wurde. Es ist nur zu Beispielzwecken gedacht.
 
 ## Schluss
 

@@ -1,5 +1,7 @@
 package de.rapha149.messagehider;
 
+import de.rapha149.messagehider.Metrics.SimplePie;
+import de.rapha149.messagehider.Metrics.SingleLineChart;
 import de.rapha149.messagehider.util.ReflectionUtil;
 import de.rapha149.messagehider.util.YamlUtil;
 import org.bukkit.plugin.PluginManager;
@@ -31,6 +33,13 @@ public class Main extends JavaPlugin {
             manager.disablePlugin(this);
             return;
         }
+
+        Metrics metrics = new Metrics(this, 11112);
+        metrics.addCustomChart(new SingleLineChart("idle_timeout", () -> YamlUtil.getPresets().isIdleTimeout() ? 1 : 0));
+        metrics.addCustomChart(new SingleLineChart("gamemode_change", () -> YamlUtil.getPresets().isGamemodeChange() ? 1 : 0));
+        metrics.addCustomChart(new SingleLineChart("only_self_commands", () -> YamlUtil.getPresets().isOnlySelfCommands() ? 1 : 0));
+        metrics.addCustomChart(new SingleLineChart("custom_filters_total", () -> YamlUtil.getCustomFilters().size()));
+        metrics.addCustomChart(new SimplePie("custom_filters_per_server", () -> String.valueOf(YamlUtil.getCustomFilters().size())));
 
         new MessageHiderCommand(getCommand("messagehider"));
         manager.registerEvents(events = new Events(), this);

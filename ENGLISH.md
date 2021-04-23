@@ -105,9 +105,9 @@ There are the following settings: (They are sorted differently here than in the 
 - `excludedReceivers (list)` - Just like `receivers`, only the other way around. The message will not be filtered for anyone given.  
    Either the player name, UUID or `CONSOLE` for the console may be provided.
 	
-#### Beispiele
+#### Examples
 
-##### Voreinstellung: IdleTimeout (Version für 1.13+)
+##### Preset: idle timeout (Version für 1.13+)
 
 ```yml
 excludedReceivers: [
@@ -128,7 +128,7 @@ senders: [
 Explanation for JsonPrecisionLevel: It is `3` because this message is exactly like that.  
 Explanation for `\\.`: Since regex is enabled here, we need to escape the dot (Put a backslash in front of it). And since it is JSON, we need to escape the backslash again, so two backslashes.
 
-##### Voreinstellung: Gamemode-Change
+##### Preset: gamemode change
 
 ```yml
 excludedReceivers: [
@@ -148,7 +148,7 @@ senders: [
 
 Explanation for json precision level: It is `1` because at `with` the first values of the array were given only as `{}`. Because it is `1`, what would actually be in there is ignored.
 
-##### Voreinstellung: Only Self Commands
+##### Preset: only self commands
 
 ```yml
 excludedReceivers: [
@@ -166,7 +166,7 @@ senders: [
 ]
 ```
 
-##### Beispiel für Senders und Receivers
+##### Example for senders and receivers
 
 ```yml
 excludedReceivers:
@@ -200,7 +200,7 @@ Additional information:
 - I recommend providing the UUIDs, because the plugin has to retrieve the UUIDs from the internet when names are used. This can slow down the reloading of the config or make the plugin unusable if, for some reason, the plugin cannot access the internet or the website [MC-Heads](https://www.mc-heads.net/).
 - This example is not logical because `excludedReceivers` and `receivers` (also `excludedSenders` and `senders`) were provided. It is intended for example purposes only.
 
-## Schluss
+## Final words
 
 I hope this tutorial was understandable, otherwise, as I said, feel free to contact me via an issue.  
 Enjoy the plugin :)

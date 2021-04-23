@@ -14,7 +14,7 @@
 	
 ## Allgemein
 
-First of all: Thank you for using this plugin and reading this tutorial!
+First of all: Thank you for using this plugin and reading this tutorial!  
 A few information in advance:
 
 1. In general, if you want to send me anything, please create an issue here. Please get in touch in the following cases:
@@ -85,25 +85,25 @@ If the preset options are not enough, you can create your own filters. The best 
 
 There are the following settings: (They are sorted differently here than in the config, because it is alphabetical in the config)
 
-- `json (true/false)` - Wenn aktiviert, wird die angegebene Filter-Nachricht als JSON interpretiert. Wenn nicht, wird sie als Plain-Message interpretiert, das kann auch eine Lang-Nachricht von Mojang sein. (z.B: `commands.setidletimeout.success`)
-- `jsonPrecisionLevel (Nummer)` - Nur wenn JSON aktiviert, Nummern:
-	+ `0`: Es werden nur die Schlüsselwörter überprüft, die auf beiden Seiten (in der angegebenen Nachricht und in der Nachricht, die gesendet wurde) existieren.  
-	+ `1`: Es werden nur die Schlüsselwörter überprüft, die auf der linken Seite (angegebene Nachricht) existieren. Wenn ein Schlüsselwort, was auf der linken Seite existiert, aber nicht auf der rechten Seite (gesendete Nachricht), schlägt der Filter nicht an.
-	+ `2`: Es werden alle Schlüsselwörter überprüft, allerdings werden Schlüsselwörter, die auf der rechten Seite existieren, aber `false` sind, ignoriert.
-	+ `3`: Alle Schlüsselwörter werden ausnahmslos überprüft.
+- `json (true/false)` - If enabled, the specified filter message is interpreted as JSON. If not, it will be interpreted as a plain message, which can also be a language message from Minecraft. (e.g.: `commands.setidletimeout.success`)
+- `jsonPrecisionLevel (numbers)` - Only if JSON enabled, numbers:
+	+ `0`: Only the keywords that exist on both sides (in the specified message and in the message that was sent) will be inspected.  
+	+ `1`: Only the keywords that exist on the left side (specified message) will be inspected. If a keyword exists on the left side, but not on the right side (sent message), the filter will not match.
+	+ `2`: All keywords will be inspected, but keywords that exist on the right side but are `false` will be ignored.
+	+ `3`: All keywords will beinspected without exception.
 	
-	Wenn ein Schlüsselwort auf der linken Seite ignoriert werden soll, kann als Value `<ignore>` angegeben werden.
-- `regex (true/false)` - Wenn aktiviert, wird die Plain-Message oder die JSON-Values nach Regex überprüft. Eine Guide zu Regex gibt es auf [RegExr](https://regexr.com/). Achtung: Satzzeichen wie Punkte werden, wenn Regex aktiviert ist, anderes interpretiert. Dies kann man mit einem `\` davor verhindern. Mehr Infos auf RegExr.
-- `onlyHideForOtherPlayers (true/false)` - Wenn aktiviert, werden Nachrichten, die man selber gesendet hat, nicht für einen selber gefiltert. (1.16+)
-- `message (Text)` - Die Nachricht, nach der gefiltert werden soll. Wenn JSON aktiviert, im JSON-Format.
-- `senders (Liste)` - Wenn leer gelassen wird es ignoriert. Wenn mindestens ein Spieler angegeben ist, werden nur Nachrichten, die von den angegebenen Spielern gesendet wurden, mit diesem Filter gefiltert. (1.16+)  
-	Es kann entweder der Spielername, die UUID oder `CONSOLE` für die Konsole angegeben werden.
-- `excludedSenders (Liste)` - So wie `senders`, nur andersrum. Von jedem, der hier drin steht, werden gesendete Nachrichten mit diesem Filter nicht gefiltert. (1.16+)  
-	Es kann entweder der Spielername, die UUID oder `CONSOLE` für die Konsole angegeben werden.
-- `receivers (Liste)` - Wenn leer gelassen wird es ignoriert. Wenn mindestens ein Spieler angegeben ist, wird eine Nachricht nur für die angegebenen Spieler gefiltert.  
-	Es kann entweder der Spielername, die UUID oder `CONSOLE` für die Konsole angegeben werden.
-- `excludedReceivers (Liste)` - So wie `receivers`, nur andersrum. Die Nachricht wird für jeden, der hier drin steht, nicht gefiltert.  
-	Es kann entweder der Spielername, die UUID oder `CONSOLE` für die Konsole angegeben werden.
+	If a key on the left side should be ignored, `<ignore>` can be specified as value.
+- `regex (true/false)` - If enabled, the plain message or JSON values are inspected according to regex. A guide to regex is available at [RegExr](https://regexr.com/). Note: Punctuation characters like dots are interpreted differently when regex is enabled. You can prevent this with a `\` in front of it. More info on RegExr.
+- `onlyHideForOtherPlayers (true/false)` - If enabled, messages you have sent yourself will not be filtered for you. (1.16+)
+- `message (text)` - The message to filter for. If JSON is enabled, in JSON format.
+- `senders (list)` - If left blank it will be ignored. If at least one player is given, only messages sent by the given players will be filtered with this filter. (1.16+)  
+	Either the player name, UUID or `CONSOLE` for the console may be provided.
+- `excludedSenders (list)` - Just like `senders`, only the other way around. From anyone given, sent messages will not be filtered with this filter. (1.16+)  
+	Either the player name, UUID or `CONSOLE` for the console may be provided.
+- `receivers (list)` - If left blank it will be ignored. If at least one player is given, the message will be filtered only for the given players.  
+   Either the player name, UUID or `CONSOLE` for the console may be provided.
+- `excludedReceivers (list)` - Just like `receivers`, only the other way around. The message will not be filtered for anyone given.  
+   Either the player name, UUID or `CONSOLE` for the console may be provided.
 	
 #### Beispiele
 
@@ -125,8 +125,8 @@ senders: [
 ]
 ```
 
-Erklärung für JsonPrecisionLevel: Es ist `3`, weil diese Nachricht exakt so ist.  
-Erklärung für `\\.`: Da hier Regex aktiviert ist, müssen wir den Punkt escapen (Ein Backslash davor tun). Und da es JSON ist, müssen wir das Backslash erneut escapen, also zwei Backslashes.
+Explanation for JsonPrecisionLevel: It is `3` because this message is exactly like that.  
+Explanation for `\\.`: Since regex is enabled here, we need to escape the dot (Put a backslash in front of it). And since it is JSON, we need to escape the backslash again, so two backslashes.
 
 ##### Voreinstellung: Gamemode-Change
 
@@ -146,7 +146,7 @@ senders: [
 ]
 ```
 
-Erklärung für JsonPrecisionLevel: Es ist `1`, weil bei `with` die ersten Values des Arrays nur als `{}` angegeben wurden. Weil es `1` ist, wird das, was da eigentlich drin stände, ignoriert.
+Explanation for json precision level: It is `1` because at `with` the first values of the array were given only as `{}`. Because it is `1`, what would actually be in there is ignored.
 
 ##### Voreinstellung: Only Self Commands
 
@@ -187,20 +187,20 @@ senders:
   - CONSOLE
 ```
 
-Erklärung:
+Explanation:
 
-- `excludedReceivers` - Hier wurden die Minecraft-Namen der Spieler angegeben.
-- `excludedSenders` - Hier wurden die Spieler in eckige Klammern anstatt in eine YAML-Liste mit `-` geschrieben. Das kann man machen, allerdings ersetzt es das Plugin beim Neuladen der Config mit der Liste mit `-`.
-- `receivers` - Hier wurden UUIDs anstelle der Spielernamen angegeben.
-- `senders` - Hier wurde nochmal gezeigt, dass auch alle drei Möglichkeiten, Spieler anzugeben, gemeinsam genutzt werden können.
+- `excludedReceivers` - Here the Minecraft names of the players were given.
+- `excludedSenders` - Here the players were written in square brackets instead of a YAML list with `-`. This can be done, but the plugin replaces it with the list with `-` when reloading the config.
+- `receivers` - Here UUIDs were specified instead of player names.
+- `senders` - Here it was shown that all three ways of specifying players can also be used together.
 
-Weitere Infos:
+Additional information:
 
-- Wenn du wirklich der Spieler namens `CONSOLE` bist, musst du leider deine UUID angeben.
-- Ich empfehle die UUIDs anzugeben, da das Plugin bei Namen die UUIDs aus dem Internet abrufen muss. Das kann das Neuladen der Config verlangsamen oder das Plugin unbrauchbar machen, wenn das Plugin aus irgendeinem Grund nicht auf das Internet oder die Website [MC-Heads](https://www.mc-heads.net/) zugreifen kann.
-- Dieses Beispiel ist nicht logisch, da `excludedReceivers` und `receivers` (auch `excludedSenders` und `senders`) angegeben wurde. Es ist nur zu Beispielzwecken gedacht.
+- If you are really the player named 'CONSOLE', unfortunately you have to provide your UUID.
+- I recommend providing the UUIDs, because the plugin has to retrieve the UUIDs from the internet when names are used. This can slow down the reloading of the config or make the plugin unusable if, for some reason, the plugin cannot access the internet or the website [MC-Heads](https://www.mc-heads.net/).
+- This example is not logical because `excludedReceivers` and `receivers` (also `excludedSenders` and `senders`) were provided. It is intended for example purposes only.
 
 ## Schluss
 
-Ich hoffe diese Anleitung war verständlich, sonst melde dich, wie gesagt, gerne via Issue.  
-Viel Spaß mit dem Plugin :)
+I hope this tutorial was understandable, otherwise, as I said, feel free to contact me via an issue.  
+Enjoy the plugin :)

@@ -46,7 +46,7 @@ This plugin has only one command: `/messagehider` (Alias: `/mh`)
 
 The config is located at `plugins/MessageHider/config.yml`.
 
-### Voreinstellungen
+### Presets
 
 When the config is generated for the first time, it looks like this:
 
@@ -62,24 +62,24 @@ presets:
 If you only need the presets, you don't need to worry about `messageFilters`.  
 To enable the presets, you can simply change the `false` to a `true` for the respective preset.
 
-#### IdleTimeout
+#### Idle timeout
 
 If this preset is enabled, you will no longer see messages like  
 *\[Server: The player idle timeout is now X minutes\]*  
 If you change the idle timeout by yourself you will receive the feedback message, but not if the server (the console) or another player changes it. This is extremely useful if you play on a hosting provider like [PloudOS](https://ploudos.com) and don't always want to get this message there.
 
-#### Gamemode-Change
+#### Gamemode change
 
 If this preset is enabled, you will no longer receive the messages when other players change their game mode.
 
-#### Only Self Commands
+#### Only self commands
 
 If this preset is enabled, you only receive feedback messages from your own commands. Unfortunately, this only works in 1.16+, because the method for this does not yet exist in Spigot. 
 
 **For plugin programmers**  
 I do this via the `PacketPlayOutChat` packet. Only starting from the 1.16 there is the field `c` of the type `UUID`. If someone knows how to do this even in deeper versions, feel free to write me!
 
-### Eigene Filter
+### Custom filters
 
 If the preset options are not enough, you can create your own filters. The best way to do this is to start with `/messagehider create`, which will create an empty filter.
 

@@ -88,6 +88,14 @@ public class YamlUtil {
         save();
     }
 
+    public static PresetsData getPresets() {
+        return data.presets;
+    }
+
+    public static List<FilterData> getCustomFilters() {
+        return data.messageFilters;
+    }
+
     public static class YamlData {
 
         private PresetsData presets;

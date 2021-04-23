@@ -31,7 +31,7 @@ Das Plugin an sich hat nur einen Command, nämlich: `/messagehider` (Alias: `/mh
 ### Sub-Commands
 
 - `/messagehider log <start|stop>` - Startet oder stoppt das Loggen von Nachrichten, die zu dir kommen. Das ist nützlich, wenn du neue Filter hinzufügen willst, aber nicht genau weißt, wie die Nachricht genau (in JSON) aussieht.  
-Der Log wird bei `plugins/MessageHider/logs/Name.log` gespeichert und auch beim erneuten Ausführen gelöscht. Natürlich kann man den Log auch manuell löschen.  
+Der Log wird bei `plugins/MessageHider/logs/SPIELERNAME.log` gespeichert und auch beim erneuten Ausführen gelöscht. Natürlich kann man den Log auch manuell löschen.  
 Es werden auch gefilterte Nachrichten geloggt.
 - `/messagehider create` - Erstellt einen neuen leeren Filter. Das ist nützlich, damit man nicht vergisst, etwas einzustellen.
 - `/messagehider reload` - Lädt die Config neu.

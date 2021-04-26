@@ -17,12 +17,18 @@
 First of all: Thank you for using this plugin and reading this tutorial!  
 A few information in advance:
 
-1. In general, if you want to send me anything, please create an issue here. Please get in touch in the following cases:
+- In general, if you want to send me anything, please create an issue here. Please get in touch in the following cases:
 	- If you want to translate this tutorial into another language, which would be very cool! 
 		However, I don't think the plugin needs to be translated, since it has very few messages.
 	- If you have any suggestions on how to improve this guide.
 	- If you experience errors, have questions or general suggestions for improvement.
-2. This plugin collects anonymous server stats with [bStats](https://bstats.org), an open-source statistics service for Minecraft software. If you want you can deactivate this in `plugins/bStats/config.yml`.
+- This plugin collects anonymous server stats with [bStats](https://bstats.org), an open-source statistics service for Minecraft software. If you want you can deactivate this in `plugins/bStats/config.yml`.
+
+Now a few more infos regarding the plugin:
+
+- With this plugin you can hide certain messages from players. There are [Presets](#presets), but you can also create custom filters. I recommend reading this tutorial previously so that you don't accidentally deactivate all messages.
+- You cannot hide messages from the console.
+- If you receive a multiline message, unfortunately you can't hide them together, you have to create multiple filters. This is the case, for example, if you enter a Vanilla command incorrectly.
 
 ## Commands
 

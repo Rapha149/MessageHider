@@ -11,6 +11,7 @@
 		+ [Only self commands](#only-self-commands)
 	- [Custom filters](#custom-filters)
 		+ [Examples](#examples)
+	- [Additional information](#additional-information)
 	
 ## Allgemein
 
@@ -200,7 +201,7 @@ Explanation:
 - `receivers` - Here UUIDs were specified instead of player names.
 - `senders` - Here it was shown that all three ways of specifying players can also be used together.
 
-Additional information:
+#### Additional information
 
 - I recommend providing the UUIDs, because the plugin has to retrieve the UUIDs from the internet when names are used. This can slow down the reloading of the config or make the plugin unusable if, for some reason, the plugin cannot access the internet or the website [MC-Heads](https://www.mc-heads.net/).
 - If the server's online mode is set to `false` the plugin will not validate UUIDs. If UUIDs are provided it will compare these, but if names are provided it will compare names with names.

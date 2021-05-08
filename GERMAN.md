@@ -17,13 +17,19 @@
 Erst mal: Danke, dass du dieses Plugin nutzt und auch diese Anleitung durchließt!  
 Ein paar Infos vorab:  
 
-1. Allgemein, wenn du mir etwas mitteilen möchtest, erstelle bitte ein Issue hier.
+- Allgemein, wenn du mir etwas mitteilen möchtest, erstelle bitte ein Issue hier.
    Bitte melde dich in folgenden Fällen:
 	- Wenn du diese Anleitung in eine andere Sprache übersetzen willst, was ich sehr cool fände!   
 		Das Plugin muss aber denke ich nicht übersetzt werden, da es nur sehr wenige Nachrichten hat.
 	- Wenn du Anregungen hast, wie man diese Anleitung verbessern kann.
 	- Wenn du Fehler findest, Fragen oder allgemein Verbesserungsvorschläge hast.
-2. Dieses Plugin sammelt anonyme Serverstatistiken via [bStats](https://bstats.org), einen Open-Source-Statistikdienst für Minecraft-Software. Wenn du dies deaktivieren möchtest, kannst du die Datei `plugins/bStats/config.yml` bearbeiten.
+- Dieses Plugin sammelt anonyme Serverstatistiken via [bStats](https://bstats.org), einen Open-Source-Statistikdienst für Minecraft-Software. Wenn du dies deaktivieren möchtest, kannst du die Datei `plugins/bStats/config.yml` bearbeiten.
+
+Jetzt noch ein paar Infos zum Plugin:
+
+- Mit diesem Plugin kannst du bestimmte Nachrichten vor Spielern verstecken. Dafür gibt es einerseits [Voreinstellungen](#voreinstellungen), du kannst aber auch eigene Filter erstellen. Vorher solltest du dir diese Anleitung aber gut durchlesen, damit du nicht versehentlich alle Nachrichten deaktivierst.
+- Du kannst mit diesem Plugin keine Nachrichten vor der Konsole verstecken.
+- Wenn du eine mehrzeilige Nachricht bekommst, kannst du diese leider nicht zusammen verstecken, sondern musst mehrere Filter erstellen. Dies ist zum Beispiel der Fall, wenn du einen Vanilla-Command falsch eingibst.
 
 ## Commands
 

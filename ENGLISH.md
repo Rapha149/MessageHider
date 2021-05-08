@@ -102,14 +102,14 @@ There are the following settings: (They are sorted differently here than in the 
 - `regex (true/false)` - If enabled, the plain message or JSON values are inspected according to regex. A guide to regex is available at [RegExr](https://regexr.com/). Note: Punctuation characters like dots are interpreted differently when regex is enabled. You can prevent this with a `\` in front of it. More info on RegExr.
 - `onlyHideForOtherPlayers (true/false)` - If enabled, messages you have sent yourself will not be filtered for you. (1.16+)
 - `message (text)` - The message to filter for. If JSON is enabled, in JSON format.
-- `senders (list)` - If left blank it will be ignored. If at least one player is given, only messages sent by the given players will be filtered with this filter. (1.16+)  
-	Either the player name, UUID or `CONSOLE` for the console may be provided.
+- `senders (list)` - If left empty it will be ignored. If at least one player is given, only messages sent by the given players will be filtered with this filter. (1.16+)  
+	Either the player name, UUID or `<console>` for the console may be provided.
 - `excludedSenders (list)` - Just like `senders`, only the other way around. From anyone given, sent messages will not be filtered with this filter. (1.16+)  
-	Either the player name, UUID or `CONSOLE` for the console may be provided.
-- `receivers (list)` - If left blank it will be ignored. If at least one player is given, the message will be filtered only for the given players.  
-   Either the player name, UUID or `CONSOLE` for the console may be provided.
+	Either the player name, UUID or `<console>` for the console may be provided.
+- `receivers (list)` - If left empty it will be ignored. If at least one player is given, the message will be filtered only for the given players.  
+   Either the player name, UUID or `<console>` for the console may be provided.
 - `excludedReceivers (list)` - Just like `receivers`, only the other way around. The message will not be filtered for anyone given.  
-   Either the player name, UUID or `CONSOLE` for the console may be provided.
+   Either the player name, UUID or `<console>` for the console may be provided.
 	
 #### Examples
 
@@ -202,8 +202,8 @@ Explanation:
 
 Additional information:
 
-- If you are really the player named 'CONSOLE', unfortunately you have to provide your UUID.
 - I recommend providing the UUIDs, because the plugin has to retrieve the UUIDs from the internet when names are used. This can slow down the reloading of the config or make the plugin unusable if, for some reason, the plugin cannot access the internet or the website [MC-Heads](https://www.mc-heads.net/).
+- If the server's online mode is set to `false` the plugin will not validate UUIDs. If UUIDs are provided it will compare these, but if names are provided it will compare names with names.
 - This example is not logical because `excludedReceivers` and `receivers` (also `excludedSenders` and `senders`) were provided. It is intended for example purposes only.
 
 ## Final words

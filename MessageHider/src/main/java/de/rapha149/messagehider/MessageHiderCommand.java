@@ -125,7 +125,7 @@ public class MessageHiderCommand implements CommandExecutor, TabCompleter {
 
     public static void log(UUID uuid, UUID sender, String plain, String json, boolean hidden) {
         write(uuid, format.format(new Date()) + (hidden ? " (Hidden)" : "") +
-                (sender != null ? "\nSent from: " + (sender.equals(Main.ZERO_UUID) ? "CONSOLE" : sender) : "") +
+                (sender != null ? "\nSent from: " + (sender.equals(Main.ZERO_UUID) ? "<console>" : sender) : "") +
                 "\nPlain: " + plain + "\nJSON: " + json);
     }
 

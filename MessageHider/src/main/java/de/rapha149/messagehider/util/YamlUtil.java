@@ -6,6 +6,7 @@ import com.google.gson.JsonParser;
 import de.rapha149.messagehider.Main;
 import de.rapha149.messagehider.util.YamlUtil.YamlData.FilterData;
 import de.rapha149.messagehider.util.YamlUtil.YamlData.PresetsData;
+import org.bukkit.Bukkit;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.DumperOptions.FlowStyle;
 import org.yaml.snakeyaml.Yaml;
@@ -54,9 +55,9 @@ public class YamlUtil {
         });
 
         PresetsData presets = data.presets;
-        if(presets.gamemodeChange && Presets.GAMEMODE_CHANGE == null)
+        if (presets.gamemodeChange && Presets.GAMEMODE_CHANGE == null)
             Main.getInstance().getLogger().warning("You enabled the preset 'gamemodeChange' but it is not suitable for this server version.");
-        if(presets.onlySelfCommands && Presets.ONLY_SELF_COMMANDS == null)
+        if (presets.onlySelfCommands && Presets.ONLY_SELF_COMMANDS == null)
             Main.getInstance().getLogger().warning("You enabled the preset 'onlySelfCommands' but it is not suitable for this server version.");
 
         uuidCache.clear();
@@ -73,11 +74,11 @@ public class YamlUtil {
         List<FilterData> filters = new ArrayList<>(data.messageFilters);
 
         PresetsData presets = data.presets;
-        if(presets.idleTimeout)
+        if (presets.idleTimeout)
             filters.add(Presets.IDLE_TIMEOUT);
-        if(presets.gamemodeChange && Presets.GAMEMODE_CHANGE != null)
+        if (presets.gamemodeChange && Presets.GAMEMODE_CHANGE != null)
             filters.add(Presets.GAMEMODE_CHANGE);
-        if(presets.onlySelfCommands && Presets.ONLY_SELF_COMMANDS != null)
+        if (presets.onlySelfCommands && Presets.ONLY_SELF_COMMANDS != null)
             filters.add(Presets.ONLY_SELF_COMMANDS);
 
         return filters;
@@ -310,26 +311,28 @@ public class YamlUtil {
             try {
                 uuids.add(UUID.fromString(player));
             } catch (IllegalArgumentException e) {
-                if (uuidCache.containsKey(player))
-                    uuids.add(uuidCache.get(player));
-                else {
-                    UUID uuid = null;
-                    if (player.equals("CONSOLE"))
-                        uuid = Main.ZERO_UUID;
-                    else if (!player.isEmpty()) {
-                        try {
-                            uuid = getUUID(player);
-                            if (uuid == null)
-                                Main.getInstance().getLogger().warning(player + " is not a valid player.");
-                        } catch (IOException e1) {
-                            e1.printStackTrace();
-                        }
-                    } else
-                        Main.getInstance().getLogger().warning("You specified an empty player name.");
+                if (Bukkit.getOnlineMode()) {
+                    if (uuidCache.containsKey(player))
+                        uuids.add(uuidCache.get(player));
+                    else {
+                        UUID uuid = null;
+                        if (player.equals("<console>"))
+                            uuid = Main.ZERO_UUID;
+                        else if (!player.isEmpty()) {
+                            try {
+                                uuid = getUUID(player);
+                                if (uuid == null)
+                                    Main.getInstance().getLogger().warning(player + " is not a valid player.");
+                            } catch (IOException e1) {
+                                e1.printStackTrace();
+                            }
+                        } else
+                            Main.getInstance().getLogger().warning("You specified an empty player name.");
 
-                    if (uuid != null) {
-                        uuidCache.put(player, uuid);
-                        uuids.add(uuid);
+                        if (uuid != null) {
+                            uuidCache.put(player, uuid);
+                            uuids.add(uuid);
+                        }
                     }
                 }
             }

@@ -62,16 +62,32 @@ public class Events implements Listener {
                         UUID receiver = player.getUniqueId();
                         for (FilterData filter : YamlUtil.getFilters()) {
                             if (sender != null) {
-                                if (!filter.getSenderUUIDs().isEmpty() && !filter.getSenderUUIDs().contains(sender))
-                                    continue;
-                                if (filter.getExcludedSenderUUIDs().contains(sender))
-                                    continue;
+                                String name = sender.equals(Main.ZERO_UUID) ? "<console>" : Bukkit.getPlayer(sender).getName();
+                                if (!Bukkit.getOnlineMode()) {
+                                    if (!filter.getSenders().isEmpty() && !filter.getSenders().contains(sender.toString()) && !filter.getSenders().contains(name))
+                                        continue;
+                                    if (filter.getExcludedSenders().contains(name))
+                                        continue;
+                                } else {
+                                    if (!filter.getSenderUUIDs().isEmpty() && !filter.getSenderUUIDs().contains(sender))
+                                        continue;
+                                    if (filter.getExcludedSenderUUIDs().contains(sender))
+                                        continue;
+                                }
                             }
 
-                            if (!filter.getReceiverUUIDs().isEmpty() && !filter.getReceiverUUIDs().contains(receiver))
-                                continue;
-                            if (filter.getExcludedReceiverUUIDs().contains(receiver))
-                                continue;
+                            String name = receiver.equals(Main.ZERO_UUID) ? "<console>" : Bukkit.getPlayer(receiver).getName();
+                            if (!Bukkit.getOnlineMode()) {
+                                if (!filter.getReceivers().isEmpty() && !filter.getReceivers().contains(receiver.toString()) && !filter.getReceivers().contains(name))
+                                    continue;
+                                if (filter.getExcludedReceivers().contains(name))
+                                    continue;
+                            } else {
+                                if(!filter.getReceiverUUIDs().isEmpty() && !filter.getReceiverUUIDs().contains(receiver))
+                                    continue;
+                                if (filter.getExcludedReceiverUUIDs().contains(receiver))
+                                    continue;
+                            }
 
                             if (sender != null && sender.equals(receiver) && filter.isOnlyHideForOtherPlayers())
                                 continue;

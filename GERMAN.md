@@ -11,6 +11,7 @@
 		+ [Only Self Commands](#only-self-commands)
 	- [Eigene Filter](#eigene-filter)
 		+ [Beispiele](#beispiele)
+	- [Weitere Infos](#weitere-infos)
 	
 ## Allgemein
 
@@ -201,7 +202,7 @@ Erklärung:
 - `receivers` - Hier wurden UUIDs anstelle der Spielernamen angegeben.
 - `senders` - Hier wurde nochmal gezeigt, dass auch alle drei Möglichkeiten, Spieler anzugeben, gemeinsam genutzt werden können.
 
-Weitere Infos:
+#### Weitere Infos
 
 - Ich empfehle die UUIDs anzugeben, da das Plugin bei Namen die UUIDs aus dem Internet abrufen muss. Das kann das Neuladen der Config verlangsamen oder das Plugin unbrauchbar machen, wenn das Plugin aus irgendeinem Grund nicht auf das Internet oder die Website [MC-Heads](https://www.mc-heads.net/) zugreifen kann.
 - Wenn der Onlinemode des Servers auf `false` ist, vergleicht das Plugin die Namen nicht mit UUIDs. Wenn bei UUIDs angegeben wurden, vergleicht es diese, wenn aber Namen angegeben wurden, werden Namen mit Namen verglichen.

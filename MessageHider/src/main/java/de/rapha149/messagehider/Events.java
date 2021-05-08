@@ -6,6 +6,9 @@ import de.rapha149.messagehider.util.ReflectionUtil.Param;
 import de.rapha149.messagehider.util.YamlUtil;
 import de.rapha149.messagehider.util.YamlUtil.YamlData.FilterData;
 import io.netty.channel.*;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -45,9 +48,17 @@ public class Events implements Listener {
                 try {
                     if (msg.getClass() == ReflectionUtil.getClass(true, "PacketPlayOutChat")) {
                         Object component = ReflectionUtil.getField(msg, "a");
-                        String json = (String) ReflectionUtil.invokeStaticMethod(true, "IChatBaseComponent$ChatSerializer",
-                                "a", new Param(true, "IChatBaseComponent", component));
-                        String plain = (String) ReflectionUtil.invokeMethod(component, ReflectionUtil.TO_PLAIN_TEXT);
+                        String json;
+                        String plain;
+                        if (component != null) {
+                            json = (String) ReflectionUtil.invokeStaticMethod(true, "IChatBaseComponent$ChatSerializer",
+                                    "a", new Param(true, "IChatBaseComponent", component));
+                            plain = (String) ReflectionUtil.invokeMethod(component, ReflectionUtil.TO_PLAIN_TEXT);
+                        } else {
+                            BaseComponent[] components = (BaseComponent[]) ReflectionUtil.getField(msg, "components");
+                            json = ComponentSerializer.toString(components);
+                            plain = new TextComponent(components).toPlainText();
+                        }
 
                         UUID sender = null;
                         for (Field field : msg.getClass().getDeclaredFields()) {
@@ -83,7 +94,7 @@ public class Events implements Listener {
                                 if (filter.getExcludedReceivers().contains(name))
                                     continue;
                             } else {
-                                if(!filter.getReceiverUUIDs().isEmpty() && !filter.getReceiverUUIDs().contains(receiver))
+                                if (!filter.getReceiverUUIDs().isEmpty() && !filter.getReceiverUUIDs().contains(receiver))
                                     continue;
                                 if (filter.getExcludedReceiverUUIDs().contains(receiver))
                                     continue;

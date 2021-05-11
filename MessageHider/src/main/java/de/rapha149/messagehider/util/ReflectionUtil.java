@@ -1,5 +1,6 @@
 package de.rapha149.messagehider.util;
 
+import de.rapha149.messagehider.Updates;
 import org.bukkit.Bukkit;
 
 import java.lang.reflect.Constructor;
@@ -25,39 +26,15 @@ public class ReflectionUtil {
             craftbukkitPackage = "org.bukkit.craftbukkit." + version + ".";
             nmsPackage = "net.minecraft.server." + version + ".";
 
-            if (isVersionAboveOrEqualTo("1.13"))
+            if (Updates.isBukkitVersionAboveOrEqualTo("1.13"))
                 TO_PLAIN_TEXT = "getString";
-            else if (isVersionAboveOrEqualTo("1.9"))
+            else if (Updates.isBukkitVersionAboveOrEqualTo("1.9"))
                 TO_PLAIN_TEXT = "toPlainText";
-            else if (isVersionAboveOrEqualTo("1.8"))
+            else if (Updates.isBukkitVersionAboveOrEqualTo("1.8"))
                 TO_PLAIN_TEXT = "c";
             return true;
         }
         return false;
-    }
-
-    public static boolean isVersionAboveOrEqualTo(String version) {
-        Matcher matcher = Pattern.compile("\\d+\\.\\d+\\.\\d+").matcher(Bukkit.getVersion());
-        if (matcher.find()) {
-            int result = 0;
-
-            String[] split1 = matcher.group().split("\\.");
-            String[] split2 = version.split("\\.");
-            int max = Math.max(split1.length, split2.length);
-
-            for (int i = 0; i < max; i++) {
-                Integer v1 = i < split1.length ? Integer.parseInt(split1[i]) : 0;
-                Integer v2 = i < split2.length ? Integer.parseInt(split2[i]) : 0;
-                int compare = v1.compareTo(v2);
-                if (compare != 0) {
-                    result = compare;
-                    break;
-                }
-            }
-
-            return result >= 0;
-        } else
-            return false;
     }
 
     public static Class<?> getClass(boolean nms, String className) {

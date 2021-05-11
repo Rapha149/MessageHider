@@ -5,6 +5,7 @@
 1. [Allgemein](#allgemein)
 2. [Commands](#commands)
 3. [Config](#config)
+    - [Verschiedenes](#verschiedenes)
 	- [Voreinstellungen](#voreinstellungen)
 		+ [IdleTimeout](#idletimeout)
 		+ [Gamemode-Change](#gamemode-change)
@@ -53,19 +54,26 @@ Es werden auch gefilterte Nachrichten geloggt.
 ## Config
 
 Die Config befindet sich bei `plugins/MessageHider/config.yml`.
-
-### Voreinstellungen
-
 Wenn die Config das erste mal generiert wird, sieht sie so aus:
 
 ```yml
-messageFilters: [  
-]  
-presets:  
-  gamemodeChange: false  
-  idleTimeout: false  
+checkForUpdates: true
+messageFilters: [
+  ]
+prefix: '&8[&cMH&8] '
+presets:
+  gamemodeChange: false
+  idleTimeout: false
   onlySelfCommands: false
 ```
+
+### Verschiedenes
+
+- `checkForUpdates`: Wenn aktiviert wird beim Enablen des Plugins und wenn man als Operator dem Server joined geprüft, ob das Plugin aktuell ist. Wenn es nicht aktuell ist, wird eine Nachricht in die Konsole bzw. an den Spieler gesendet.
+- `prefix`: Der Prefix des Plugins, wird allen Nachrichten vorangestellt.  
+  Zum Beispiel: *[MH] The config was reloaded.*
+
+### Voreinstellungen
 
 Wenn du nur die Voreinstellungen (Presets) brauchst, brauchst du dich um `messageFilters` nicht zu kümmern.  
 Um die Voreinstellungen zu aktivieren, kannst du einfach bei der jeweiligen Voreinstellung das `false` zu einem `true` machen.

@@ -5,6 +5,7 @@
 1. [General](#general)
 2. [Commands](#commands)
 3. [Config](#config)
+    - [Miscellaneous](#miscellaneous)
 	- [Presets](#presets)
 		+ [Idle timeout](#idle-timeout)
 		+ [Gamemode change](#gamemode-change)
@@ -52,19 +53,26 @@ This plugin has only one command: `/messagehider` (Alias: `/mh`)
 ## Config
 
 The config is located at `plugins/MessageHider/config.yml`.
-
-### Presets
-
 When the config is generated for the first time, it looks like this:
 
 ```yml
-messageFilters: [  
-]  
-presets:  
-  gamemodeChange: false  
-  idleTimeout: false  
-  onlySelfCommands: false
+checkForUpdates: true
+messageFilters: [
+]
+prefix: '&8[&cMH&8] '
+presets:
+	gamemodeChange: false
+	idleTimeout: false
+	onlySelfCommands: false
 ```
+
+### Miscellaneous
+
+- `checkForUpdates` - If enabled the plugins checks for updates everytime it's loaded or an operator joins the game. If it's not up to date a message will be sent to the console or the player respectively.
+- `prefix` - The prefix of the plugin, precedes all messages.  
+For example: *[MH] The config was reloaded.*
+
+### Presets
 
 If you only need the presets, you don't need to worry about `messageFilters`.  
 To enable the presets, you can simply change the `false` to a `true` for the respective preset.

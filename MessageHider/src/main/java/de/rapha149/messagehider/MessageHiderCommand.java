@@ -92,10 +92,8 @@ public class MessageHiderCommand implements CommandExecutor, TabCompleter {
                         sender.sendMessage("§cYou don't have enough permissions for this.");
                     break;
             }
-        } else {
-            sender.sendMessage("§cPlease use §7/" + alias + " <log|create|reload>§c.");
-            Bukkit.getScheduler().runTask(Main.getInstance(), () -> sender.sendMessage("test"));
-        }
+        } else
+            sender.sendMessage(YamlUtil.getPrefix() + "§cPlease use §7/" + alias + " <log|create|reload>§c.");
         return true;
     }
 

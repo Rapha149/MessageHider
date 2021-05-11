@@ -7,6 +7,7 @@ import de.rapha149.messagehider.Main;
 import de.rapha149.messagehider.util.YamlUtil.YamlData.FilterData;
 import de.rapha149.messagehider.util.YamlUtil.YamlData.PresetsData;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.DumperOptions.FlowStyle;
 import org.yaml.snakeyaml.Yaml;
@@ -89,6 +90,14 @@ public class YamlUtil {
         save();
     }
 
+    public static boolean shouldCheckForUpdates() {
+        return data.checkForUpdates;
+    }
+
+    public static String getPrefix() {
+        return data.translatedPrefix;
+    }
+
     public static PresetsData getPresets() {
         return data.presets;
     }
@@ -99,12 +108,36 @@ public class YamlUtil {
 
     public static class YamlData {
 
+        private boolean checkForUpdates;
+        private String prefix;
         private PresetsData presets;
         private List<FilterData> messageFilters;
 
+        private transient String translatedPrefix;
+
         public YamlData() {
+            checkForUpdates = true;
+            prefix = "&8[&cMH&8] ";
+            translatedPrefix = ChatColor.translateAlternateColorCodes('&', prefix);
             presets = new PresetsData();
             messageFilters = new ArrayList<>();
+        }
+
+        public boolean isCheckForUpdates() {
+            return checkForUpdates;
+        }
+
+        public void setCheckForUpdates(boolean checkForUpdates) {
+            this.checkForUpdates = checkForUpdates;
+        }
+
+        public String getPrefix() {
+            return prefix;
+        }
+
+        public void setPrefix(String prefix) {
+            this.prefix = prefix;
+            translatedPrefix = ChatColor.translateAlternateColorCodes('&', prefix);
         }
 
         public PresetsData getPresets() {

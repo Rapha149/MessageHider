@@ -27,6 +27,7 @@ public class Updates {
 
     public static String getAvailableVersion(boolean warning) {
         if (System.currentTimeMillis() > lastFetched + 7200000) {
+            Main main = Main.getInstance();
             try {
                 String version;
 
@@ -40,8 +41,8 @@ public class Updates {
                     else
                         throw new IllegalStateException("JsonElement is not JsonObject");
                 } catch (ConnectException e) {
-                    if(warning)
-                        Main.getInstance().getLogger().warning("Could not access http://spiget.org/, instead legacy spigot api is used to check for updates.");
+                    if (warning)
+                        main.getLogger().warning("Could not access https://spiget.org/, instead legacy spigot api is used to check for updates.");
 
                     URLConnection conn = new URL("https://api.spigotmc.org/legacy/update.php?resource=" + RESOURCE_ID).openConnection();
                     conn.addRequestProperty("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:86.0) Gecko/20100101 Firefox/86.0");
@@ -49,10 +50,12 @@ public class Updates {
                     version = new BufferedReader(new InputStreamReader(conn.getInputStream())).readLine();
                 }
 
-                String result = compare(Main.getInstance().getDescription().getVersion(), version) < 0 ? version : null;
+                String result = compare(main.getDescription().getVersion(), version) < 0 ? version : null;
                 lastFetched = System.currentTimeMillis();
                 lastResult = result;
                 return result;
+            } catch (ConnectException e) {
+                main.getLogger().warning("Could not access https://spigotmc.org/ to check for updates.");
             } catch (IOException e) {
                 e.printStackTrace();
             }

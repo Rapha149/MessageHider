@@ -40,56 +40,56 @@ public class MessageHiderCommand implements CommandExecutor, TabCompleter {
                                             File file = new File(Main.getInstance().getDataFolder(), "logs/" + player.getName() + ".log");
                                             if (!file.getParentFile().exists())
                                                 file.getParentFile().mkdirs();
-                                            if(file.exists())
+                                            if (file.exists())
                                                 file.delete();
 
                                             logging.put(uuid, file);
                                             write(uuid, format.format(new Date()) + "\nStarted logging");
-                                            player.sendMessage("§aYou are now logging messages sent to you." +
+                                            player.sendMessage(YamlUtil.getPrefix() + "§aYou are now logging messages sent to you." +
                                                     "\n§2Use §7/" + alias + " stop §2to stop logging.");
                                         } else
-                                            player.sendMessage("§6You are already logging messages.");
+                                            player.sendMessage(YamlUtil.getPrefix() + "§6You are already logging messages.");
                                         break;
                                     case "stop":
                                         if (logging.containsKey(uuid)) {
-                                            player.sendMessage("§bStopped logging." +
+                                            player.sendMessage(YamlUtil.getPrefix() + "§bStopped logging." +
                                                     "\n§3Logged messages can be found in §7" + logging.get(uuid).getPath() + "§3.");
                                             write(uuid, format.format(new Date()) + "\nStopped logging\n");
                                             logging.remove(uuid);
                                         } else
-                                            player.sendMessage("§6You weren't logging messages.");
+                                            player.sendMessage(YamlUtil.getPrefix() + "§6You weren't logging messages.");
                                         break;
                                 }
                             } else
-                                player.sendMessage("§cPlease use §7/" + alias + " log <start|stop>§c.");
+                                player.sendMessage(YamlUtil.getPrefix() + "§cPlease use §7/" + alias + " log <start|stop>§c.");
                         } else
-                            player.sendMessage("§cYou don't have enough permissions for this.");
+                            player.sendMessage(YamlUtil.getPrefix() + "§cYou don't have enough permissions for this.");
                     } else
-                        sender.sendMessage("§cOnly possible for players.");
+                        sender.sendMessage(YamlUtil.getPrefix() + "§cOnly possible for players.");
                     break;
                 case "create":
                     if (sender.hasPermission("messagehider.create")) {
                         try {
                             YamlUtil.addFilter(new FilterData());
-                            sender.sendMessage("§2An empty filter was created.");
+                            sender.sendMessage(YamlUtil.getPrefix() + "§2An empty filter was created.");
                         } catch (IOException e) {
                             e.printStackTrace();
-                            sender.sendMessage("§cAn error occurred.");
+                            sender.sendMessage(YamlUtil.getPrefix() + "§cAn error occurred.");
                         }
                     } else
-                        sender.sendMessage("§cYou don't have enough permissions for this.");
+                        sender.sendMessage(YamlUtil.getPrefix() + "§cYou don't have enough permissions for this.");
                     break;
                 case "reload":
                     if (sender.hasPermission("messagehider.reload")) {
                         try {
                             YamlUtil.load();
-                            sender.sendMessage("§2The config was reloaded.");
+                            sender.sendMessage(YamlUtil.getPrefix() + "§2The config was reloaded.");
                         } catch (IOException e) {
                             e.printStackTrace();
-                            sender.sendMessage("§cAn error occurred.");
+                            sender.sendMessage(YamlUtil.getPrefix() + "§cAn error occurred.");
                         }
                     } else
-                        sender.sendMessage("§cYou don't have enough permissions for this.");
+                        sender.sendMessage(YamlUtil.getPrefix() + "§cYou don't have enough permissions for this.");
                     break;
             }
         } else

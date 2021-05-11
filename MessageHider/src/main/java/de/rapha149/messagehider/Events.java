@@ -6,8 +6,7 @@ import de.rapha149.messagehider.util.ReflectionUtil.Param;
 import de.rapha149.messagehider.util.YamlUtil;
 import de.rapha149.messagehider.util.YamlUtil.YamlData.FilterData;
 import io.netty.channel.*;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.*;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -26,7 +25,22 @@ public class Events implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        addHandler(event.getPlayer());
+        Player player = event.getPlayer();
+        addHandler(player);
+
+        if (player.isOp() && YamlUtil.shouldCheckForUpdates()) {
+            String version = Updates.getAvailableVersion();
+            if (version != null) {
+                player.sendMessage(YamlUtil.getPrefix() + "§6There's a new version available for this plugin: §7" + version);
+                player.spigot().sendMessage(new ComponentBuilder(YamlUtil.getPrefix() + "§6You can download it from ")
+                        .append("§3SpigotMC").event(new ClickEvent(ClickEvent.Action.OPEN_URL, Updates.SPIGOT_URL))
+                        .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("§3Click here to view the plugin on SpigotMC").create()))
+                        .append(" §6or ").reset()
+                        .append("§3BukkitDev")/*.event(new ClickEvent(ClickEvent.Action.OPEN_URL, Updates.BUKKIT_URL))*/
+                        .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("§7Not available yet").create()))
+                        .append("§6.").create());
+            }
+        }
     }
 
     public void reloadHandlers() {

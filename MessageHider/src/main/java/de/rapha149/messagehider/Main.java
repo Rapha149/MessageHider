@@ -43,6 +43,15 @@ public class Main extends JavaPlugin {
 
         new MessageHiderCommand(getCommand("messagehider"));
         manager.registerEvents(events = new Events(), this);
+
+        if (YamlUtil.shouldCheckForUpdates()) {
+            String version = Updates.getAvailableVersion(true);
+            if (version != null) {
+                getLogger().warning("There's a new version available for this plugin: " + version + "." +
+                        " You can download it from " + Updates.SPIGOT_URL + " or BukkitDev (not available yet).");
+            }
+        }
+
         getLogger().info("Plugin successfully enabled!");
     }
 

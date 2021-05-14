@@ -33,10 +33,11 @@ public class Events implements Listener {
                 player.sendMessage(YamlUtil.getPrefix() + "§6There's a new version available for this plugin: §7" + version);
                 player.spigot().sendMessage(new ComponentBuilder(YamlUtil.getPrefix() + "§6You can download it from ")
                         .append("§3SpigotMC").event(new ClickEvent(ClickEvent.Action.OPEN_URL, Updates.SPIGOT_URL))
-                        .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("§3Click here to view the plugin on SpigotMC").create()))
+                        .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("§3Click here to view the plugin on SpigotMC.").create()))
                         .append(" §6or ").reset()
-                        .append("§3BukkitDev")/*.event(new ClickEvent(ClickEvent.Action.OPEN_URL, Updates.BUKKIT_URL))*/
-                        .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("§7Not available yet").create()))
+                        .append("§3BukkitDev").event(new ClickEvent(ClickEvent.Action.OPEN_URL, Updates.BUKKIT_URL))
+                        .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("§3Click here to view the plugin on BukkitDev." +
+                                "\n§7It may take a few hours until the update is approved there.").create()))
                         .append("§6.").create());
             }
         }

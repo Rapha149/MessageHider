@@ -50,7 +50,8 @@ public class Main extends JavaPlugin {
                 getLogger().info("Your version of this plugin is up to date!");
             else {
                 getLogger().warning("There's a new version available for this plugin: " + version + "." +
-                        " You can download it from " + Updates.SPIGOT_URL + " or BukkitDev (not available yet).");
+                        " Download urls:\n- SpigotMC: " + Updates.SPIGOT_URL +
+                        "\n- BukkitDev: " + Updates.BUKKIT_URL + " (It may take a few hours until the update is approved there).");
             }
         }
 

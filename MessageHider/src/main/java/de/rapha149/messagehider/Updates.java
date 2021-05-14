@@ -15,8 +15,8 @@ import java.util.regex.Pattern;
 
 public class Updates {
 
-    public static final String SPIGOT_URL = "https://www.spigotmc.org/resources/messagehider.91661/";
-    public static final String BUKKIT_URL = null;
+    public static final String SPIGOT_URL = "https://www.spigotmc.org/resources/messagehider.91661";
+    public static final String BUKKIT_URL = "https://dev.bukkit.org/projects/messagehider";
     private static final int RESOURCE_ID = 91661;
     private static String lastResult;
     private static long lastFetched = 0;

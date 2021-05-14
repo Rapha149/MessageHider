@@ -13,7 +13,7 @@
 	- [Eigene Filter](#eigene-filter)
 		+ [Beispiele](#beispiele)
 	- [Weitere Infos](#weitere-infos)
-	
+
 ## Allgemein
 
 Erst mal: Danke, dass du dieses Plugin nutzt und auch diese Anleitung durchließt!  
@@ -39,17 +39,19 @@ Das Plugin an sich hat nur einen Command, nämlich: `/messagehider` (Alias: `/mh
 
 ### Sub-Commands
 
+- `/messagehider reload` - Lädt die Config neu.
 - `/messagehider log <start|stop>` - Startet oder stoppt das Loggen von Nachrichten, die zu dir kommen. Das ist nützlich, wenn du neue Filter hinzufügen willst, aber nicht genau weißt, wie die Nachricht (in JSON) aussieht.  
 Der Log wird bei `plugins/MessageHider/logs/SPIELERNAME.log` gespeichert und auch beim erneuten Ausführen gelöscht. Natürlich kann man den Log auch manuell löschen.  
 Es werden auch gefilterte Nachrichten geloggt.
 - `/messagehider create` - Erstellt einen neuen leeren Filter. Das ist nützlich, damit man nicht vergisst, etwas einzustellen.
-- `/messagehider reload` - Lädt die Config neu.
+- `/messagehider check <json|plain> <Filter-IDs> <Nachricht>` - Mit diesem Sub-Command kannst du schauen, ob eine Nachricht versteckt werden würde. Hierzu kannst du angeben, ob du eine JSON oder eine Plain-Nachricht angibst und du kannst die IDs von den Filtern angeben, mit denen das Plugin die Nachricht überprüfen soll. Wenn die Nachricht durch alle Filter laufen soll, gebe einen Bindestrich an. Beachte, dass das Plugin in diesem Prozess nicht nach den Receivern und Sendern filtert, da dies unlogisch wäre.
 
 ### Permissions
 
+- `/messagehider reload` - messagehider.reload
 - `/messagehider log` - messagehider.log
 - `/messagehider create` - messagehider.create
-- `/messagehider reload` - messagehider.reload
+- `/messagehider check` - messagehider.check
 
 ## Config
 
@@ -101,6 +103,7 @@ Wenn einem die Voreinstellungs-Möglichkeiten nicht reichen, kann man sich selbe
 
 Es gibt folgende Einstellungen: (Sie sind hier anders sortiert als in der Config, weil es in der Config alphabetisch ist)
 
+- `id (Text)` - Die ID von dem Filter. Dies wird nur `/messagehider check` benutzt, wenn du die ID nicht brauchst, kannst du es einfach bei `null` lassen. Du kannst bei mehreren Filtern dieselbe ID angeben, allerdings ist dies nicht zu empfehlen. Für die ID dürfen nur normale Buchstaben, Zahlen und Unterstriche verwendet werden.
 - `json (true/false)` - Wenn aktiviert, wird die angegebene Filter-Nachricht als JSON interpretiert. Wenn nicht, wird sie als Plain-Message interpretiert, das kann auch eine Lang-Nachricht von Mojang sein. (z.B: `commands.setidletimeout.success`)
 - `jsonPrecisionLevel (Nummer)` - Nur wenn JSON aktiviert, Nummern:
 	+ `0`: Es werden nur die Schlüsselwörter überprüft, die auf beiden Seiten (in der angegebenen Nachricht und in der Nachricht, die gesendet wurde) existieren.
@@ -120,7 +123,7 @@ Es gibt folgende Einstellungen: (Sie sind hier anders sortiert als in der Config
   Es kann entweder der Spielername, die UUID oder `CONSOLE` für die Konsole angegeben werden.
 - `excludedReceivers (Liste)` - So wie `receivers`, nur andersrum. Die Nachricht wird für jeden, der hier drin steht, nicht gefiltert.  
   Es kann entweder der Spielername, die UUID oder `CONSOLE` für die Konsole angegeben werden.
-	
+
 #### Beispiele
 
 ##### Voreinstellung: IdleTimeout (Version für 1.13+)
@@ -130,6 +133,7 @@ excludedReceivers: [
 ]
 excludedSenders: [
 ]
+id: idle_timeout
 json: true
 jsonPrecisionLevel: 3
 message: '{"italic": true, "color": "gray", "translate": "chat\\.type\\.admin", "with": [{"text": "Server"}, {"translate": "commands\\.setidletimeout\\.success", "with": ["\\d+"]}]}'
@@ -151,6 +155,7 @@ excludedReceivers: [
 ]
 excludedSenders: [
 ]
+id: gamemode_change
 json: true
 jsonPrecisionLevel: 1
 message: '{"italic": true, "color": "gray", "translate": "chat\\.type\\.admin", "with": [{},{"translate": "commands\\.gamemode\\.success\\.\\w+"}]}'
@@ -171,6 +176,7 @@ excludedReceivers: [
 ]
 excludedSenders: [
 ]
+id: only_self_commands
 json: true
 jsonPrecisionLevel: 1
 message: '{"italic": true, "color": "gray", "translate": "chat\\.type\\.admin", "with": [{},{"translate": "commands\\.(\\w|\\.)+"}]}'
@@ -189,6 +195,7 @@ excludedReceivers:
   - Rapha149
   - Notch
 excludedSenders: [robabla, Notch]
+id: beispiel
 json: false
 jsonPrecisionLevel: 2
 message: 'Hallo :)'

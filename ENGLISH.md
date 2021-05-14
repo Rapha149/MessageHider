@@ -13,7 +13,7 @@
 	- [Custom filters](#custom-filters)
 		+ [Examples](#examples)
 	- [Additional information](#additional-information)
-	
+
 ## Allgemein
 
 First of all: Thank you for using this plugin and reading this tutorial!  
@@ -38,17 +38,19 @@ This plugin has only one command: `/messagehider` (Alias: `/mh`)
 
 ### Sub commands
 
+- `/messagehider reload` - Reloads the config.
 - `/messagehider log <start|stop>` - Starts or stops logging of messages you receive. This is useful if you want to create new filters but don't know exactly what the message (in JSON) looks like.  
 	The log is saved at `plugins/MessageHider/logs/PLAYERNAME.log` and will be deleted if you start logging again. Of course you can also delete the log manually.  
 	Filtered messages will be logged, too.
 - `/messagehider create` - Creates an empty new filter. This is useful so that you do not forget to configure something.
-- `/messagehider reload` - Reloads the config.
+- `/messagehider check <json|plain> <Filter ids> <Message>` - With this sub command you can check whether a message would be hidden. For this you can provide whether you state a JSON or a plain message and the ids of the filters with which the plugin should check the message. If you want the message to pass through all filters, specify a hyphen. Please note that the plugin does not check the receivers and senders in this process because it would be illogical.
 
 ### Permissions
 
+- `/messagehider reload` - messagehider.reload
 - `/messagehider log` - messagehider.log
 - `/messagehider create` - messagehider.create
-- `/messagehider reload` - messagehider.reload
+- `/messagehider check` - messagehider.check
 
 ## Config
 
@@ -92,7 +94,7 @@ If this preset is enabled, you will no longer receive the messages when other pl
 If this preset is enabled, you only receive feedback messages from your own commands. Unfortunately, this only works in 1.16+, because the method for this does not yet exist in Spigot. 
 
 **For plugin programmers**  
-I do this via the `PacketPlayOutChat` packet. Only starting from the 1.16 there is the field `c` of the type `UUID`. If someone knows how to do this even in deeper versions, feel free to write me!
+I do this via the `PacketPlayOutChat` packet. Only starting from the 1.16 there is the field `c` of the type `UUID`. If someone knows how to do this even in deeper versions, feel free to contact me!
 
 ### Custom filters
 
@@ -100,6 +102,7 @@ If the preset options are not enough, you can create your own filters. The best 
 
 There are the following settings: (They are sorted differently here than in the config, because it is alphabetical in the config)
 
+- `id (Text)` - The id of the filter. This is only used for `/messagehider check` and if you don’t need it you can just leave it at `null`. You can use the same id for multiple filters but it is not recommended. Only letters, numbers and underscores may be used for the id.
 - `json (true/false)` - If enabled, the specified filter message is interpreted as JSON. If not, it will be interpreted as a plain message, which can also be a language message from Minecraft. (e.g.: `commands.setidletimeout.success`)
 - `jsonPrecisionLevel (numbers)` - Only if JSON enabled, numbers:
 	+ `0`: Only the keywords that exist on both sides (in the specified message and in the message that was sent) will be inspected.  
@@ -119,7 +122,7 @@ There are the following settings: (They are sorted differently here than in the 
    Either the player name, UUID or `<console>` for the console may be provided.
 - `excludedReceivers (list)` - Just like `receivers`, only the other way around. The message will not be filtered for anyone given.  
    Either the player name, UUID or `<console>` for the console may be provided.
-	
+
 #### Examples
 
 ##### Preset: idle timeout (Version für 1.13+)
@@ -129,6 +132,7 @@ excludedReceivers: [
 ]
 excludedSenders: [
 ]
+id: idle_timeout
 json: true
 jsonPrecisionLevel: 3
 message: '{"italic": true, "color": "gray", "translate": "chat\\.type\\.admin", "with": [{"text": "Server"}, {"translate": "commands\\.setidletimeout\\.success", "with": ["\\d+"]}]}'
@@ -150,6 +154,7 @@ excludedReceivers: [
 ]
 excludedSenders: [
 ]
+id: gamemode_change
 json: true
 jsonPrecisionLevel: 1
 message: '{"italic": true, "color": "gray", "translate": "chat\\.type\\.admin", "with": [{},{"translate": "commands\\.gamemode\\.success\\.\\w+"}]}'
@@ -170,6 +175,7 @@ excludedReceivers: [
 ]
 excludedSenders: [
 ]
+id: only_self_commands
 json: true
 jsonPrecisionLevel: 1
 message: '{"italic": true, "color": "gray", "translate": "chat\\.type\\.admin", "with": [{},{"translate": "commands\\.(\\w|\\.)+"}]}'
@@ -188,9 +194,10 @@ excludedReceivers:
   - Rapha149
   - Notch
 excludedSenders: [robabla, Notch]
+id: example
 json: false
 jsonPrecisionLevel: 2
-message: 'Hallo :)'
+message: 'Hello :)'
 onlyHideForOtherPlayers: false
 receivers:
   - 073b1315-85ff-49d8-8041-51627214dae0

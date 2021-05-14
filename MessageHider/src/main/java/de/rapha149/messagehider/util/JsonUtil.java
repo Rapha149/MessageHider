@@ -12,6 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -19,7 +20,7 @@ public class JsonUtil {
 
     private static Gson gson = new Gson();
 
-    public static boolean matches(String json1, String json2, boolean regex, int precisionLevel) {
+    public static boolean matches(String json1, String json2, boolean regex, boolean ignoreCase, int precisionLevel) {
         Type mapType = new TypeToken<Map<String, Object>>() {
         }.getType();
         Map<String, Object> map1 = gson.fromJson(json1, mapType);
@@ -28,7 +29,9 @@ public class JsonUtil {
 
         for (ValueDifference<Object> value : difference.entriesDiffering().values()) {
             if (value.leftValue() instanceof String && value.rightValue() instanceof String) {
-                if (regex && ((String) value.rightValue()).matches((String) value.leftValue()))
+                if (regex && Pattern.compile((String) value.leftValue(), ignoreCase ? Pattern.CASE_INSENSITIVE : 0).matcher((String) value.rightValue()).matches())
+                    continue;
+                if(ignoreCase && ((String) value.leftValue()).equalsIgnoreCase((String) value.rightValue()))
                     continue;
                 if (value.leftValue().equals("<ignore>"))
                     continue;

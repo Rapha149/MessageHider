@@ -14,22 +14,22 @@ public class Presets {
     public static FilterData ONLY_SELF_COMMANDS;
 
     static {
-        GAMEMODE_CHANGE = new FilterData(true, 1, true, false,
+        GAMEMODE_CHANGE = new FilterData(true, 1, true, false, false,
                 loadJson("gamemode_change.json"));
 
         if (Updates.isBukkitVersionAboveOrEqualTo("1.16")) {
-            ONLY_SELF_COMMANDS = new FilterData(true, 1, true, true,
+            ONLY_SELF_COMMANDS = new FilterData(true, 1, true, false, true,
                     loadJson("only_self_commands.json"));
         }
 
         if (Updates.isBukkitVersionAboveOrEqualTo("1.13")) {
-            IDLE_TIMEOUT = new FilterData(true, 3, true, false,
+            IDLE_TIMEOUT = new FilterData(true, 3, true, false, false,
                     loadJson("idle_timeout_1.13.json"));
         } else if (Updates.isBukkitVersionAboveOrEqualTo("1.8")) {
-            IDLE_TIMEOUT = new FilterData(true, 3, true, false,
+            IDLE_TIMEOUT = new FilterData(true, 3, true, false, false,
                     loadJson("idle_timeout_1.8.json"));
         } else {
-            IDLE_TIMEOUT = new FilterData(false, 0, false, false,
+            IDLE_TIMEOUT = new FilterData(false, 0, false, false, false,
                     "commands.setidletimeout.success");
         }
     }

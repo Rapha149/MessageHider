@@ -16,6 +16,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 
 import java.lang.reflect.Field;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 public class Events implements Listener {
 
@@ -118,18 +119,19 @@ public class Events implements Listener {
                                 continue;
 
                             boolean regex = filter.isRegex();
+                            boolean ignoreCase = filter.isIgnoreCase();
                             String filterMessage = filter.getMessage();
                             if (filter.isJson()) {
-                                if (JsonUtil.matches(filterMessage, json, regex, filter.getJsonPrecisionLevel())) {
+                                if (JsonUtil.matches(filterMessage, json, regex, ignoreCase, filter.getJsonPrecisionLevel())) {
                                     hidden = true;
                                     break;
                                 }
                             } else if (regex) {
-                                if (plain.matches(filterMessage)) {
+                                if (Pattern.compile(filterMessage, ignoreCase ? Pattern.CASE_INSENSITIVE : 0).matcher(plain).matches()) {
                                     hidden = true;
                                     break;
                                 }
-                            } else if (plain.equals(filterMessage)) {
+                            } else if (ignoreCase ? plain.equalsIgnoreCase(filterMessage) : plain.equals(filterMessage)) {
                                 hidden = true;
                                 break;
                             }

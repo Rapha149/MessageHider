@@ -198,6 +198,7 @@ public class YamlUtil {
             private boolean json;
             private int jsonPrecisionLevel;
             private boolean regex;
+            private boolean ignoreCase;
             private boolean onlyHideForOtherPlayers;
             private List<String> senders;
             private List<String> excludedSenders;
@@ -214,6 +215,7 @@ public class YamlUtil {
                 json = false;
                 jsonPrecisionLevel = 2;
                 regex = false;
+                ignoreCase = false;
                 onlyHideForOtherPlayers = false;
                 senders = new ArrayList<>();
                 excludedSenders = new ArrayList<>();
@@ -227,10 +229,11 @@ public class YamlUtil {
                 excludedReceiverUUIDs = new ArrayList<>();
             }
 
-            public FilterData(boolean json, int jsonPrecisionLevel, boolean regex, boolean onlyHideForOtherPlayers, String message) {
+            public FilterData(boolean json, int jsonPrecisionLevel, boolean regex, boolean ignoreCase, boolean onlyHideForOtherPlayers, String message) {
                 this.json = json;
                 this.jsonPrecisionLevel = jsonPrecisionLevel;
                 this.regex = regex;
+                this.ignoreCase = ignoreCase;
                 this.onlyHideForOtherPlayers = onlyHideForOtherPlayers;
                 this.senders = new ArrayList<>();
                 this.excludedSenders = new ArrayList<>();
@@ -266,6 +269,14 @@ public class YamlUtil {
 
             public void setRegex(boolean regex) {
                 this.regex = regex;
+            }
+
+            public boolean isIgnoreCase() {
+                return ignoreCase;
+            }
+
+            public void setIgnoreCase(boolean ignoreCase) {
+                this.ignoreCase = ignoreCase;
             }
 
             public boolean isOnlyHideForOtherPlayers() {

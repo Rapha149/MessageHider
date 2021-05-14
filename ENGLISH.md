@@ -103,7 +103,9 @@ If the preset options are not enough, you can create your own filters. The best 
 There are the following settings: (They are sorted differently here than in the config, because it is alphabetical in the config)
 
 - `id (Text)` - The id of the filter. This is only used for `/messagehider check` and if you don’t need it you can just leave it at `null`. You can use the same id for multiple filters but it is not recommended. Only letters, numbers and underscores may be used for the id.
+
 - `json (true/false)` - If enabled, the specified filter message is interpreted as JSON. If not, it will be interpreted as a plain message, which can also be a language message from Minecraft. (e.g.: `commands.setidletimeout.success`)
+
 - `jsonPrecisionLevel (numbers)` - Only if JSON enabled, numbers:
 	+ `0`: Only the keywords that exist on both sides (in the specified message and in the message that was sent) will be inspected.  
 	+ `1`: Only the keywords that exist on the left side (specified message) will be inspected. If a keyword exists on the left side, but not on the right side (sent message), the filter will not match.
@@ -111,15 +113,24 @@ There are the following settings: (They are sorted differently here than in the 
 	+ `3`: All keywords will beinspected without exception.
 	
 	If a key on the left side should be ignored, `<ignore>` can be specified as value.
+	
 - `regex (true/false)` - If enabled, the plain message or JSON values are inspected according to regex. A guide to regex is available at [RegExr](https://regexr.com/). Note: Punctuation characters like dots are interpreted differently when regex is enabled. You can prevent this with a `\` in front of it. More info on RegExr.
+
+- `ignoreCase (true/false)` - If enabled, case is ignored when filtering. If JSON is enabled, this counts applies for the values, not for the keys.
+
 - `onlyHideForOtherPlayers (true/false)` - If enabled, messages you have sent yourself will not be filtered for you. (1.16+)
+
 - `message (text)` - The message to filter for. If JSON is enabled, in JSON format.
+
 - `senders (list)` - If left empty it will be ignored. If at least one player is given, only messages sent by the given players will be filtered with this filter. (1.16+)  
 	Either the player name, UUID or `<console>` for the console may be provided.
+	
 - `excludedSenders (list)` - Just like `senders`, only the other way around. From anyone given, sent messages will not be filtered with this filter. (1.16+)  
 	Either the player name, UUID or `<console>` for the console may be provided.
+	
 - `receivers (list)` - If left empty it will be ignored. If at least one player is given, the message will be filtered only for the given players.  
    Either the player name, UUID or `<console>` for the console may be provided.
+   
 - `excludedReceivers (list)` - Just like `receivers`, only the other way around. The message will not be filtered for anyone given.  
    Either the player name, UUID or `<console>` for the console may be provided.
 

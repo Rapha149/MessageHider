@@ -104,7 +104,9 @@ Wenn einem die Voreinstellungs-Möglichkeiten nicht reichen, kann man sich selbe
 Es gibt folgende Einstellungen: (Sie sind hier anders sortiert als in der Config, weil es in der Config alphabetisch ist)
 
 - `id (Text)` - Die ID von dem Filter. Dies wird nur `/messagehider check` benutzt, wenn du die ID nicht brauchst, kannst du es einfach bei `null` lassen. Du kannst bei mehreren Filtern dieselbe ID angeben, allerdings ist dies nicht zu empfehlen. Für die ID dürfen nur normale Buchstaben, Zahlen und Unterstriche verwendet werden.
+
 - `json (true/false)` - Wenn aktiviert, wird die angegebene Filter-Nachricht als JSON interpretiert. Wenn nicht, wird sie als Plain-Message interpretiert, das kann auch eine Lang-Nachricht von Mojang sein. (z.B: `commands.setidletimeout.success`)
+
 - `jsonPrecisionLevel (Nummer)` - Nur wenn JSON aktiviert, Nummern:
 	+ `0`: Es werden nur die Schlüsselwörter überprüft, die auf beiden Seiten (in der angegebenen Nachricht und in der Nachricht, die gesendet wurde) existieren.
 	+ `1`: Es werden nur die Schlüsselwörter überprüft, die auf der linken Seite (angegebene Nachricht) existieren. Wenn ein Schlüsselwort, was auf der linken Seite existiert, aber nicht auf der rechten Seite (gesendete Nachricht), schlägt der Filter nicht an.
@@ -112,15 +114,24 @@ Es gibt folgende Einstellungen: (Sie sind hier anders sortiert als in der Config
 	+ `3`: Alle Schlüsselwörter werden ausnahmslos überprüft.
 
   Wenn ein Schlüsselwort auf der linken Seite ignoriert werden soll, kann als Value `<ignore>` angegeben werden.
+  
 - `regex (true/false)` - Wenn aktiviert, wird die Plain-Message oder die JSON-Values nach Regex überprüft. Eine Guide zu Regex gibt es auf [RegExr](https://regexr.com/). Achtung: Satzzeichen wie Punkte werden, wenn Regex aktiviert ist, anderes interpretiert. Dies kann man mit einem `\` davor verhindern. Mehr Infos auf RegExr.
+
+- `ignoreCase (true/false)` - Wenn aktiviert, wird die Groß- und Kleinschreibung beim Filtern ignoriert. Wenn JSON aktiviert ist, zählt dies nur für die Werte, nicht für die Schlüsselwörter.
+
 - `onlyHideForOtherPlayers (true/false)` - Wenn aktiviert, werden Nachrichten, die man selber gesendet hat, nicht für einen selber gefiltert. (1.16+)
+
 - `message (Text)` - Die Nachricht, nach der gefiltert werden soll. Wenn JSON aktiviert, im JSON-Format.
+
 - `senders (Liste)` - Wenn die Liste leer gelassen wird es ignoriert. Wenn mindestens ein Spieler angegeben ist, werden nur Nachrichten, die von den angegebenen Spielern gesendet wurden, mit diesem Filter gefiltert. (1.16+)  
   Es kann entweder der Spielername, die UUID oder `CONSOLE` für die Konsole angegeben werden.
+  
 - `excludedSenders (Liste)` - So wie `senders`, nur andersrum. Von jedem, der hier drin steht, werden gesendete Nachrichten mit diesem Filter nicht gefiltert. (1.16+)  
   Es kann entweder der Spielername, die UUID oder `CONSOLE` für die Konsole angegeben werden.
+  
 - `receivers (Liste)` - Wenn die Liste leer gelassen wird es ignoriert. Wenn mindestens ein Spieler angegeben ist, wird eine Nachricht nur für die angegebenen Spieler gefiltert.  
   Es kann entweder der Spielername, die UUID oder `CONSOLE` für die Konsole angegeben werden.
+  
 - `excludedReceivers (Liste)` - So wie `receivers`, nur andersrum. Die Nachricht wird für jeden, der hier drin steht, nicht gefiltert.  
   Es kann entweder der Spielername, die UUID oder `CONSOLE` für die Konsole angegeben werden.
 
@@ -134,6 +145,7 @@ excludedReceivers: [
 excludedSenders: [
 ]
 id: idle_timeout
+ignoreCase: false
 json: true
 jsonPrecisionLevel: 3
 message: '{"italic": true, "color": "gray", "translate": "chat\\.type\\.admin", "with": [{"text": "Server"}, {"translate": "commands\\.setidletimeout\\.success", "with": ["\\d+"]}]}'
@@ -156,6 +168,7 @@ excludedReceivers: [
 excludedSenders: [
 ]
 id: gamemode_change
+ignoreCase: false
 json: true
 jsonPrecisionLevel: 1
 message: '{"italic": true, "color": "gray", "translate": "chat\\.type\\.admin", "with": [{},{"translate": "commands\\.gamemode\\.success\\.\\w+"}]}'
@@ -177,6 +190,7 @@ excludedReceivers: [
 excludedSenders: [
 ]
 id: only_self_commands
+ignoreCase: false
 json: true
 jsonPrecisionLevel: 1
 message: '{"italic": true, "color": "gray", "translate": "chat\\.type\\.admin", "with": [{},{"translate": "commands\\.(\\w|\\.)+"}]}'
@@ -196,6 +210,7 @@ excludedReceivers:
   - Notch
 excludedSenders: [robabla, Notch]
 id: beispiel
+ignoreCase: false
 json: false
 jsonPrecisionLevel: 2
 message: 'Hallo :)'

@@ -47,7 +47,7 @@ public class Main extends JavaPlugin {
         if (YamlUtil.shouldCheckForUpdates()) {
             String version = Updates.getAvailableVersion(true);
             if (version == null)
-                getLogger().info("Your version of this plugin is up to date.");
+                getLogger().info("Your version of this plugin is up to date!");
             else {
                 getLogger().warning("There's a new version available for this plugin: " + version + "." +
                         " You can download it from " + Updates.SPIGOT_URL + " or BukkitDev (not available yet).");

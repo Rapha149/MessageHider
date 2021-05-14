@@ -24,7 +24,7 @@ A few information in advance:
 		However, I don't think the plugin needs to be translated, since it has very few messages.
 	- If you have any suggestions on how to improve this guide.
 	- If you experience errors, have questions or general suggestions for improvement.
-- This plugin collects anonymous server stats with [bStats](https://bstats.org), an open-source statistics service for Minecraft software. If you want you can deactivate this in `plugins/bStats/config.yml`.
+- This plugin collects anonymous server stats with [bStats](https://bstats.org), an open-source statistics service for Minecraft software. If you don't want this, you can deactivate it in `plugins/bStats/config.yml`.
 
 Now a few more infos regarding the plugin:
 

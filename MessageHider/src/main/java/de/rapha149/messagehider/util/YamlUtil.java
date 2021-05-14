@@ -23,6 +23,20 @@ import java.util.*;
 
 public class YamlUtil {
 
+    private static final List<Character> allowedCharsForIds;
+
+    static {
+        List<Character> list = new ArrayList<>();
+        for (int i = 'a'; i <= 'z'; i++)
+            list.add((char) i);
+        for (int i = 'A'; i <= 'Z'; i++)
+            list.add((char) i);
+        for (int i = '0'; i <= '9'; i++)
+            list.add((char) i);
+        list.add('_');
+        allowedCharsForIds = Collections.unmodifiableList(list);
+    }
+
     private static File file;
     private static Yaml yaml;
     private static YamlData data;
@@ -45,14 +59,39 @@ public class YamlUtil {
         save();
 
         JsonParser parser = new JsonParser();
-        data.messageFilters.forEach(filter -> {
+        Iterator<FilterData> iterator = data.filters.iterator();
+        while (iterator.hasNext()) {
+            FilterData filter = iterator.next();
+            if (filter.id != null) {
+                boolean removed = false;
+                for (char c : filter.id.toCharArray()) {
+                    if (!allowedCharsForIds.contains(c)) {
+                        Main.getInstance().getLogger().warning("Filter ids must only contain letters, numbers and underscores. (Wrong id: \"" + filter.id + "\")");
+                        iterator.remove();
+                        removed = true;
+                    }
+                }
+                if (removed)
+                    continue;
+            }
+
             if (filter.json) {
                 try {
-                    parser.parse(filter.message);
+                    if(!parser.parse(filter.message).isJsonObject())
+                        throw new JsonParseException("");
                 } catch (JsonParseException e) {
                     Main.getInstance().getLogger().warning("You got a json error in '" + filter.message + "'");
+                    iterator.remove();
                 }
             }
+        }
+
+        List<String> ids = new ArrayList<>();
+        getFilters().forEach(filter -> {
+            if (!ids.contains(filter.id))
+                ids.add(filter.id);
+            else
+                Main.getInstance().getLogger().warning("You have duplicate filter ids: \"" + filter.id + "\"");
         });
 
         PresetsData presets = data.presets;
@@ -72,7 +111,7 @@ public class YamlUtil {
     }
 
     public static List<FilterData> getFilters() {
-        List<FilterData> filters = new ArrayList<>(data.messageFilters);
+        List<FilterData> filters = new ArrayList<>(data.filters);
 
         PresetsData presets = data.presets;
         if (presets.idleTimeout)
@@ -87,6 +126,7 @@ public class YamlUtil {
 
     public static void addFilter(FilterData filter) throws IOException {
         data.messageFilters.add(filter);
+        data.filters.add(filter);
         save();
     }
 
@@ -103,7 +143,7 @@ public class YamlUtil {
     }
 
     public static List<FilterData> getCustomFilters() {
-        return data.messageFilters;
+        return data.filters;
     }
 
     public static class YamlData {
@@ -114,6 +154,7 @@ public class YamlUtil {
         private List<FilterData> messageFilters;
 
         private transient String translatedPrefix;
+        private transient List<FilterData> filters;
 
         public YamlData() {
             checkForUpdates = true;
@@ -121,6 +162,7 @@ public class YamlUtil {
             translatedPrefix = ChatColor.translateAlternateColorCodes('&', prefix);
             presets = new PresetsData();
             messageFilters = new ArrayList<>();
+            filters = new ArrayList<>();
         }
 
         public boolean isCheckForUpdates() {
@@ -154,6 +196,7 @@ public class YamlUtil {
 
         public void setMessageFilters(List<FilterData> messageFilters) {
             this.messageFilters = messageFilters;
+            this.filters = new ArrayList<>(messageFilters);
         }
 
         public static class PresetsData {
@@ -195,6 +238,7 @@ public class YamlUtil {
 
         public static class FilterData {
 
+            private String id;
             private boolean json;
             private int jsonPrecisionLevel;
             private boolean regex;
@@ -212,6 +256,7 @@ public class YamlUtil {
             private transient List<UUID> excludedReceiverUUIDs;
 
             public FilterData() {
+                id = null;
                 json = false;
                 jsonPrecisionLevel = 2;
                 regex = false;
@@ -229,7 +274,8 @@ public class YamlUtil {
                 excludedReceiverUUIDs = new ArrayList<>();
             }
 
-            public FilterData(boolean json, int jsonPrecisionLevel, boolean regex, boolean ignoreCase, boolean onlyHideForOtherPlayers, String message) {
+            public FilterData(String id, boolean json, int jsonPrecisionLevel, boolean regex, boolean ignoreCase, boolean onlyHideForOtherPlayers, String message) {
+                this.id = id;
                 this.json = json;
                 this.jsonPrecisionLevel = jsonPrecisionLevel;
                 this.regex = regex;
@@ -245,6 +291,14 @@ public class YamlUtil {
                 excludedSenderUUIDs = new ArrayList<>();
                 receiverUUIDs = new ArrayList<>();
                 excludedReceiverUUIDs = new ArrayList<>();
+            }
+
+            public String getId() {
+                return id;
+            }
+
+            public void setId(String id) {
+                this.id = id;
             }
 
             public boolean isJson() {

@@ -1,8 +1,11 @@
 package de.rapha149.messagehider;
 
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
+import de.rapha149.messagehider.util.Util;
+import de.rapha149.messagehider.util.Util.FilterCheckResult;
 import de.rapha149.messagehider.util.YamlUtil;
 import de.rapha149.messagehider.util.YamlUtil.YamlData.FilterData;
-import org.bukkit.Bukkit;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 
@@ -12,6 +15,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class MessageHiderCommand implements CommandExecutor, TabCompleter {
 
@@ -26,8 +30,20 @@ public class MessageHiderCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String alias, String[] args) {
-        if (args.length >= 1 && args[0].toLowerCase().matches("log|create|reload")) {
+        if (args.length >= 1 && args[0].toLowerCase().matches("reload|log|create|check")) {
             switch (args[0].toLowerCase()) {
+                case "reload":
+                    if (sender.hasPermission("messagehider.reload")) {
+                        try {
+                            YamlUtil.load();
+                            sender.sendMessage(YamlUtil.getPrefix() + "§2The config was reloaded.");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            sender.sendMessage(YamlUtil.getPrefix() + "§cAn error occurred.");
+                        }
+                    } else
+                        sender.sendMessage(YamlUtil.getPrefix() + "§cYou don't have enough permissions for this.");
+                    break;
                 case "log":
                     if (sender instanceof Player) {
                         Player player = (Player) sender;
@@ -79,21 +95,50 @@ public class MessageHiderCommand implements CommandExecutor, TabCompleter {
                     } else
                         sender.sendMessage(YamlUtil.getPrefix() + "§cYou don't have enough permissions for this.");
                     break;
-                case "reload":
-                    if (sender.hasPermission("messagehider.reload")) {
-                        try {
-                            YamlUtil.load();
-                            sender.sendMessage(YamlUtil.getPrefix() + "§2The config was reloaded.");
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            sender.sendMessage(YamlUtil.getPrefix() + "§cAn error occurred.");
-                        }
+                case "check":
+                    if (sender.hasPermission("messagehider.check")) {
+                        if (args.length >= 4 && args[1].toLowerCase().matches("json|plain")) {
+                            boolean json = args[1].equalsIgnoreCase("json");
+                            String[] filterIds;
+                            if (args[2].equals("-"))
+                                filterIds = new String[0];
+                            else
+                                filterIds = args[2].split(",");
+                            String message = String.join(" ", Arrays.copyOfRange(args, 3, args.length));
+
+                            if (json) {
+                                try {
+                                    if(!new JsonParser().parse(message).isJsonObject())
+                                        throw new JsonParseException("");
+                                } catch (JsonParseException e) {
+                                    sender.sendMessage(YamlUtil.getPrefix() + "§cYour json is not valid.");
+                                    return true;
+                                }
+                            }
+
+                            FilterCheckResult result = Util.checkFilters(false, json ? null : message, json ? message : null, null, null, filterIds);
+                            StringBuilder sb = new StringBuilder(YamlUtil.getPrefix() + "§2Result:");
+                            if (!result.getNotFoundIds().isEmpty())
+                                sb.append("\n§7  - §6These filter ids were not found: §e" + String.join("§8, §e", result.getNotFoundIds()));
+                            if (result.getIgnored() > 0)
+                                sb.append("\n§7  - §e" + result.getIgnored() + " §6filter" + (result.getIgnored() == 1 ? " was" : "s were") + " ignored because they were in " + (json ? "plain" : "json") + " text.");
+
+                            sb.append("\n§7  - §bThe message would " + (result.isHidden() ? "§abe" : "§4not be") + " §bhidden.");
+                            if (!result.getHiddenIds().isEmpty())
+                                sb.append("\n§7  - §bThe filters that would have cancelled the message: §3" + String.join("§8, §3", result.getHiddenIds()));
+                            else
+                                sb.append("\n§7  - §bNo filters with ids cancelled the message.");
+                            sb.append("\n§7  - §3" + result.getHiddenCount() + " §btotal filter" + (result.getHiddenCount() == 1 ? "" : "s") +
+                                    " cancelled the message. (Including filters without ids)");
+                            sender.sendMessage(sb.toString());
+                        } else
+                            sender.sendMessage(YamlUtil.getPrefix() + "§cPlease use §7/" + alias + " check <json|plain> <Filter ids> <Message>§c.");
                     } else
                         sender.sendMessage(YamlUtil.getPrefix() + "§cYou don't have enough permissions for this.");
                     break;
             }
         } else
-            sender.sendMessage(YamlUtil.getPrefix() + "§cPlease use §7/" + alias + " <log|create|reload>§c.");
+            sender.sendMessage(YamlUtil.getPrefix() + "§cPlease use §7/" + alias + " <reload|log|create|check>§c.");
         return true;
     }
 
@@ -101,15 +146,34 @@ public class MessageHiderCommand implements CommandExecutor, TabCompleter {
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         List<String> list = new ArrayList<>();
         if (args.length == 1) {
+            if (sender.hasPermission("messagehider.reload"))
+                list.add("reload");
             if (sender.hasPermission("messagehider.log"))
                 list.add("log");
             if (sender.hasPermission("messagehider.create"))
                 list.add("create");
-            if (sender.hasPermission("messagehider.reload"))
-                list.add("reload");
+            if (sender.hasPermission("messagehider.check"))
+                list.add("check");
         } else if (args.length == 2) {
             if (args[0].equalsIgnoreCase("log") && sender.hasPermission("messagehider.log"))
                 list.addAll(Arrays.asList("start", "stop"));
+            if (args[0].equalsIgnoreCase("check") && sender.hasPermission("messagehider.check"))
+                list.addAll(Arrays.asList("json", "plain"));
+        } else if (args.length == 3) {
+            if (args[0].equalsIgnoreCase("check") && sender.hasPermission("messagehider.check")) {
+                if (args[2].isEmpty() || args[2].equals("-"))
+                    list.add("-");
+
+                List<String> ids = YamlUtil.getFilters().stream().map(FilterData::getId).filter(Objects::nonNull).collect(Collectors.toList());
+                int index = args[2].lastIndexOf(',');
+                if (ids.contains(args[2].substring(index + 1)))
+                    list.add(args[2] + ",");
+                else {
+                    String input = args[2].substring(0, index == -1 ? 0 : index);
+                    YamlUtil.getFilters().stream().map(FilterData::getId)
+                            .filter(Objects::nonNull).map(id -> input + (input.isEmpty() ? "" : ",") + id).forEach(list::add);
+                }
+            }
         }
 
         if (list != null) {

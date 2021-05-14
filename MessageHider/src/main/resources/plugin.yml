@@ -1,15 +1,19 @@
 name: MessageHider
-version: 1.3
+version: 1.4
 main: de.rapha149.messagehider.Main
 
 commands:
   messagehider:
     description: MessageHider command for logging messages, creating empty filters or reloading the config.
-    usage: /messagehider <log|create|reload>
+    usage: /messagehider <reload|log|create|check>
     permission: messagehider
     aliases: [mh]
 
 permissions:
+  messagehider.reload:
+    description: Permission for '/messagehider reload'.
+    children:
+      messagehider: true
   messagehider.log:
     description: Permission for '/messagehider log'.
     children:
@@ -18,7 +22,7 @@ permissions:
     description: Permission for '/messagehider create'.
     children:
       messagehider: true
-  messagehider.reload:
-    description: Permission for '/messagehider reload'.
+  messagehider.check:
+    description: Permission for '/messagehider check'.
     children:
       messagehider: true

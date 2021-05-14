@@ -1,10 +1,9 @@
 package de.rapha149.messagehider;
 
-import de.rapha149.messagehider.util.JsonUtil;
 import de.rapha149.messagehider.util.ReflectionUtil;
 import de.rapha149.messagehider.util.ReflectionUtil.Param;
+import de.rapha149.messagehider.util.Util;
 import de.rapha149.messagehider.util.YamlUtil;
-import de.rapha149.messagehider.util.YamlUtil.YamlData.FilterData;
 import io.netty.channel.*;
 import net.md_5.bungee.api.chat.*;
 import net.md_5.bungee.chat.ComponentSerializer;
@@ -16,7 +15,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 
 import java.lang.reflect.Field;
 import java.util.UUID;
-import java.util.regex.Pattern;
 
 public class Events implements Listener {
 
@@ -83,60 +81,9 @@ public class Events implements Listener {
                                 break;
                             }
                         }
-
-                        boolean hidden = false;
                         UUID receiver = player.getUniqueId();
-                        for (FilterData filter : YamlUtil.getFilters()) {
-                            if (sender != null) {
-                                String name = sender.equals(Main.ZERO_UUID) ? "<console>" : Bukkit.getPlayer(sender).getName();
-                                if (!Bukkit.getOnlineMode()) {
-                                    if (!filter.getSenders().isEmpty() && !filter.getSenders().contains(sender.toString()) && !filter.getSenders().contains(name))
-                                        continue;
-                                    if (filter.getExcludedSenders().contains(name))
-                                        continue;
-                                } else {
-                                    if (!filter.getSenderUUIDs().isEmpty() && !filter.getSenderUUIDs().contains(sender))
-                                        continue;
-                                    if (filter.getExcludedSenderUUIDs().contains(sender))
-                                        continue;
-                                }
-                            }
 
-                            String name = receiver.equals(Main.ZERO_UUID) ? "<console>" : Bukkit.getPlayer(receiver).getName();
-                            if (!Bukkit.getOnlineMode()) {
-                                if (!filter.getReceivers().isEmpty() && !filter.getReceivers().contains(receiver.toString()) && !filter.getReceivers().contains(name))
-                                    continue;
-                                if (filter.getExcludedReceivers().contains(name))
-                                    continue;
-                            } else {
-                                if (!filter.getReceiverUUIDs().isEmpty() && !filter.getReceiverUUIDs().contains(receiver))
-                                    continue;
-                                if (filter.getExcludedReceiverUUIDs().contains(receiver))
-                                    continue;
-                            }
-
-                            if (sender != null && sender.equals(receiver) && filter.isOnlyHideForOtherPlayers())
-                                continue;
-
-                            boolean regex = filter.isRegex();
-                            boolean ignoreCase = filter.isIgnoreCase();
-                            String filterMessage = filter.getMessage();
-                            if (filter.isJson()) {
-                                if (JsonUtil.matches(filterMessage, json, regex, ignoreCase, filter.getJsonPrecisionLevel())) {
-                                    hidden = true;
-                                    break;
-                                }
-                            } else if (regex) {
-                                if (Pattern.compile(filterMessage, ignoreCase ? Pattern.CASE_INSENSITIVE : 0).matcher(plain).matches()) {
-                                    hidden = true;
-                                    break;
-                                }
-                            } else if (ignoreCase ? plain.equalsIgnoreCase(filterMessage) : plain.equals(filterMessage)) {
-                                hidden = true;
-                                break;
-                            }
-                        }
-
+                        boolean hidden = Util.checkFilters(true, plain, json, sender, receiver).isHidden();
                         MessageHiderCommand.log(receiver, sender, plain, json, hidden);
                         if (hidden)
                             return;

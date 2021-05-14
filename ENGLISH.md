@@ -144,6 +144,7 @@ excludedReceivers: [
 excludedSenders: [
 ]
 id: idle_timeout
+ignoreCase: false
 json: true
 jsonPrecisionLevel: 3
 message: '{"italic": true, "color": "gray", "translate": "chat\\.type\\.admin", "with": [{"text": "Server"}, {"translate": "commands\\.setidletimeout\\.success", "with": ["\\d+"]}]}'
@@ -166,6 +167,7 @@ excludedReceivers: [
 excludedSenders: [
 ]
 id: gamemode_change
+ignoreCase: false
 json: true
 jsonPrecisionLevel: 1
 message: '{"italic": true, "color": "gray", "translate": "chat\\.type\\.admin", "with": [{},{"translate": "commands\\.gamemode\\.success\\.\\w+"}]}'
@@ -187,6 +189,7 @@ excludedReceivers: [
 excludedSenders: [
 ]
 id: only_self_commands
+ignoreCase: false
 json: true
 jsonPrecisionLevel: 1
 message: '{"italic": true, "color": "gray", "translate": "chat\\.type\\.admin", "with": [{},{"translate": "commands\\.(\\w|\\.)+"}]}'
@@ -206,6 +209,7 @@ excludedReceivers:
   - Notch
 excludedSenders: [robabla, Notch]
 id: example
+ignoreCase: false
 json: false
 jsonPrecisionLevel: 2
 message: 'Hello :)'

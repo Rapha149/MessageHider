@@ -2,7 +2,7 @@
 name: Tutorial translation
 about: Language translation / Correction for existing translation
 title: ''
-labels: ''
+labels: translation
 assignees: ''
 
 ---

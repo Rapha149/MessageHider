@@ -120,7 +120,11 @@ There are the following settings: (They are sorted differently here than in the 
 
 - `onlyHideForOtherPlayers (true/false)` - If enabled, messages you have sent yourself will not be filtered for you. (1.16+)
 
+- `priority (number/null)` - The priority according to which the filters will be applied. The lower the priority of a filter, the earlier it will be executed. By default, the priority is `null`, in which case the filter is executed last. The priority is only really important when messages are replaced, because then it depends on which filter replaces the message first.
+
 - `message (text)` - The message to filter for. If JSON is enabled, in JSON format.
+
+- `replacement (text)` - The text to replace the message with if the filter matches. The text can be specified as JSON or as normal text. Also you can use colors with & characters. If `regex` is enabled, `$1`, `$2` and `$n` can be used to access the first, second and `n`th group of the pattern. If `null` is specified as replacement (default), the message will be hidden as normal and not replaced. If another filter would have hidden the message before, the message will still be replaced, but after the message has been replaced once, it will not be changed further.
 
 - `senders (list)` - If left empty it will be ignored. If at least one player is given, only messages sent by the given players will be filtered with this filter. (1.16+)  
 	Either the player name, UUID or `<console>` for the console may be provided.
@@ -149,9 +153,11 @@ json: true
 jsonPrecisionLevel: 3
 message: '{"italic": true, "color": "gray", "translate": "chat\\.type\\.admin", "with": [{"text": "Server"}, {"translate": "commands\\.setidletimeout\\.success", "with": ["\\d+"]}]}'
 onlyHideForOtherPlayers: false
+priority: null
 receivers: [
 ]
 regex: true
+replacement: null
 senders: [
 ]
 ```
@@ -172,9 +178,11 @@ json: true
 jsonPrecisionLevel: 1
 message: '{"italic": true, "color": "gray", "translate": "chat\\.type\\.admin", "with": [{},{"translate": "commands\\.gamemode\\.success\\.\\w+"}]}'
 onlyHideForOtherPlayers: false
+priority: null
 receivers: [
 ]
 regex: true
+replacement: null
 senders: [
 ]
 ```
@@ -194,9 +202,11 @@ json: true
 jsonPrecisionLevel: 1
 message: '{"italic": true, "color": "gray", "translate": "chat\\.type\\.admin", "with": [{},{"translate": "commands\\.(\\w|\\.)+"}]}'
 onlyHideForOtherPlayers: false
+priority: null
 receivers: [
 ]
 regex: true
+replacement: null
 senders: [
 ]
 ```
@@ -214,10 +224,12 @@ json: false
 jsonPrecisionLevel: 2
 message: 'Hello :)'
 onlyHideForOtherPlayers: false
+priority: null
 receivers:
   - 073b1315-85ff-49d8-8041-51627214dae0
   - b3884719-7b05-47c7-82db-656bdcd99050
 regex: false
+replacement: null
 senders: 
   - robabla
   - 073b1315-85ff-49d8-8041-51627214dae0

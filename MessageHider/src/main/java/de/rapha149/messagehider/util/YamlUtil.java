@@ -196,7 +196,16 @@ public class YamlUtil {
 
         public void setMessageFilters(List<FilterData> messageFilters) {
             this.messageFilters = messageFilters;
-            this.filters = new ArrayList<>(messageFilters);
+            filters = new ArrayList<>(messageFilters);
+            filters.sort((f1, f2) -> {
+                if(f1.priority == null && f2.priority == null)
+                    return 0;
+                if(f1.priority != null && f2.priority == null)
+                    return -1;
+                if(f1.priority == null && f2.priority != null)
+                    return 1;
+                return f1.priority.compareTo(f2.priority);
+            });
         }
 
         public static class PresetsData {

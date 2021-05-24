@@ -4,8 +4,10 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import de.rapha149.messagehider.util.Util;
 import de.rapha149.messagehider.util.Util.FilterCheckResult;
+import de.rapha149.messagehider.util.Util.FilterCheckResult.FilterStatus;
 import de.rapha149.messagehider.util.YamlUtil;
 import de.rapha149.messagehider.util.YamlUtil.YamlData.FilterData;
+import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 
@@ -108,7 +110,7 @@ public class MessageHiderCommand implements CommandExecutor, TabCompleter {
 
                             if (json) {
                                 try {
-                                    if(!new JsonParser().parse(message).isJsonObject())
+                                    if (!new JsonParser().parse(message).isJsonObject())
                                         throw new JsonParseException("");
                                 } catch (JsonParseException e) {
                                     sender.sendMessage(YamlUtil.getPrefix() + "§cYour json is not valid.");
@@ -123,14 +125,30 @@ public class MessageHiderCommand implements CommandExecutor, TabCompleter {
                             if (result.getIgnored() > 0)
                                 sb.append("\n§7  - §e" + result.getIgnored() + " §6filter" + (result.getIgnored() == 1 ? " was" : "s were") + " ignored because they were in " + (json ? "plain" : "json") + " text.");
 
-                            sb.append("\n§7  - §bThe message would " + (result.isHidden() ? "§abe" : "§4not be") + " §bhidden.");
+                            sb.append("\n§7  - §bThe message would ");
+                            if (result.getStatus() == FilterStatus.HIDDEN)
+                                sb.append("be §4hidden§7.");
+                            else if (result.getStatus() == FilterStatus.REPLACED)
+                                sb.append("be §ereplaced§7.");
+                            else
+                                sb.append("remain §anormal§7.");
+
                             if (!result.getHiddenIds().isEmpty())
                                 sb.append("\n§7  - §bThe filters that would have cancelled the message: §3" + String.join("§8, §3", result.getHiddenIds()));
                             else
                                 sb.append("\n§7  - §bNo filters with ids cancelled the message.");
                             sb.append("\n§7  - §3" + result.getHiddenCount() + " §btotal filter" + (result.getHiddenCount() == 1 ? "" : "s") +
                                     " cancelled the message. (Including filters without ids)");
+                            if (result.getReplacement() != null)
+                                sb.append("\n§7  - §bThe message would be replaced by:" +
+                                        (!(sender instanceof Player) ? "\n§f    " + result.getReplacement() : ""));
                             sender.sendMessage(sb.toString());
+
+                            if (result.getReplacement() != null && sender instanceof Player) {
+                                BaseComponent[] replacement = Util.formatReplacementString(result.getReplacement());
+                                if (replacement != null)
+                                    sender.spigot().sendMessage(replacement);
+                            }
                         } else
                             sender.sendMessage(YamlUtil.getPrefix() + "§cPlease use §7/" + alias + " check <json|plain> <Filter ids> <Message>§c.");
                     } else
@@ -185,10 +203,19 @@ public class MessageHiderCommand implements CommandExecutor, TabCompleter {
         return Arrays.asList();
     }
 
-    public static void log(UUID uuid, UUID sender, String plain, String json, boolean hidden) {
-        write(uuid, format.format(new Date()) + (hidden ? " (Hidden)" : "") +
-                (sender != null ? "\nSent from: " + (sender.equals(Main.ZERO_UUID) ? "<console>" : sender) : "") +
-                "\nPlain: " + plain + "\nJSON: " + json);
+    public static void log(UUID uuid, UUID sender, String plain, String json, FilterCheckResult result) {
+        StringBuilder sb = new StringBuilder(format.format(new Date()));
+        if (result.getStatus() == FilterStatus.HIDDEN)
+            sb.append(" (Hidden)");
+        if (result.getStatus() == FilterStatus.REPLACED)
+            sb.append(" (Replaced)");
+        if (sender != null)
+            sb.append("\nSent from: " + (sender.equals(Main.ZERO_UUID) ? "<console>" : sender));
+        sb.append("\nPlain: " + plain + "\nJSON: " + json);
+        if (result.getReplacement() != null)
+            sb.append("\nReplaced by: " + result.getReplacement());
+
+        write(uuid, sb.toString());
     }
 
     private static void write(UUID uuid, String str) {

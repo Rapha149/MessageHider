@@ -3,6 +3,8 @@ package de.rapha149.messagehider;
 import de.rapha149.messagehider.util.ReflectionUtil;
 import de.rapha149.messagehider.util.ReflectionUtil.Param;
 import de.rapha149.messagehider.util.Util;
+import de.rapha149.messagehider.util.Util.FilterCheckResult;
+import de.rapha149.messagehider.util.Util.FilterCheckResult.FilterStatus;
 import de.rapha149.messagehider.util.YamlUtil;
 import io.netty.channel.*;
 import net.md_5.bungee.api.chat.*;
@@ -84,9 +86,16 @@ public class Events implements Listener {
                         }
                         UUID receiver = player.getUniqueId();
 
-                        boolean hidden = Util.checkFilters(true, plain, json, sender, receiver).isHidden();
-                        MessageHiderCommand.log(receiver, sender, plain, json, hidden);
-                        if (hidden)
+                        FilterCheckResult result = Util.checkFilters(true, plain, json, sender, receiver);
+                        MessageHiderCommand.log(receiver, sender, plain, json, result);
+                        if (result.getStatus() == FilterStatus.REPLACED) {
+                            ReflectionUtil.setField(msg, "a", null);
+                            BaseComponent[] replacement = Util.formatReplacementString(result.getReplacement());
+                            if(replacement != null)
+                                ReflectionUtil.setField(msg, "components", replacement);
+                            else
+                                return;
+                        } else if(result.getStatus() == FilterStatus.HIDDEN)
                             return;
                     }
                 } catch (Exception e) {

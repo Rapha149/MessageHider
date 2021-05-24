@@ -119,6 +119,22 @@ public class ReflectionUtil {
         }
     }
 
+    public static void setField(Object obj, String fieldName, Object value) {
+        setField(obj.getClass(), obj, fieldName, value);
+    }
+
+    public static void setStaticField(Class<?> c, String fieldName, Object value) {
+        setField(c, null, fieldName, value);
+    }
+
+    public static void setStaticField(String className, String fieldName, Object value) {
+        try {
+            setField(Class.forName(className), null, fieldName, value);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
     private static Object getField(Class<?> c, Object obj, String fieldName) {
         try {
             Field field = c.getDeclaredField(fieldName);
@@ -127,6 +143,16 @@ public class ReflectionUtil {
         } catch (NoSuchFieldException | IllegalAccessException e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    private static void setField(Class<?> c, Object obj, String fieldName, Object value) {
+        try {
+            Field field = c.getDeclaredField(fieldName);
+            field.setAccessible(true);
+            field.set(obj, value);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            e.printStackTrace();
         }
     }
 

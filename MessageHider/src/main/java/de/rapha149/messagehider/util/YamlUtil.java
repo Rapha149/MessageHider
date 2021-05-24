@@ -62,11 +62,12 @@ public class YamlUtil {
         Iterator<FilterData> iterator = data.filters.iterator();
         while (iterator.hasNext()) {
             FilterData filter = iterator.next();
-            if (filter.id != null) {
+            String id = filter.id;
+            if (id != null) {
                 boolean removed = false;
-                for (char c : filter.id.toCharArray()) {
+                for (char c : id.toCharArray()) {
                     if (!allowedCharsForIds.contains(c)) {
-                        Main.getInstance().getLogger().warning("Filter ids must only contain letters, numbers and underscores. (Wrong id: \"" + filter.id + "\")");
+                        Main.getInstance().getLogger().warning("Filter ids must only contain letters, numbers and underscores. (Wrong id: \"" + id + "\")");
                         iterator.remove();
                         removed = true;
                     }
@@ -75,13 +76,28 @@ public class YamlUtil {
                     continue;
             }
 
+            String filterSpecification = id != null ? "the filter" + id : "a filter";
             if (filter.json) {
                 try {
                     if(!parser.parse(filter.message).isJsonObject())
                         throw new JsonParseException("");
                 } catch (JsonParseException e) {
-                    Main.getInstance().getLogger().warning("You got a json error in '" + filter.message + "'");
+                    Main.getInstance().getLogger().warning("You got a json error in '" + filter.message + "' (Message of " + filterSpecification + ")");
                     iterator.remove();
+                    continue;
+                }
+            }
+
+            if(filter.replacement != null) {
+                String replacement = filter.getReplacement();
+                if(replacement.startsWith("{") && replacement.endsWith("}")) {
+                    try {
+                        if(!parser.parse(filter.message).isJsonObject())
+                            throw new JsonParseException("");
+                    } catch (JsonParseException e) {
+                        Main.getInstance().getLogger().warning("You got a json error in '" + filter.message + "' (Replacement of " + filterSpecification + ")");
+                        iterator.remove();
+                    }
                 }
             }
         }

@@ -1,18 +1,24 @@
 package de.rapha149.messagehider.util;
 
+import com.google.common.base.Equivalence;
 import com.google.common.collect.MapDifference;
-import com.google.common.collect.MapDifference.ValueDifference;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import de.rapha149.messagehider.Main;
 import de.rapha149.messagehider.util.YamlUtil.YamlData.FilterData;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 
 import java.lang.reflect.Type;
-import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
+import java.util.*;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -21,12 +27,39 @@ public class Util {
 
     private static Gson gson = new Gson();
 
+    public static String replaceGroups(String input, List<String> groups) {
+        StringBuilder sb = new StringBuilder();
+        Matcher matcher = Pattern.compile("(?<!\\$)\\$(\\d)").matcher(input);
+        int current = 0;
+        while (matcher.find()) {
+            sb.append(input, current, matcher.start());
+            current = matcher.end();
+            int group = Integer.parseInt(matcher.group(1)) - 1;
+            sb.append(group < groups.size() ? groups.get(group) : matcher.group());
+        }
+        return sb + input.substring(current);
+    }
+
+    public static BaseComponent[] formatReplacementString(String replacement) {
+        String colorized = ChatColor.translateAlternateColorCodes('&', replacement);
+        if (colorized.startsWith("{") && colorized.endsWith("}"))
+            try {
+                return ComponentSerializer.parse(colorized);
+            } catch (JsonSyntaxException e) {
+                e.printStackTrace();
+                return null;
+            }
+        else
+            return new ComponentBuilder(colorized).create();
+    }
+
     public static FilterCheckResult checkFilters(boolean breakIfFound, String plain, String json, UUID sender, UUID receiver, String... filterIds) {
         int ignored = 0;
         int hidden = 0;
         List<String> hiddenIds = new ArrayList<>();
         List<String> ids = Arrays.asList(filterIds);
         List<String> usedIds = new ArrayList<>();
+        String replacement = null;
 
         for (FilterData filter : YamlUtil.getFilters()) {
             String id = filter.getId();
@@ -69,31 +102,54 @@ public class Util {
                 boolean regex = filter.isRegex();
                 boolean ignoreCase = filter.isIgnoreCase();
                 String filterMessage = filter.getMessage();
+                String replace = filter.getReplacement();
                 if (filter.isJson()) {
                     if (json != null) {
-                        if (Util.jsonMatches(filterMessage, json, regex, ignoreCase, filter.getJsonPrecisionLevel())) {
+                        JsonResult result = Util.jsonMatches(filterMessage, json, regex, ignoreCase, filter.getJsonPrecisionLevel());
+                        if (result.matches) {
                             hidden++;
                             if (id != null)
                                 hiddenIds.add(id);
-                            if (breakIfFound)
+
+                            if (replacement == null && replace != null) {
+                                if (regex)
+                                    replacement = replaceGroups(replace, result.groups);
+                                else
+                                    replacement = replace;
+                            }
+
+                            if (breakIfFound && replacement != null)
                                 break;
                         }
                     } else
                         ignored++;
                 } else if (plain != null) {
                     if (regex) {
-                        if (Pattern.compile(filterMessage, ignoreCase ? Pattern.CASE_INSENSITIVE : 0).matcher(plain).matches()) {
+                        Matcher matcher = Pattern.compile(filterMessage, ignoreCase ? Pattern.CASE_INSENSITIVE : 0).matcher(plain);
+                        if (matcher.matches()) {
                             hidden++;
                             if (id != null)
                                 hiddenIds.add(id);
-                            if (breakIfFound)
+
+                            if (replacement == null && replace != null) {
+                                List<String> groups = new ArrayList<>();
+                                for (int i = 0; i < matcher.groupCount(); i++)
+                                    groups.add(matcher.group(i));
+                                replacement = replaceGroups(replace, groups);
+                            }
+
+                            if (breakIfFound && replacement != null)
                                 break;
                         }
                     } else if (ignoreCase ? plain.equalsIgnoreCase(filterMessage) : plain.equals(filterMessage)) {
                         hidden++;
                         if (id != null)
                             hiddenIds.add(id);
-                        if (breakIfFound)
+
+                        if (replacement == null && replace != null)
+                            replacement = replace;
+
+                        if (breakIfFound && replacement != null)
                             break;
                     }
                 } else
@@ -103,41 +159,57 @@ public class Util {
 
         List<String> notFoundIds = new ArrayList<>(ids);
         notFoundIds.removeAll(usedIds);
-        return new FilterCheckResult(hidden, hiddenIds, ignored, notFoundIds);
+        return new FilterCheckResult(hidden, hiddenIds, ignored, notFoundIds, replacement);
     }
 
-    public static boolean jsonMatches(String json1, String json2, boolean regex, boolean ignoreCase, int precisionLevel) {
+    public static JsonResult jsonMatches(String json1, String json2, boolean regex, boolean ignoreCase, int precisionLevel) {
+        List<String> groups = regex ? new ArrayList<>() : null;
+
         Type mapType = new TypeToken<Map<String, Object>>() {
         }.getType();
         Map<String, Object> map1 = gson.fromJson(json1, mapType);
         Map<String, Object> map2 = gson.fromJson(json2, mapType);
-        MapDifference<String, Object> difference = Maps.difference(flatten(map1), flatten(map2));
-
-        for (ValueDifference<Object> value : difference.entriesDiffering().values()) {
-            if (value.leftValue() instanceof String && value.rightValue() instanceof String) {
-                if (regex && Pattern.compile((String) value.leftValue(), ignoreCase ? Pattern.CASE_INSENSITIVE : 0).matcher((String) value.rightValue()).matches())
-                    continue;
-                if (ignoreCase && ((String) value.leftValue()).equalsIgnoreCase((String) value.rightValue()))
-                    continue;
-                if (value.leftValue().equals("<ignore>"))
-                    continue;
+        MapDifference<String, Object> difference = Maps.difference(flatten(map1), flatten(map2), new Equivalence<Object>() {
+            @Override
+            protected boolean doEquivalent(Object a, Object b) {
+                if (a instanceof String && b instanceof String) {
+                    if (regex) {
+                        Matcher matcher = Pattern.compile((String) a).matcher((String) b);
+                        if (matcher.matches()) {
+                            for (int i = 1; i <= matcher.groupCount(); i++)
+                                groups.add(matcher.group(i));
+                            return true;
+                        }
+                    }
+                    if (ignoreCase && ((String) a).equalsIgnoreCase((String) b))
+                        return true;
+                    if (a.equals("<ignore>"))
+                        return true;
+                }
+                return a.equals(b);
             }
 
-            return false;
-        }
+            @Override
+            protected int doHash(Object o) {
+                return o.hashCode();
+            }
+        });
+
+        if(!difference.entriesDiffering().isEmpty())
+            return new JsonResult(false);
 
         switch (precisionLevel) {
             case 3:
-                return difference.entriesOnlyOnLeft().isEmpty() && difference.entriesOnlyOnRight().isEmpty();
+                return new JsonResult(difference.entriesOnlyOnLeft().isEmpty() && difference.entriesOnlyOnRight().isEmpty(), groups);
             case 2:
-                return difference.entriesOnlyOnLeft().isEmpty() && difference.entriesOnlyOnRight().entrySet().stream()
-                        .noneMatch(entry -> !(entry.getValue() instanceof Boolean) || (Boolean) entry.getValue());
+                return new JsonResult(difference.entriesOnlyOnLeft().isEmpty() && difference.entriesOnlyOnRight().entrySet().stream()
+                        .noneMatch(entry -> !(entry.getValue() instanceof Boolean) || (Boolean) entry.getValue()), groups);
             case 1:
-                return difference.entriesOnlyOnLeft().isEmpty();
+                return new JsonResult(difference.entriesOnlyOnLeft().isEmpty(), groups);
             case 0:
-                return true;
+                return new JsonResult(true, groups);
         }
-        return false;
+        return new JsonResult(false);
     }
 
     private static Map<String, Object> flatten(Map<String, Object> map) {
@@ -170,24 +242,42 @@ public class Util {
         return Stream.of(entry);
     }
 
+    private static class JsonResult {
+
+        private boolean matches;
+        private List<String> groups;
+
+        public JsonResult(boolean matches) {
+            this.matches = matches;
+            groups = null;
+        }
+
+        private JsonResult(boolean matches, List<String> groups) {
+            this.matches = matches;
+            this.groups = matches ? groups : null;
+        }
+    }
+
     public static class FilterCheckResult {
 
-        private boolean hidden;
+        private FilterStatus status;
         private int hiddenCount;
         private List<String> hiddenIds;
         private int ignored;
         List<String> notFoundIds;
+        private String replacement;
 
-        private FilterCheckResult(int hiddenCount, List<String> hiddenIds, int ignored, List<String> notFoundIds) {
-            hidden = hiddenCount > 0;
+        private FilterCheckResult(int hiddenCount, List<String> hiddenIds, int ignored, List<String> notFoundIds, String replacement) {
+            status = replacement != null ? FilterStatus.REPLACED : (hiddenCount > 0 ? FilterStatus.HIDDEN : FilterStatus.NORMAL);
             this.hiddenCount = hiddenCount;
             this.hiddenIds = hiddenIds;
             this.ignored = ignored;
             this.notFoundIds = notFoundIds;
+            this.replacement = replacement;
         }
 
-        public boolean isHidden() {
-            return hidden;
+        public FilterStatus getStatus() {
+            return status;
         }
 
         public int getHiddenCount() {
@@ -204,6 +294,14 @@ public class Util {
 
         public List<String> getNotFoundIds() {
             return notFoundIds;
+        }
+
+        public String getReplacement() {
+            return replacement;
+        }
+
+        public enum FilterStatus {
+            NORMAL, HIDDEN, REPLACED
         }
     }
 }

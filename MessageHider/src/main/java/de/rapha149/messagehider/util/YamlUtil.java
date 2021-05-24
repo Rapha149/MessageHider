@@ -244,11 +244,13 @@ public class YamlUtil {
             private boolean regex;
             private boolean ignoreCase;
             private boolean onlyHideForOtherPlayers;
+            private Integer priority;
             private List<String> senders;
             private List<String> excludedSenders;
             private List<String> receivers;
             private List<String> excludedReceivers;
             private String message;
+            private String replacement;
 
             private transient List<UUID> senderUUIDs;
             private transient List<UUID> excludedSenderUUIDs;
@@ -262,11 +264,13 @@ public class YamlUtil {
                 regex = false;
                 ignoreCase = false;
                 onlyHideForOtherPlayers = false;
+                priority = null;
                 senders = new ArrayList<>();
                 excludedSenders = new ArrayList<>();
                 receivers = new ArrayList<>();
                 excludedReceivers = new ArrayList<>();
                 message = "";
+                replacement = null;
 
                 senderUUIDs = new ArrayList<>();
                 excludedSenderUUIDs = new ArrayList<>();
@@ -274,18 +278,21 @@ public class YamlUtil {
                 excludedReceiverUUIDs = new ArrayList<>();
             }
 
-            public FilterData(String id, boolean json, int jsonPrecisionLevel, boolean regex, boolean ignoreCase, boolean onlyHideForOtherPlayers, String message) {
+            public FilterData(String id, boolean json, int jsonPrecisionLevel, boolean regex, boolean ignoreCase,
+                              boolean onlyHideForOtherPlayers, Integer priority, String message, String replacement) {
                 this.id = id;
                 this.json = json;
                 this.jsonPrecisionLevel = jsonPrecisionLevel;
                 this.regex = regex;
                 this.ignoreCase = ignoreCase;
                 this.onlyHideForOtherPlayers = onlyHideForOtherPlayers;
+                this.priority = priority;
                 this.senders = new ArrayList<>();
                 this.excludedSenders = new ArrayList<>();
                 this.receivers = new ArrayList<>();
                 this.excludedReceivers = new ArrayList<>();
                 this.message = message;
+                this.replacement = replacement;
 
                 senderUUIDs = new ArrayList<>();
                 excludedSenderUUIDs = new ArrayList<>();
@@ -341,6 +348,14 @@ public class YamlUtil {
                 this.onlyHideForOtherPlayers = onlyHideForOtherPlayers;
             }
 
+            public Integer getPriority() {
+                return priority;
+            }
+
+            public void setPriority(Integer priority) {
+                this.priority = priority;
+            }
+
             public List<String> getSenders() {
                 return senders;
             }
@@ -383,6 +398,14 @@ public class YamlUtil {
 
             public void setMessage(String message) {
                 this.message = message;
+            }
+
+            public String getReplacement() {
+                return replacement;
+            }
+
+            public void setReplacement(String replacement) {
+                this.replacement = replacement;
             }
 
             public List<UUID> getSenderUUIDs() {

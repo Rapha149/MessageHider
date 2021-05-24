@@ -14,23 +14,23 @@ public class Presets {
     public static FilterData ONLY_SELF_COMMANDS;
 
     static {
-        GAMEMODE_CHANGE = new FilterData("gamemode_change", true, 1, true, false, false,
-                loadJson("gamemode_change.json"));
+        GAMEMODE_CHANGE = new FilterData("gamemode_change", true, 1, true, false,
+                false, null, loadJson("gamemode_change.json"), null);
 
         if (Updates.isBukkitVersionAboveOrEqualTo("1.16")) {
-            ONLY_SELF_COMMANDS = new FilterData("only_self_commands",true, 1, true, false, true,
-                    loadJson("only_self_commands.json"));
+            ONLY_SELF_COMMANDS = new FilterData("only_self_commands",true, 1, true, false,
+                    true, null, loadJson("only_self_commands.json"), null);
         }
 
         if (Updates.isBukkitVersionAboveOrEqualTo("1.13")) {
-            IDLE_TIMEOUT = new FilterData("idle_timeout",true, 3, true, false, false,
-                    loadJson("idle_timeout_1.13.json"));
+            IDLE_TIMEOUT = new FilterData("idle_timeout",true, 3, true, false,
+                    false, null, loadJson("idle_timeout_1.13.json"), null);
         } else if (Updates.isBukkitVersionAboveOrEqualTo("1.8")) {
-            IDLE_TIMEOUT = new FilterData("idle_timeout",true, 3, true, false, false,
-                    loadJson("idle_timeout_1.8.json"));
+            IDLE_TIMEOUT = new FilterData("idle_timeout",true, 3, true, false,
+                    false, null, loadJson("idle_timeout_1.8.json"), null);
         } else {
-            IDLE_TIMEOUT = new FilterData("idle_timeout",false, 0, false, false, false,
-                    "commands.setidletimeout.success");
+            IDLE_TIMEOUT = new FilterData("idle_timeout",false, 0, false, false,
+                    false, null, "commands.setidletimeout.success", null);
         }
     }
 

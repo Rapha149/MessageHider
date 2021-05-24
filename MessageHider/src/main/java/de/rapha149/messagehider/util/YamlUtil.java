@@ -104,10 +104,12 @@ public class YamlUtil {
 
         List<String> ids = new ArrayList<>();
         getFilters().forEach(filter -> {
-            if (!ids.contains(filter.id))
-                ids.add(filter.id);
-            else
-                Main.getInstance().getLogger().warning("You have duplicate filter ids: \"" + filter.id + "\"");
+            if(filter.id != null) {
+                if (!ids.contains(filter.id))
+                    ids.add(filter.id);
+                else
+                    Main.getInstance().getLogger().warning("You have duplicate filter ids: \"" + filter.id + "\"");
+            }
         });
 
         PresetsData presets = data.presets;

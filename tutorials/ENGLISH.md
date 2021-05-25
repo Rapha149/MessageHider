@@ -65,9 +65,10 @@ messageFilters: [
 ]
 prefix: '&8[&cMH&8] '
 presets:
-	gamemodeChange: false
-	idleTimeout: false
-	onlySelfCommands: false
+  consoleCommands: false
+  gamemodeChange: false
+  idleTimeout: false
+  onlySelfCommands: false
 ```
 
 ### Miscellaneous

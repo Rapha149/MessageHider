@@ -66,6 +66,7 @@ messageFilters: [
   ]
 prefix: '&8[&cMH&8] '
 presets:
+  consoleCommands: false
   gamemodeChange: false
   idleTimeout: false
   onlySelfCommands: false

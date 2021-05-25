@@ -8,6 +8,9 @@ import de.rapha149.messagehider.util.Util.FilterCheckResult.FilterStatus;
 import de.rapha149.messagehider.util.YamlUtil;
 import de.rapha149.messagehider.util.YamlUtil.YamlData.FilterData;
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import org.bukkit.Bukkit;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 
@@ -55,25 +58,28 @@ public class MessageHiderCommand implements CommandExecutor, TabCompleter {
                                 switch (args[1].toLowerCase()) {
                                     case "start":
                                         if (!logging.containsKey(uuid)) {
-                                            File file = new File(Main.getInstance().getDataFolder(), "logs/" + player.getName() + ".log");
+                                            File file = new File(Main.getInstance().getDataFolder(), "logs/" + player.getName() +
+                                                    "_" + new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss").format(new Date()) + ".log");
                                             if (!file.getParentFile().exists())
                                                 file.getParentFile().mkdirs();
-                                            if (file.exists())
-                                                file.delete();
 
                                             logging.put(uuid, file);
                                             write(uuid, format.format(new Date()) + "\nStarted logging");
-                                            player.sendMessage(YamlUtil.getPrefix() + "§aYou are now logging messages sent to you." +
-                                                    "\n§2Use §7/" + alias + " stop §2to stop logging.");
+                                            player.sendMessage(YamlUtil.getPrefix() + "§aYou are now logging messages sent to you.");
+                                            player.spigot().sendMessage(new ComponentBuilder("§2Use ")
+                                                    .append("§7/mh log stop").event(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/mh log stop"))
+                                                    .append(" §2to stop logging.").reset().create());
                                         } else
                                             player.sendMessage(YamlUtil.getPrefix() + "§6You are already logging messages.");
                                         break;
                                     case "stop":
                                         if (logging.containsKey(uuid)) {
                                             player.sendMessage(YamlUtil.getPrefix() + "§bStopped logging." +
-                                                    "\n§3Logged messages can be found in §7" + logging.get(uuid).getPath() + "§3.");
-                                            write(uuid, format.format(new Date()) + "\nStopped logging\n");
-                                            logging.remove(uuid);
+                                                    "\n§3Logged messages are located in §7" + logging.get(uuid).getParentFile().getPath() + "§3.");
+                                            Bukkit.getScheduler().runTask(Main.getInstance(), () -> {
+                                                write(uuid, format.format(new Date()) + "\nStopped logging\n");
+                                                logging.remove(uuid);
+                                            });
                                         } else
                                             player.sendMessage(YamlUtil.getPrefix() + "§6You weren't logging messages.");
                                         break;

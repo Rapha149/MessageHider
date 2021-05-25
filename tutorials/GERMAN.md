@@ -10,9 +10,11 @@
 		+ [IdleTimeout](#idletimeout)
 		+ [Gamemode-Change](#gamemode-change)
 		+ [Only Self Commands](#only-self-commands)
+		+ [Console Commands](#console-commands)
 	- [Eigene Filter](#eigene-filter)
 		+ [Beispiele](#beispiele)
 	- [Weitere Infos](#weitere-infos)
+	- [1.16+](#1.16+)
 
 ## Allgemein
 
@@ -92,10 +94,11 @@ Wenn diese Voreinstellung aktiviert ist, bekommst du nicht mehr die Nachrichten,
 
 #### Only Self Commands
 
-Wenn diese Voreinstellung aktiviert ist, bekommt man nur noch Nachrichten von eigenen Commands. Dies klappt leider nur in 1.16+, weil es dadrunter die Methode dafür noch nicht bei Spigot gibt. 
+Wenn diese Voreinstellung aktiviert ist, bekommt man nur noch Nachrichten von eigenen Commands. (1.16+)
 
-**Für Plugin-Programmierer**  
-Ich mache das über das `PacketPlayOutChat` packet. Nur ab der 1.16 gibt es dort das Feld `c` vom Typ `UUID`. Wenn jemand weiß, wie das auch schon in tieferen Versionen geht, schreibt mich gerne an!
+#### Console Commands
+
+Wenn diese Voreinstellung aktiviert ist, bekommt man als Operator nicht mehr Nachrichten von Commands, die aus der Konsole gesendet wurden. (1.16+)
 
 ### Eigene Filter
 
@@ -212,6 +215,28 @@ senders: [
 ]
 ```
 
+##### Voreinstellung: Console Commands
+
+```yml
+excludedReceivers: [
+]
+excludedSenders: [
+]
+id: console_commands
+ignoreCase: false
+json: true
+jsonPrecisionLevel: 1
+message: '{"italic":true,"color":"gray","translate":"chat\\.type\\.admin","with":[{},{"translate":"commands\\.(\\w|\\.)+"}]}'
+onlyHideForOtherPlayers: false
+priority: null
+receivers: [
+]
+regex: true
+replacement: null
+senders: 
+  - <console>
+```
+
 ##### Beispiel für Senders und Receivers
 
 ```yml
@@ -234,7 +259,7 @@ replacement: null
 senders: 
   - robabla
   - 073b1315-85ff-49d8-8041-51627214dae0
-  - CONSOLE
+  - <console>
 ```
 
 Erklärung:
@@ -249,6 +274,13 @@ Erklärung:
 - Ich empfehle die UUIDs anzugeben, da das Plugin bei Namen die UUIDs aus dem Internet abrufen muss. Das kann das Neuladen der Config verlangsamen oder das Plugin unbrauchbar machen, wenn das Plugin aus irgendeinem Grund nicht auf das Internet oder die Website [MC-Heads](https://www.mc-heads.net/) zugreifen kann.
 - Wenn der Onlinemode des Servers auf `false` ist, vergleicht das Plugin die Namen nicht mit UUIDs. Wenn bei UUIDs angegeben wurden, vergleicht es diese, wenn aber Namen angegeben wurden, werden Namen mit Namen verglichen.
 - Dieses Beispiel ist nicht logisch, da `excludedReceivers` und `receivers` (auch `excludedSenders` und `senders`) angegeben wurde. Es ist nur zu Beispielzwecken gedacht.
+
+#### 1.16+
+
+Ein paar Filter und Funktionen wie `senders` sind ja nur für 1.16+ verfügbar. Dies ist so, weil man ab dieser Version herausfinden kann, wer eine Nachricht gesendet hat.
+
+**Für Plugin-Programmierer**  
+Ich mache das über das `PacketPlayOutChat` Packet. Nur ab der 1.16 gibt es dort das Feld `c` vom Typ `UUID`. Wenn jemand weiß, wie das auch schon in tieferen Versionen geht, schreibt mich gerne an!
 
 ## Schluss
 

@@ -10,9 +10,11 @@
 		+ [Idle timeout](#idle-timeout)
 		+ [Gamemode change](#gamemode-change)
 		+ [Only self commands](#only-self-commands)
+		+ [Console commands](#console-commands)
 	- [Custom filters](#custom-filters)
 		+ [Examples](#examples)
 	- [Additional information](#additional-information)
+	- [1.16+](#1.16+)
 
 ## Allgemein
 
@@ -91,10 +93,11 @@ If this preset is enabled, you will no longer receive the messages when other pl
 
 #### Only self commands
 
-If this preset is enabled, you only receive feedback messages from your own commands. Unfortunately, this only works in 1.16+, because the method for this does not yet exist in Spigot. 
+If this preset is enabled, you only receive feedback messages from your own commands. (1.16+)
 
-**For plugin programmers**  
-I do this via the `PacketPlayOutChat` packet. Only starting from the 1.16 there is the field `c` of the type `UUID`. If someone knows how to do this even in deeper versions, feel free to contact me!
+#### Console commands
+
+If this default is enabled, operators will no longer receive messages from commands sent from the console. (1.16+)
 
 ### Custom filters
 
@@ -211,6 +214,28 @@ senders: [
 ]
 ```
 
+##### Preset: Console commands
+
+```yml
+excludedReceivers: [
+]
+excludedSenders: [
+]
+id: console_commands
+ignoreCase: false
+json: true
+jsonPrecisionLevel: 1
+message: '{"italic":true,"color":"gray","translate":"chat\\.type\\.admin","with":[{},{"translate":"commands\\.(\\w|\\.)+"}]}'
+onlyHideForOtherPlayers: false
+priority: null
+receivers: [
+]
+regex: true
+replacement: null
+senders: 
+  - <console>
+```
+
 ##### Example for senders and receivers
 
 ```yml
@@ -233,7 +258,7 @@ replacement: null
 senders: 
   - robabla
   - 073b1315-85ff-49d8-8041-51627214dae0
-  - CONSOLE
+  - <console>
 ```
 
 Explanation:
@@ -248,6 +273,13 @@ Explanation:
 - I recommend providing the UUIDs, because the plugin has to retrieve the UUIDs from the internet when names are used. This can slow down the reloading of the config or make the plugin unusable if, for some reason, the plugin cannot access the internet or the website [MC-Heads](https://www.mc-heads.net/).
 - If the server's online mode is set to `false` the plugin will not validate UUIDs. If UUIDs are provided it will compare these, but if names are provided it will compare names with names.
 - This example is not logical because `excludedReceivers` and `receivers` (also `excludedSenders` and `senders`) were provided. It is intended for example purposes only.
+
+#### 1.16+
+
+Some filters and functions like `senders` are only available for 1.16+. This is because from this version you can find out who sent a message.
+
+**For plugin programmers**  
+I do this via the `PacketPlayOutChat` packet. Only starting from the 1.16 there is the field `c` of the type `UUID`. If someone knows how to do this even in deeper versions, feel free to contact me!
 
 ## Final words
 

@@ -117,6 +117,8 @@ public class YamlUtil {
             Main.getInstance().getLogger().warning("You enabled the preset 'gamemodeChange' but it is not suitable for this server version.");
         if (presets.onlySelfCommands && Presets.ONLY_SELF_COMMANDS == null)
             Main.getInstance().getLogger().warning("You enabled the preset 'onlySelfCommands' but it is not suitable for this server version.");
+        if (presets.consoleCommands && Presets.CONSOLE_COMMANDS == null)
+            Main.getInstance().getLogger().warning("You enabled the preset 'consoleCommands' but it is not suitable for this server version.");
 
         uuidCache.clear();
     }
@@ -129,17 +131,7 @@ public class YamlUtil {
     }
 
     public static List<FilterData> getFilters() {
-        List<FilterData> filters = new ArrayList<>(data.filters);
-
-        PresetsData presets = data.presets;
-        if (presets.idleTimeout)
-            filters.add(Presets.IDLE_TIMEOUT);
-        if (presets.gamemodeChange && Presets.GAMEMODE_CHANGE != null)
-            filters.add(Presets.GAMEMODE_CHANGE);
-        if (presets.onlySelfCommands && Presets.ONLY_SELF_COMMANDS != null)
-            filters.add(Presets.ONLY_SELF_COMMANDS);
-
-        return filters;
+        return data.filters;
     }
 
     public static void addFilter(FilterData filter) throws IOException {
@@ -215,6 +207,16 @@ public class YamlUtil {
         public void setMessageFilters(List<FilterData> messageFilters) {
             this.messageFilters = messageFilters;
             filters = new ArrayList<>(messageFilters);
+
+            if (presets.idleTimeout)
+                filters.add(Presets.IDLE_TIMEOUT);
+            if (presets.gamemodeChange && Presets.GAMEMODE_CHANGE != null)
+                filters.add(Presets.GAMEMODE_CHANGE);
+            if (presets.onlySelfCommands && Presets.ONLY_SELF_COMMANDS != null)
+                filters.add(Presets.ONLY_SELF_COMMANDS);
+            if(presets.consoleCommands && Presets.CONSOLE_COMMANDS != null)
+                filters.add(Presets.CONSOLE_COMMANDS);
+
             filters.sort((f1, f2) -> {
                 if(f1.priority == null && f2.priority == null)
                     return 0;
@@ -231,11 +233,13 @@ public class YamlUtil {
             private boolean idleTimeout;
             private boolean gamemodeChange;
             private boolean onlySelfCommands;
+            private boolean consoleCommands;
 
             public PresetsData() {
                 idleTimeout = false;
                 gamemodeChange = false;
                 onlySelfCommands = false;
+                consoleCommands = false;
             }
 
             public boolean isIdleTimeout() {
@@ -260,6 +264,14 @@ public class YamlUtil {
 
             public void setOnlySelfCommands(boolean onlySelfCommands) {
                 this.onlySelfCommands = onlySelfCommands;
+            }
+
+            public boolean isConsoleCommands() {
+                return consoleCommands;
+            }
+
+            public void setConsoleCommands(boolean consoleCommands) {
+                this.consoleCommands = consoleCommands;
             }
         }
 
@@ -325,6 +337,29 @@ public class YamlUtil {
                 excludedSenderUUIDs = new ArrayList<>();
                 receiverUUIDs = new ArrayList<>();
                 excludedReceiverUUIDs = new ArrayList<>();
+            }
+
+            public FilterData(String id, boolean json, int jsonPrecisionLevel, boolean regex, boolean ignoreCase,
+                              boolean onlyHideForOtherPlayers, Integer priority, String message, String replacement,
+                              List<String> senders, List<String> excludedSenders, List<String> receivers, List<String> excludedReceivers) {
+                this.id = id;
+                this.json = json;
+                this.jsonPrecisionLevel = jsonPrecisionLevel;
+                this.regex = regex;
+                this.ignoreCase = ignoreCase;
+                this.onlyHideForOtherPlayers = onlyHideForOtherPlayers;
+                this.priority = priority;
+                this.senders = senders;
+                this.excludedSenders = excludedSenders;
+                this.receivers = receivers;
+                this.excludedReceivers = excludedReceivers;
+                this.message = message;
+                this.replacement = replacement;
+
+                senderUUIDs = YamlUtil.getUUIDs(senders);
+                excludedSenderUUIDs = YamlUtil.getUUIDs(excludedSenders);
+                receiverUUIDs = YamlUtil.getUUIDs(receivers);
+                excludedReceiverUUIDs = YamlUtil.getUUIDs(excludedReceivers);
             }
 
             public String getId() {

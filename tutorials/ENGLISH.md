@@ -97,7 +97,7 @@ If this preset is enabled, you only receive feedback messages from your own comm
 
 #### Console commands
 
-If this default is enabled, operators will no longer receive messages from commands sent from the console. (1.16+)
+If this preset is enabled, operators will no longer receive messages from commands sent from the console. (1.16+)
 
 ### Custom filters
 

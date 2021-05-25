@@ -131,7 +131,19 @@ public class YamlUtil {
     }
 
     public static List<FilterData> getFilters() {
-        return data.filters;
+        List<FilterData> filters = new ArrayList<>(data.filters);
+
+        PresetsData presets = data.presets;
+        if (presets.idleTimeout)
+            filters.add(Presets.IDLE_TIMEOUT);
+        if (presets.gamemodeChange && Presets.GAMEMODE_CHANGE != null)
+            filters.add(Presets.GAMEMODE_CHANGE);
+        if (presets.onlySelfCommands && Presets.ONLY_SELF_COMMANDS != null)
+            filters.add(Presets.ONLY_SELF_COMMANDS);
+        if(presets.consoleCommands && Presets.CONSOLE_COMMANDS != null)
+            filters.add(Presets.CONSOLE_COMMANDS);
+
+        return filters;
     }
 
     public static void addFilter(FilterData filter) throws IOException {
@@ -207,16 +219,6 @@ public class YamlUtil {
         public void setMessageFilters(List<FilterData> messageFilters) {
             this.messageFilters = messageFilters;
             filters = new ArrayList<>(messageFilters);
-
-            if (presets.idleTimeout)
-                filters.add(Presets.IDLE_TIMEOUT);
-            if (presets.gamemodeChange && Presets.GAMEMODE_CHANGE != null)
-                filters.add(Presets.GAMEMODE_CHANGE);
-            if (presets.onlySelfCommands && Presets.ONLY_SELF_COMMANDS != null)
-                filters.add(Presets.ONLY_SELF_COMMANDS);
-            if(presets.consoleCommands && Presets.CONSOLE_COMMANDS != null)
-                filters.add(Presets.CONSOLE_COMMANDS);
-
             filters.sort((f1, f2) -> {
                 if(f1.priority == null && f2.priority == null)
                     return 0;

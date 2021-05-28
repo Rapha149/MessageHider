@@ -38,6 +38,7 @@ public class Main extends JavaPlugin {
         metrics.addCustomChart(new SingleLineChart("idle_timeout", () -> YamlUtil.getPresets().isIdleTimeout() ? 1 : 0));
         metrics.addCustomChart(new SingleLineChart("gamemode_change", () -> YamlUtil.getPresets().isGamemodeChange() ? 1 : 0));
         metrics.addCustomChart(new SingleLineChart("only_self_commands", () -> YamlUtil.getPresets().isOnlySelfCommands() ? 1 : 0));
+        metrics.addCustomChart(new SingleLineChart("console_commands", () -> YamlUtil.getPresets().isConsoleCommands() ? 1 : 0));
         metrics.addCustomChart(new SingleLineChart("custom_filters_total", () -> YamlUtil.getCustomFilters().size()));
         metrics.addCustomChart(new SimplePie("custom_filters_per_server", () -> String.valueOf(YamlUtil.getCustomFilters().size())));
 

@@ -65,7 +65,7 @@ public class Updates {
     }
 
     public static boolean isBukkitVersionAboveOrEqualTo(String version) {
-        Matcher matcher = Pattern.compile("\\d+\\.\\d+\\.\\d+").matcher(Bukkit.getVersion());
+        Matcher matcher = Pattern.compile("\\d+\\.\\d+(\\.\\d+)?").matcher(Bukkit.getVersion());
         return matcher.find() && compare(matcher.group(), version) >= 0;
     }
 

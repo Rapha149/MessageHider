@@ -67,7 +67,7 @@ public class Events implements Listener {
                         String json;
                         String plain;
                         if (component != null) {
-                            json = (String) ReflectionUtil.invokeStaticMethod(true, "IChatBaseComponent$ChatSerializer",
+                            json = (String) ReflectionUtil.invokeStaticMethod(ReflectionUtil.getClass(true, "IChatBaseComponent$ChatSerializer"),
                                     "a", new Param(true, "IChatBaseComponent", component));
                             plain = (String) ReflectionUtil.invokeMethod(component, ReflectionUtil.TO_PLAIN_TEXT);
                         } else {

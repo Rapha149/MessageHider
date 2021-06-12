@@ -34,7 +34,7 @@ public class Util {
         while (matcher.find()) {
             sb.append(input, current, matcher.start());
             current = matcher.end();
-            int group = Integer.parseInt(matcher.group(1)) - 1;
+            int group = Integer.parseInt(matcher.group(1));
             sb.append(group < groups.size() ? groups.get(group) : matcher.group());
         }
         return sb + input.substring(current);
@@ -133,7 +133,7 @@ public class Util {
 
                             if (replacement == null && replace != null) {
                                 List<String> groups = new ArrayList<>();
-                                for (int i = 0; i < matcher.groupCount(); i++)
+                                for (int i = 0; i <= matcher.groupCount(); i++)
                                     groups.add(matcher.group(i));
                                 replacement = replaceGroups(replace, groups);
                             }

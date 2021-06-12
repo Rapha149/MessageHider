@@ -62,13 +62,14 @@ public class Events implements Listener {
             @Override
             public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
                 try {
-                    if (msg.getClass() == ReflectionUtil.getClass(true, "PacketPlayOutChat")) {
+                    if (msg.getClass() == ReflectionUtil.getClass(true, "PacketPlayOutChat", "network.protocol.game")) {
                         Object component = ReflectionUtil.getField(msg, "a");
                         String json;
                         String plain;
                         if (component != null) {
-                            json = (String) ReflectionUtil.invokeStaticMethod(ReflectionUtil.getClass(true, "IChatBaseComponent$ChatSerializer"),
-                                    "a", new Param(true, "IChatBaseComponent", component));
+                            json = (String) ReflectionUtil.invokeStaticMethod(
+                                    ReflectionUtil.getClass(true, "IChatBaseComponent$ChatSerializer", "network.chat"),
+                                    "a", new Param(ReflectionUtil.getClass(true, "IChatBaseComponent", "network.chat"), component));
                             plain = (String) ReflectionUtil.invokeMethod(component, ReflectionUtil.TO_PLAIN_TEXT);
                         } else {
                             BaseComponent[] components = (BaseComponent[]) ReflectionUtil.getField(msg, "components");
@@ -91,11 +92,11 @@ public class Events implements Listener {
                         if (result.getStatus() == FilterStatus.REPLACED) {
                             ReflectionUtil.setField(msg, "a", null);
                             BaseComponent[] replacement = Util.formatReplacementString(result.getReplacement());
-                            if(replacement != null)
+                            if (replacement != null)
                                 ReflectionUtil.setField(msg, "components", replacement);
                             else
                                 return;
-                        } else if(result.getStatus() == FilterStatus.HIDDEN)
+                        } else if (result.getStatus() == FilterStatus.HIDDEN)
                             return;
                     }
                 } catch (Exception e) {
@@ -108,13 +109,13 @@ public class Events implements Listener {
     }
 
     private ChannelPipeline getPipeline(Player player) {
-        return ((Channel) ReflectionUtil.getField(
-                ReflectionUtil.getField(
-                        ReflectionUtil.getField(
+        return ((Channel) ReflectionUtil.getFieldFromType(
+                ReflectionUtil.getFieldFromType(
+                        ReflectionUtil.getFieldFromType(
                                 ReflectionUtil.invokeMethod(player,
                                         "getHandle"),
-                                "playerConnection"),
-                        "networkManager"),
-                "channel")).pipeline();
+                                ReflectionUtil.getClass(true, "PlayerConnection", "server.network")),
+                        ReflectionUtil.getClass(true, "NetworkManager", "network")),
+                Channel.class)).pipeline();
     }
 }

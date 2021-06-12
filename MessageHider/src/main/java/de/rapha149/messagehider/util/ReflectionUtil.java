@@ -16,6 +16,7 @@ public class ReflectionUtil {
     private static String version;
     private static String craftbukkitPackage;
     private static String nmsPackage;
+    private static boolean useNewNMSPrefix;
 
     public static String TO_PLAIN_TEXT;
 
@@ -24,7 +25,12 @@ public class ReflectionUtil {
         if (matcher.find()) {
             version = matcher.group();
             craftbukkitPackage = "org.bukkit.craftbukkit." + version + ".";
-            nmsPackage = "net.minecraft.server." + version + ".";
+
+            if (Updates.isBukkitVersionAboveOrEqualTo("1.17")) {
+                nmsPackage = "net.minecraft.";
+                useNewNMSPrefix = true;
+            } else
+                nmsPackage = "net.minecraft.server." + version + ".";
 
             if (Updates.isBukkitVersionAboveOrEqualTo("1.13"))
                 TO_PLAIN_TEXT = "getString";
@@ -37,13 +43,18 @@ public class ReflectionUtil {
         return false;
     }
 
-    public static Class<?> getClass(Boolean nms, String className) {
+    public static Class<?> getClass(Boolean nms, String className, String newNMSPrefix) {
         try {
-            return Class.forName((nms == null ? "" : (nms ? nmsPackage : craftbukkitPackage)) + className);
+            if (nms == null)
+                return Class.forName(className);
+            else if (nms) {
+                return Class.forName(nmsPackage + (useNewNMSPrefix ? newNMSPrefix + "." : "") + className);
+            } else
+                return Class.forName(craftbukkitPackage + className);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
-            return null;
         }
+        return null;
     }
 
     public static Object invokeStaticMethod(Class<?> c, String method, Object... parameters) {
@@ -52,7 +63,7 @@ public class ReflectionUtil {
 
     public static Object invokeStaticMethod(Class<?> c, String method, Param... parameters) {
         try {
-            Class<?>[] params = Arrays.stream(parameters).map(param -> param.clazz).toArray(Class<?>[]::new);
+            Class<?>[] params = Arrays.stream(parameters).map(param -> param.c).toArray(Class<?>[]::new);
 
             Method m = c.getMethod(method, params);
             m.setAccessible(true);
@@ -71,7 +82,7 @@ public class ReflectionUtil {
     public static Object invokeMethod(Object obj, String method, Param... parameters) {
         try {
             Class<?> c = obj.getClass();
-            Class<?>[] params = Arrays.stream(parameters).map(param -> param.clazz).toArray(Class<?>[]::new);
+            Class<?>[] params = Arrays.stream(parameters).map(param -> param.c).toArray(Class<?>[]::new);
 
             Method m = c.getMethod(method, params);
             m.setAccessible(true);
@@ -88,7 +99,7 @@ public class ReflectionUtil {
 
     public static Object newInstance(Class<?> c, Param... parameters) {
         try {
-            Class<?>[] params = Arrays.stream(parameters).map(param -> param.clazz).toArray(Class<?>[]::new);
+            Class<?>[] params = Arrays.stream(parameters).map(param -> param.c).toArray(Class<?>[]::new);
 
             Constructor<?> constructor = c.getConstructor(params);
             constructor.setAccessible(true);
@@ -183,35 +194,17 @@ public class ReflectionUtil {
 
     public static class Param {
 
-        private Class<?> clazz;
+        private Class<?> c;
         private Object value;
 
         public Param(Object value) {
-            clazz = value.getClass();
+            c = value.getClass();
             this.value = value;
         }
 
-        public Param(Class<?> clazz, Object value) {
-            this.clazz = clazz;
+        public Param(Class<?> c, Object value) {
+            this.c = c;
             this.value = value;
-        }
-
-        public Param(String className, Object value) {
-            try {
-                this.clazz = Class.forName(className);
-                this.value = value;
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
-        }
-
-        public Param(boolean nms, String className, Object value) {
-            try {
-                this.clazz = Class.forName((nms ? nmsPackage : craftbukkitPackage) + className);
-                this.value = value;
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
         }
     }
 }

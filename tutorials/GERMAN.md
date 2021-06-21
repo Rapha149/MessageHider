@@ -18,7 +18,7 @@
 
 ## Allgemein
 
-Erst mal: Danke, dass du dieses Plugin nutzt und auch diese Anleitung durchließt!  
+Erst mal: Danke, dass du dieses Plugin nutzt und auch diese Anleitung durchliest!  
 Ein paar Infos vorab:  
 
 - Allgemein, wenn du mir etwas mitteilen möchtest, erstelle bitte ein Issue hier.

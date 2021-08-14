@@ -4,10 +4,12 @@ import de.rapha149.messagehider.Metrics.SimplePie;
 import de.rapha149.messagehider.Metrics.SingleLineChart;
 import de.rapha149.messagehider.util.ReflectionUtil;
 import de.rapha149.messagehider.util.YamlUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.UUID;
 
 public class Main extends JavaPlugin {
@@ -15,6 +17,7 @@ public class Main extends JavaPlugin {
     public static final UUID ZERO_UUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
     private static Main instance;
     private Events events;
+    public boolean placeholderAPISupport;
 
     @Override
     public void onEnable() {
@@ -44,6 +47,12 @@ public class Main extends JavaPlugin {
 
         new MessageHiderCommand(getCommand("messagehider"));
         manager.registerEvents(events = new Events(), this);
+
+        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            placeholderAPISupport = true;
+            Placeholders.registerPlaceholderExpansion();
+            getLogger().info("PlaceholderAPI support was enabled.");
+        }
 
         if (YamlUtil.shouldCheckForUpdates()) {
             String version = Updates.getAvailableVersion(true);

@@ -39,7 +39,7 @@ public class Events implements Listener {
                         .append(" §6or ").reset()
                         .append("§3BukkitDev").event(new ClickEvent(ClickEvent.Action.OPEN_URL, Updates.BUKKIT_URL))
                         .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("§3Click here to view the plugin on BukkitDev." +
-                                "\n§7It may take a few hours until the update is approved there.").create()))
+                                                                                                "\n§7It may take a few hours until the update is approved there.").create()))
                         .append("§6.").create());
             }
         }
@@ -63,15 +63,29 @@ public class Events implements Listener {
             public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
                 try {
                     if (msg.getClass() == ReflectionUtil.getClass(true, "PacketPlayOutChat", "network.protocol.game")) {
+                        boolean adventure = false;
+                        String json = null;
+                        String plain = null;
                         Object component = ReflectionUtil.getField(msg, "a");
-                        String json;
-                        String plain;
                         if (component != null) {
                             json = (String) ReflectionUtil.invokeStaticMethod(
                                     ReflectionUtil.getClass(true, "IChatBaseComponent$ChatSerializer", "network.chat"),
                                     "a", new Param(ReflectionUtil.getClass(true, "IChatBaseComponent", "network.chat"), component));
                             plain = (String) ReflectionUtil.invokeMethod(component, ReflectionUtil.TO_PLAIN_TEXT);
                         } else {
+                            try {
+                                msg.getClass().getDeclaredField("adventure$message");
+                                adventure = true;
+
+                                component = ReflectionUtil.getField(msg, "adventure$message");
+                                json = (String) ReflectionUtil.invokeMethod(ReflectionUtil.invokeStaticMethod(
+                                        ReflectionUtil.getClass("net.kyori.adventure.text.serializer.gson.GsonComponentSerializer"), "gson"),
+                                        "serialize", new Param(ReflectionUtil.getClass("net.kyori.adventure.text.Component"), component));
+                                plain = new TextComponent(ComponentSerializer.parse(json)).toPlainText();
+                            } catch (NoSuchFieldException ignore) {
+                            }
+                        }
+                        if (component == null) {
                             BaseComponent[] components = (BaseComponent[]) ReflectionUtil.getField(msg, "components");
                             json = ComponentSerializer.toString(components);
                             plain = new TextComponent(components).toPlainText();
@@ -89,8 +103,15 @@ public class Events implements Listener {
 
                         FilterCheckResult result = Util.checkFilters(true, plain, json, sender, receiver);
                         MessageHiderCommand.log(receiver, sender, plain, json, result);
+
+                        if (!result.getCommands().isEmpty())
+                            Bukkit.getScheduler().runTask(Main.getInstance(), () ->
+                                    result.getCommands().forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command)));
+
                         if (result.getStatus() == FilterStatus.REPLACED) {
                             ReflectionUtil.setField(msg, "a", null);
+                            if (adventure)
+                                ReflectionUtil.setField(msg, "adventure$message", null);
                             BaseComponent[] replacement = Util.formatReplacementString(result.getReplacement());
                             if (replacement != null)
                                 ReflectionUtil.setField(msg, "components", replacement);

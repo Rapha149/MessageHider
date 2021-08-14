@@ -125,6 +125,7 @@ public class MessageHiderCommand implements CommandExecutor, TabCompleter {
                             }
 
                             FilterCheckResult result = Util.checkFilters(false, json ? null : message, json ? message : null, null, null, filterIds);
+                            boolean player = sender instanceof Player;
                             StringBuilder sb = new StringBuilder(YamlUtil.getPrefix() + "§2Result:");
                             if (!result.getNotFoundIds().isEmpty())
                                 sb.append("\n§7  - §6These filter ids were not found: §e" + String.join("§8, §e", result.getNotFoundIds()));
@@ -140,14 +141,17 @@ public class MessageHiderCommand implements CommandExecutor, TabCompleter {
                                 sb.append("remain §anormal§7.");
 
                             if (!result.getHiddenIds().isEmpty())
-                                sb.append("\n§7  - §bThe filters that would have cancelled the message: §3" + String.join("§8, §3", result.getHiddenIds()));
+                                sb.append("\n§7  - §bThese filters that would have cancelled the message: §3" + String.join("§8, §3", result.getHiddenIds()));
                             else
                                 sb.append("\n§7  - §bNo filters with ids cancelled the message.");
                             sb.append("\n§7  - §3" + result.getHiddenCount() + " §btotal filter" + (result.getHiddenCount() == 1 ? "" : "s") +
                                     " cancelled the message. (Including filters without ids)");
                             if (result.getReplacement() != null)
                                 sb.append("\n§7  - §bThe message would be replaced by:" +
-                                        (!(sender instanceof Player) ? "\n§f    " + result.getReplacement() : ""));
+                                        (player ? "" : "\n§f    " + result.getReplacement()));
+                            if(!result.getCommands().isEmpty() && !player)
+                                sb.append("\n§7  - §bThe following commands would be executed:\n§f    /" +
+                                          String.join("\n§f    /", result.getCommands()));
                             sender.sendMessage(sb.toString());
 
                             if (result.getReplacement() != null && sender instanceof Player) {
@@ -155,6 +159,10 @@ public class MessageHiderCommand implements CommandExecutor, TabCompleter {
                                 if (replacement != null)
                                     sender.spigot().sendMessage(replacement);
                             }
+
+                            if(!result.getCommands().isEmpty() && player)
+                                sender.sendMessage("§7  - §bThe following commands would be executed:\n§f/" +
+                                                   String.join("\n§f/", result.getCommands()));
                         } else
                             sender.sendMessage(YamlUtil.getPrefix() + "§cPlease use §7/" + alias + " check <json|plain> <Filter ids> <Message>§c.");
                     } else

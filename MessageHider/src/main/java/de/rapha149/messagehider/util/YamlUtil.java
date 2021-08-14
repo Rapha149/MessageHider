@@ -76,7 +76,7 @@ public class YamlUtil {
                     continue;
             }
 
-            String filterSpecification = id != null ? "the filter" + id : "a filter";
+            String filterSpecification = id != null ? "the filter " + id : "a filter";
             if (filter.json) {
                 try {
                     if (!parser.parse(filter.message).isJsonObject())
@@ -92,7 +92,7 @@ public class YamlUtil {
                 String replacement = filter.getReplacement();
                 if (replacement.startsWith("{") && replacement.endsWith("}")) {
                     try {
-                        if (!parser.parse(filter.message).isJsonObject())
+                        if (!parser.parse(filter.replacement).isJsonObject())
                             throw new JsonParseException("");
                     } catch (JsonParseException e) {
                         Main.getInstance().getLogger().warning("You got a json error in '" + filter.message + "' (Replacement of " + filterSpecification + ")");
@@ -292,6 +292,7 @@ public class YamlUtil {
             private List<String> excludedReceivers;
             private String message;
             private String replacement;
+            private boolean onlyExecuteCommands;
             private List<String> commands;
 
             private transient List<UUID> senderUUIDs;
@@ -322,7 +323,8 @@ public class YamlUtil {
             }
 
             public FilterData(String id, boolean json, int jsonPrecisionLevel, boolean regex, boolean ignoreCase,
-                              boolean onlyHideForOtherPlayers, Integer priority, String message, String replacement, List<String> commands) {
+                              boolean onlyHideForOtherPlayers, Integer priority, String message, String replacement,
+                              boolean onlyExecuteCommands, List<String> commands) {
                 this.id = id;
                 this.json = json;
                 this.jsonPrecisionLevel = jsonPrecisionLevel;
@@ -336,6 +338,7 @@ public class YamlUtil {
                 this.excludedReceivers = new ArrayList<>();
                 this.message = message;
                 this.replacement = replacement;
+                this.onlyExecuteCommands = onlyExecuteCommands;
                 this.commands = commands;
 
                 senderUUIDs = new ArrayList<>();
@@ -345,7 +348,8 @@ public class YamlUtil {
             }
 
             public FilterData(String id, boolean json, int jsonPrecisionLevel, boolean regex, boolean ignoreCase,
-                              boolean onlyHideForOtherPlayers, Integer priority, String message, String replacement, List<String> commands,
+                              boolean onlyHideForOtherPlayers, Integer priority, String message, String replacement,
+                              boolean onlyExecuteCommands, List<String> commands,
                               List<String> senders, List<String> excludedSenders, List<String> receivers, List<String> excludedReceivers) {
                 this.id = id;
                 this.json = json;
@@ -360,6 +364,7 @@ public class YamlUtil {
                 this.excludedReceivers = excludedReceivers;
                 this.message = message;
                 this.replacement = replacement;
+                this.onlyExecuteCommands = onlyExecuteCommands;
                 this.commands = commands;
 
                 senderUUIDs = YamlUtil.getUUIDs(senders);
@@ -474,6 +479,14 @@ public class YamlUtil {
 
             public void setReplacement(String replacement) {
                 this.replacement = replacement;
+            }
+
+            public boolean isOnlyExecuteCommands() {
+                return onlyExecuteCommands;
+            }
+
+            public void setOnlyExecuteCommands(boolean onlyExecuteCommands) {
+                this.onlyExecuteCommands = onlyExecuteCommands;
             }
 
             public List<String> getCommands() {

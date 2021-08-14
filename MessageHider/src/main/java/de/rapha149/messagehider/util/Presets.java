@@ -18,26 +18,32 @@ public class Presets {
 
     static {
         GAMEMODE_CHANGE = new FilterData("gamemode_change", true, 1, true, false,
-                false, null, loadJson("gamemode_change.json"), null, Arrays.asList());
+                false, null, loadJson("gamemode_change.json"), null,
+                false, Arrays.asList());
 
         if (Updates.isBukkitVersionAboveOrEqualTo("1.16")) {
             ONLY_SELF_COMMANDS = new FilterData("only_self_commands", true, 1, true, false,
-                    true, null, loadJson("only_self_commands.json"), null, Arrays.asList());
+                    true, null, loadJson("only_self_commands.json"), null,
+                    false, Arrays.asList());
 
             CONSOLE_COMMANDS = new FilterData("console_commands", true, 1, true, false,
-                    false, null, loadJson("console_commands.json"), null, Arrays.asList(),
+                    false, null, loadJson("console_commands.json"), null,
+                    false, Arrays.asList(),
                     Arrays.asList(Main.ZERO_UUID.toString()), Arrays.asList(), Arrays.asList(), Arrays.asList());
         }
 
         if (Updates.isBukkitVersionAboveOrEqualTo("1.13")) {
             IDLE_TIMEOUT = new FilterData("idle_timeout", true, 3, true, false,
-                    false, null, loadJson("idle_timeout_1.13.json"), null, Arrays.asList());
+                    false, null, loadJson("idle_timeout_1.13.json"), null,
+                    false, Arrays.asList());
         } else if (Updates.isBukkitVersionAboveOrEqualTo("1.8")) {
             IDLE_TIMEOUT = new FilterData("idle_timeout", true, 3, true, false,
-                    false, null, loadJson("idle_timeout_1.8.json"), null, Arrays.asList());
+                    false, null, loadJson("idle_timeout_1.8.json"), null,
+                    false, Arrays.asList());
         } else {
             IDLE_TIMEOUT = new FilterData("idle_timeout", false, 0, false, false,
-                    false, null, "commands.setidletimeout.success", null, Arrays.asList());
+                    false, null, "commands.setidletimeout.success", null,
+                    false, Arrays.asList());
         }
     }
 

@@ -36,8 +36,8 @@ public class Placeholders {
             Placeholders.senderUUID = senderUUID;
             Placeholders.receiverName = receiverName;
             Placeholders.receiverUUID = receiverUUID;
-            Placeholders.messageSentPlain = messageSentPlain;
-            Placeholders.messageSentJson = messageSentJson;
+            Placeholders.messageSentPlain = messageSentPlain != null ? messageSentPlain : "[SENT_PLAIN_MESSAGE]";
+            Placeholders.messageSentJson = messageSentJson != null ? messageSentJson : "[SENT_JSON_MESSAGE]";
             Placeholders.messageReplacedPlain = messageReplacedPlain;
             Placeholders.messageReplacedJson = messageReplacedJson;
             Placeholders.regexGroups = regexGroups;

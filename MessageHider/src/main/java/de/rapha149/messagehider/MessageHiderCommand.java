@@ -140,13 +140,13 @@ public class MessageHiderCommand implements CommandExecutor, TabCompleter {
                             else
                                 sb.append("remain §anormal§7.");
 
-                            if (!result.getHiddenIds().isEmpty())
-                                sb.append("\n§7  - §bThese filters that would have cancelled the message: §3" + String.join("§8, §3", result.getHiddenIds()));
+                            if (!result.getFilteredIds().isEmpty())
+                                sb.append("\n§7  - §bThese filters that would have cancelled the message: §3" + String.join("§8, §3", result.getFilteredIds()));
                             else
                                 sb.append("\n§7  - §bNo filters with ids cancelled the message.");
-                            sb.append("\n§7  - §3" + result.getHiddenCount() + " §btotal filter" + (result.getHiddenCount() == 1 ? "" : "s") +
-                                    " cancelled the message. (Including filters without ids)");
-                            if (result.getReplacement() != null)
+                            sb.append("\n§7  - §3" + result.getFilteredCount() + " §btotal filter" + (result.getFilteredCount() == 1 ? "" : "s") +
+                                      " cancelled the message. (Including filters without ids)");
+                            if (result.getStatus() == FilterStatus.REPLACED)
                                 sb.append("\n§7  - §bThe message would be replaced by:" +
                                         (player ? "" : "\n§f    " + result.getReplacement()));
                             if(!result.getCommands().isEmpty() && !player)
@@ -154,7 +154,7 @@ public class MessageHiderCommand implements CommandExecutor, TabCompleter {
                                           String.join("\n§f    /", result.getCommands()));
                             sender.sendMessage(sb.toString());
 
-                            if (result.getReplacement() != null && sender instanceof Player) {
+                            if (result.getStatus() == FilterStatus.REPLACED && player) {
                                 BaseComponent[] replacement = Util.formatReplacementString(result.getReplacement());
                                 if (replacement != null)
                                     sender.spigot().sendMessage(replacement);

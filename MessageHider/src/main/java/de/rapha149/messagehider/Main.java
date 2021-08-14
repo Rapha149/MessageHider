@@ -9,7 +9,6 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.UUID;
 
 public class Main extends JavaPlugin {

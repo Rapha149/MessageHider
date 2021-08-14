@@ -12,7 +12,8 @@
 		+ [Only self commands](#only-self-commands)
 		+ [Console commands](#console-commands)
 	- [Custom filters](#custom-filters)
-		+ [Examples](#examples)
+	  - [Commands](#commands-2)
+	  - [Examples](#examples)
 	- [Additional information](#additional-information)
 	- [1.16+](#1.16+)
 
@@ -130,6 +131,10 @@ There are the following settings: (They are sorted differently here than in the 
 
 - `replacement (text)` - The text to replace the message with if the filter matches. The text can be specified as JSON or as normal text. Also you can use colors with & characters. If `regex` is enabled, `$1`, `$2` and `$n` can be used to access the first, second and `n`th group of the pattern. If `null` is specified as replacement (default), the message will be hidden as normal and not replaced. If another filter would have hidden the message before, the message will still be replaced, but after the message has been replaced once, it will not be changed further.
 
+- `commands (Liste)` - A list of commands that are executed when the filter matches. For more information see below.
+
+- `onlyExecuteCommands (true/false)` - If enabled, only the commands are executed and the message won’t be hidden or replaced. Furthermore, other filters will be applied if this is enabled and this filter matches.
+
 - `senders (list)` - If left empty it will be ignored. If at least one player is given, only messages sent by the given players will be filtered with this filter. (1.16+)  
 	Either the player name, UUID or `<console>` for the console may be provided.
 	
@@ -142,11 +147,33 @@ There are the following settings: (They are sorted differently here than in the 
 - `excludedReceivers (list)` - Just like `receivers`, only the other way around. The message will not be filtered for anyone given.  
    Either the player name, UUID or `<console>` for the console may be provided.
 
+#### Commands
+
+Since the commands should also depend on player and message, there are certain things that can be replaced there. These placeholders are provided by the plugin:
+
+- `%mh_player_sender_name%` - The name of the player who sent the message. `[CONSOLE]` if it was the console or the server. (1.16+)
+- `%mh_player_sender_uuid%` - The uuid of the player who sent the message. `[CONSOLE]` if it was the console or the server. (1.16+)
+- `%mh_player_receiver_name%` - The name of the player who received the message.
+- `%mh_player_receiver_uuid%` - The uuid of the player who received the message.
+- `%mh_message_sent_plain%` - The message that was sent, as plain text.
+- `%mh_message_sent_json%` - The message that was sent, as JSON text.
+- `%mh_message_replaced_plain%` - The replacement, as plain text. If the message was not replaced, it is the message that was sent.
+- `%mh_message_replaced_json%` - The replacement, as JSON text. If the message was not replaced, it is the message that was sent. If the replacement was not specified as JSON, it’s the replacement as plain text.
+- `%mh_regex_{Group}%` - A regex group. Only possible if Regex is activated for the filter. (Can only be used with the PlaceholderAPI)
+
+**Ohne PlaceholderAPI**
+Even if the [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/) is not installed, all placeholders provided by this plugin will work (Except `%mh_regex_{Group}%`)
+
+**Mit PlaceholderAPI**
+If the [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/) is installed, the placeholders mentioned above and placeholders provided by other extensions/plugins can be used in the commands.
+
 #### Examples
 
 ##### Preset: idle timeout (Version für 1.13+)
 
 ```yml
+commands: [
+]
 excludedReceivers: [
 ]
 excludedSenders: [
@@ -156,6 +183,7 @@ ignoreCase: false
 json: true
 jsonPrecisionLevel: 3
 message: '{"italic": true, "color": "gray", "translate": "chat\\.type\\.admin", "with": [{"text": "Server"}, {"translate": "commands\\.setidletimeout\\.success", "with": ["\\d+"]}]}'
+onlyExecuteCommands: false
 onlyHideForOtherPlayers: false
 priority: null
 receivers: [
@@ -172,6 +200,8 @@ Explanation for `\\.`: Since regex is enabled here, we need to escape the dot (P
 ##### Preset: gamemode change
 
 ```yml
+commands: [
+]
 excludedReceivers: [
 ]
 excludedSenders: [
@@ -181,6 +211,7 @@ ignoreCase: false
 json: true
 jsonPrecisionLevel: 1
 message: '{"italic": true, "color": "gray", "translate": "chat\\.type\\.admin", "with": [{},{"translate": "commands\\.gamemode\\.success\\.\\w+"}]}'
+onlyExecuteCommands: false
 onlyHideForOtherPlayers: false
 priority: null
 receivers: [
@@ -196,6 +227,8 @@ Explanation for json precision level: It is `1` because at `with` the first valu
 ##### Preset: only self commands
 
 ```yml
+commands: [
+]
 excludedReceivers: [
 ]
 excludedSenders: [
@@ -205,6 +238,7 @@ ignoreCase: false
 json: true
 jsonPrecisionLevel: 1
 message: '{"italic": true, "color": "gray", "translate": "chat\\.type\\.admin", "with": [{},{"translate": "commands\\.(\\w|\\.)+"}]}'
+onlyExecuteCommands: false
 onlyHideForOtherPlayers: false
 priority: null
 receivers: [
@@ -218,6 +252,8 @@ senders: [
 ##### Preset: Console commands
 
 ```yml
+commands: [
+]
 excludedReceivers: [
 ]
 excludedSenders: [
@@ -227,6 +263,7 @@ ignoreCase: false
 json: true
 jsonPrecisionLevel: 1
 message: '{"italic":true,"color":"gray","translate":"chat\\.type\\.admin","with":[{},{"translate":"commands\\.(\\w|\\.)+"}]}'
+onlyExecuteCommands: false
 onlyHideForOtherPlayers: false
 priority: null
 receivers: [
@@ -240,6 +277,8 @@ senders:
 ##### Example for senders and receivers
 
 ```yml
+commands:[
+]
 excludedReceivers:
   - Rapha149
   - Notch
@@ -249,6 +288,7 @@ ignoreCase: false
 json: false
 jsonPrecisionLevel: 2
 message: 'Hello :)'
+onlyExecuteCommands: false
 onlyHideForOtherPlayers: false
 priority: null
 receivers:

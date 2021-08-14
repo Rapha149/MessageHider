@@ -12,7 +12,8 @@
 		+ [Only Self Commands](#only-self-commands)
 		+ [Console Commands](#console-commands)
 	- [Eigene Filter](#eigene-filter)
-		+ [Beispiele](#beispiele)
+		- [Commands](#commands-2)
+		- [Beispiele](#beispiele)
 	- [Weitere Infos](#weitere-infos)
 	- [1.16+](#1.16+)
 
@@ -129,7 +130,11 @@ Es gibt folgende Einstellungen: (Sie sind hier anders sortiert als in der Config
 
 - `message (Text)` - Die Nachricht, nach der gefiltert werden soll. Wenn JSON aktiviert, im JSON-Format.
 
-- `replacement (Text)` - Der Text, durch den die Nachricht ersetzt werden soll, wenn der Filter passt. Der Text kann als JSON oder als normaler Text angegeben werden. Auch kann man mit &-Zeichen Farben benutzen. Wenn `regex` aktiviert ist, kann mit `$1`, `$2` und `$n` auf die erste, zweite und `n`te Gruppe des Patterns zugegriffen werden. Wenn `null` als Replacement angegeben wird (Standard), wird die Nachricht wie normal versteckt und nicht ersetzt. Wenn ein anderer Filter vorher schon die Nachricht versteckt hätte, wird die Nachricht trotzdem noch ersetzt, aber nachdem die Nachricht einmal ersetzt wurde, wird sie nicht weiter verändert.
+- `replacement (Text)` - Der Text, durch den die Nachricht ersetzt werden soll, wenn der Filter passt. Der Text kann als JSON oder als normaler Text angegeben werden. Auch kann man mit &-Zeichen Farben benutzen. Wenn `regex` aktiviert ist, kann mit `$1`, `$2` und `$n` auf die erste, zweite und `n`te Gruppe des Patterns zugegriffen werden. Wenn `null` als Replacement angegeben wird (Standard), wird die Nachricht wie normal versteckt und nicht ersetzt. Wenn ein anderer Filter vorher schon die Nachricht versteckt hätte, wird die Nachricht trotzdem noch ersetzt, aber nachdem die Nachricht einmal ersetzt wurde, wird sie nicht weiter verändert.
+
+- `commands (Liste)` - Eine Liste von Commands, die ausgeführt werden sollen, wenn der Filter passt. Mehr Infos weiter unten.
+
+- `onlyExecuteCommands (true/false)` - Wenn aktiviert, wird die Nachricht nicht versteckt oder ersetzt, sondern es werden nur die Befehle ausgeführt. Außerdem werden weitere Filter angewendet, wenn dies aktiviert ist und der Filter passt.
 
 - `senders (Liste)` - Wenn die Liste leer gelassen wird es ignoriert. Wenn mindestens ein Spieler angegeben ist, werden nur Nachrichten, die von den angegebenen Spielern gesendet wurden, mit diesem Filter gefiltert. (1.16+)  
   Es kann entweder der Spielername, die UUID oder `CONSOLE` für die Konsole angegeben werden.
@@ -143,11 +148,33 @@ Es gibt folgende Einstellungen: (Sie sind hier anders sortiert als in der Config
 - `excludedReceivers (Liste)` - So wie `receivers`, nur andersrum. Die Nachricht wird für jeden, der hier drin steht, nicht gefiltert.  
   Es kann entweder der Spielername, die UUID oder `CONSOLE` für die Konsole angegeben werden.
 
+#### Commands
+
+Da die Befehle auch von Spieler und Nachricht abhängig sein sollen, gibt es bestimmte Sachen, die dort ersetzt werden können. Diese Placeholder werden vom Plugin bereitgestellt:
+
+- `%mh_player_sender_name%` - Der Name des Spielers, der die Nachricht gesendet hat. `[CONSOLE]` wenn es die Konsole bzw. der Server war. (1.16+)
+- `%mh_player_sender_uuid%` - Die UUID des Spielers, der die Nachricht gesendet hat. `[CONSOLE]` wenn es die Konsole bzw. der Server war. (1.16+)
+- `%mh_player_receiver_name%` - Der Name des Spielers, der die Nachricht bekommt. 
+- `%mh_player_receiver_uuid%` - Die UUID des Spielers, der die Nachricht bekommt.
+- `%mh_message_sent_plain%` - Die Nachricht, die gesendet wurde, als Plain-Text.
+- `%mh_message_sent_json%` - Die Nachricht, die gesendet wurde, als JSON-Text.
+- `%mh_message_replaced_plain%` - Das Replacement, als Plain-Text. Wenn die Nachricht nicht ersetzt wurde, ist es die Nachricht, die gesendet wurde.
+- `%mh_message_replaced_json%` - Das Replacement, als JSON-Text. Wenn die Nachricht nicht ersetzt wurde, ist es die Nachricht, die gesendet wurde. Wenn das Replacement nicht als JSON angegeben wurde, ist es ein Plain-Text.
+- `%mh_regex_{Gruppe}%` - Eine Regex-Gruppe. Nur möglich, wenn Regex beim Filter aktiviert ist. (Nur mit der PlaceholderAPI möglich)
+
+**Ohne PlaceholderAPI**
+Auch wenn die [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/) nicht installiert ist, klappen alle von diesem Plugin bereitgestellten Placeholder (Außer `%mh_regex_{Gruppe}%`) 
+
+**Mit PlaceholderAPI**
+Wenn die [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/) installiert ist, können die oben genannten Placeholder und Placeholder, die von anderen Extensions/Plugins bereitgestellt wurden, in den Befehlen verwendet werden.
+
 #### Beispiele
 
 ##### Voreinstellung: IdleTimeout (Version für 1.13+)
 
 ```yml
+commands: [
+]
 excludedReceivers: [
 ]
 excludedSenders: [
@@ -157,6 +184,7 @@ ignoreCase: false
 json: true
 jsonPrecisionLevel: 3
 message: '{"italic": true, "color": "gray", "translate": "chat\\.type\\.admin", "with": [{"text": "Server"}, {"translate": "commands\\.setidletimeout\\.success", "with": ["\\d+"]}]}'
+onlyExecuteCommands: false
 onlyHideForOtherPlayers: false
 priority: null
 receivers: [
@@ -173,6 +201,8 @@ Erklärung für `\\.`: Da hier Regex aktiviert ist, müssen wir den Punkt escape
 ##### Voreinstellung: Gamemode-Change
 
 ```yml
+commands: [
+]
 excludedReceivers: [
 ]
 excludedSenders: [
@@ -182,6 +212,7 @@ ignoreCase: false
 json: true
 jsonPrecisionLevel: 1
 message: '{"italic": true, "color": "gray", "translate": "chat\\.type\\.admin", "with": [{},{"translate": "commands\\.gamemode\\.success\\.\\w+"}]}'
+onlyExecuteCommands: false
 onlyHideForOtherPlayers: false
 priority: null
 receivers: [
@@ -197,6 +228,8 @@ Erklärung für JsonPrecisionLevel: Es ist `1`, weil bei `with` die ersten Value
 ##### Voreinstellung: Only Self Commands
 
 ```yml
+commands: [
+]
 excludedReceivers: [
 ]
 excludedSenders: [
@@ -206,6 +239,7 @@ ignoreCase: false
 json: true
 jsonPrecisionLevel: 1
 message: '{"italic": true, "color": "gray", "translate": "chat\\.type\\.admin", "with": [{},{"translate": "commands\\.(\\w|\\.)+"}]}'
+onlyExecuteCommands: false
 onlyHideForOtherPlayers: false
 priority: null
 receivers: [
@@ -219,6 +253,8 @@ senders: [
 ##### Voreinstellung: Console Commands
 
 ```yml
+commands: [
+]
 excludedReceivers: [
 ]
 excludedSenders: [
@@ -228,6 +264,7 @@ ignoreCase: false
 json: true
 jsonPrecisionLevel: 1
 message: '{"italic":true,"color":"gray","translate":"chat\\.type\\.admin","with":[{},{"translate":"commands\\.(\\w|\\.)+"}]}'
+onlyExecuteCommands: false
 onlyHideForOtherPlayers: false
 priority: null
 receivers: [
@@ -241,6 +278,8 @@ senders:
 ##### Beispiel für Senders und Receivers
 
 ```yml
+commandsd: [
+]
 excludedReceivers:
   - Rapha149
   - Notch
@@ -250,6 +289,7 @@ ignoreCase: false
 json: false
 jsonPrecisionLevel: 2
 message: 'Hallo :)'
+onlyExecuteCommands: false
 onlyHideForOtherPlayers: false
 priority: null
 receivers:

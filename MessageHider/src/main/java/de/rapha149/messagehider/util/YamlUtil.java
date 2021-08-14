@@ -79,7 +79,7 @@ public class YamlUtil {
             String filterSpecification = id != null ? "the filter" + id : "a filter";
             if (filter.json) {
                 try {
-                    if(!parser.parse(filter.message).isJsonObject())
+                    if (!parser.parse(filter.message).isJsonObject())
                         throw new JsonParseException("");
                 } catch (JsonParseException e) {
                     Main.getInstance().getLogger().warning("You got a json error in '" + filter.message + "' (Message of " + filterSpecification + ")");
@@ -88,11 +88,11 @@ public class YamlUtil {
                 }
             }
 
-            if(filter.replacement != null) {
+            if (filter.replacement != null) {
                 String replacement = filter.getReplacement();
-                if(replacement.startsWith("{") && replacement.endsWith("}")) {
+                if (replacement.startsWith("{") && replacement.endsWith("}")) {
                     try {
-                        if(!parser.parse(filter.message).isJsonObject())
+                        if (!parser.parse(filter.message).isJsonObject())
                             throw new JsonParseException("");
                     } catch (JsonParseException e) {
                         Main.getInstance().getLogger().warning("You got a json error in '" + filter.message + "' (Replacement of " + filterSpecification + ")");
@@ -104,7 +104,7 @@ public class YamlUtil {
 
         List<String> ids = new ArrayList<>();
         getFilters().forEach(filter -> {
-            if(filter.id != null) {
+            if (filter.id != null) {
                 if (!ids.contains(filter.id))
                     ids.add(filter.id);
                 else
@@ -140,7 +140,7 @@ public class YamlUtil {
             filters.add(Presets.GAMEMODE_CHANGE);
         if (presets.onlySelfCommands && Presets.ONLY_SELF_COMMANDS != null)
             filters.add(Presets.ONLY_SELF_COMMANDS);
-        if(presets.consoleCommands && Presets.CONSOLE_COMMANDS != null)
+        if (presets.consoleCommands && Presets.CONSOLE_COMMANDS != null)
             filters.add(Presets.CONSOLE_COMMANDS);
 
         return filters;
@@ -220,11 +220,11 @@ public class YamlUtil {
             this.messageFilters = messageFilters;
             filters = new ArrayList<>(messageFilters);
             filters.sort((f1, f2) -> {
-                if(f1.priority == null && f2.priority == null)
+                if (f1.priority == null && f2.priority == null)
                     return 0;
-                if(f1.priority != null && f2.priority == null)
+                if (f1.priority != null && f2.priority == null)
                     return -1;
-                if(f1.priority == null && f2.priority != null)
+                if (f1.priority == null && f2.priority != null)
                     return 1;
                 return f1.priority.compareTo(f2.priority);
             });
@@ -292,6 +292,7 @@ public class YamlUtil {
             private List<String> excludedReceivers;
             private String message;
             private String replacement;
+            private List<String> commands;
 
             private transient List<UUID> senderUUIDs;
             private transient List<UUID> excludedSenderUUIDs;
@@ -312,6 +313,7 @@ public class YamlUtil {
                 excludedReceivers = new ArrayList<>();
                 message = "";
                 replacement = null;
+                commands = new ArrayList<>();
 
                 senderUUIDs = new ArrayList<>();
                 excludedSenderUUIDs = new ArrayList<>();
@@ -320,7 +322,7 @@ public class YamlUtil {
             }
 
             public FilterData(String id, boolean json, int jsonPrecisionLevel, boolean regex, boolean ignoreCase,
-                              boolean onlyHideForOtherPlayers, Integer priority, String message, String replacement) {
+                              boolean onlyHideForOtherPlayers, Integer priority, String message, String replacement, List<String> commands) {
                 this.id = id;
                 this.json = json;
                 this.jsonPrecisionLevel = jsonPrecisionLevel;
@@ -334,6 +336,7 @@ public class YamlUtil {
                 this.excludedReceivers = new ArrayList<>();
                 this.message = message;
                 this.replacement = replacement;
+                this.commands = commands;
 
                 senderUUIDs = new ArrayList<>();
                 excludedSenderUUIDs = new ArrayList<>();
@@ -342,7 +345,7 @@ public class YamlUtil {
             }
 
             public FilterData(String id, boolean json, int jsonPrecisionLevel, boolean regex, boolean ignoreCase,
-                              boolean onlyHideForOtherPlayers, Integer priority, String message, String replacement,
+                              boolean onlyHideForOtherPlayers, Integer priority, String message, String replacement, List<String> commands,
                               List<String> senders, List<String> excludedSenders, List<String> receivers, List<String> excludedReceivers) {
                 this.id = id;
                 this.json = json;
@@ -357,6 +360,7 @@ public class YamlUtil {
                 this.excludedReceivers = excludedReceivers;
                 this.message = message;
                 this.replacement = replacement;
+                this.commands = commands;
 
                 senderUUIDs = YamlUtil.getUUIDs(senders);
                 excludedSenderUUIDs = YamlUtil.getUUIDs(excludedSenders);
@@ -470,6 +474,14 @@ public class YamlUtil {
 
             public void setReplacement(String replacement) {
                 this.replacement = replacement;
+            }
+
+            public List<String> getCommands() {
+                return commands;
+            }
+
+            public void setCommands(List<String> commands) {
+                this.commands = commands;
             }
 
             public List<UUID> getSenderUUIDs() {

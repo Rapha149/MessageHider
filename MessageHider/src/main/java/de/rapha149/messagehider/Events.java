@@ -78,10 +78,12 @@ public class Events implements Listener {
                                 adventure = true;
 
                                 component = ReflectionUtil.getField(msg, "adventure$message");
-                                json = (String) ReflectionUtil.invokeMethod(ReflectionUtil.invokeStaticMethod(
-                                        ReflectionUtil.getClass("net.kyori.adventure.text.serializer.gson.GsonComponentSerializer"), "gson"),
-                                        "serialize", new Param(ReflectionUtil.getClass("net.kyori.adventure.text.Component"), component));
-                                plain = new TextComponent(ComponentSerializer.parse(json)).toPlainText();
+                                if(component != null) {
+                                    json = (String) ReflectionUtil.invokeMethod(ReflectionUtil.invokeStaticMethod(
+                                            ReflectionUtil.getClass("net.kyori.adventure.text.serializer.gson.GsonComponentSerializer"), "gson"),
+                                            "serialize", new Param(ReflectionUtil.getClass("net.kyori.adventure.text.Component"), component));
+                                    plain = new TextComponent(ComponentSerializer.parse(json)).toPlainText();
+                                }
                             } catch (NoSuchFieldException ignore) {
                             }
                         }

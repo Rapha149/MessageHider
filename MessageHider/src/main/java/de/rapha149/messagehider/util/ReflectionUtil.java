@@ -43,6 +43,15 @@ public class ReflectionUtil {
         return false;
     }
 
+    public static Class<?> getClass(String className) {
+        try {
+            return Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public static Class<?> getClass(Boolean nms, String className, String newNMSPrefix) {
         try {
             if (nms == null)

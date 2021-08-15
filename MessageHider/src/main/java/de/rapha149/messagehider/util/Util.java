@@ -84,91 +84,114 @@ public class Util {
         List<CommandData> commands = new ArrayList<>();
 
         for (FilterData filter : YamlUtil.getFilters()) {
-            String id = filter.getId();
-            if (ids.isEmpty() || (id != null && ids.contains(id))) {
-                usedIds.add(id);
+            if (filter.getMessage() != null) {
+                String id = filter.getId();
+                if (ids.isEmpty() || (id != null && ids.contains(id))) {
+                    usedIds.add(id);
 
-                if (sender != null) {
-                    String name = sender.equals(Main.ZERO_UUID) ? "<console>" : Bukkit.getPlayer(sender).getName();
-                    if (!Bukkit.getOnlineMode()) {
-                        if (!filter.getSenders().isEmpty() && !filter.getSenders().contains(sender.toString()) && !filter.getSenders().contains(name))
-                            continue;
-                        if (filter.getExcludedSenders().contains(name))
-                            continue;
-                    } else {
-                        if (!filter.getSenderUUIDs().isEmpty() && !filter.getSenderUUIDs().contains(sender))
-                            continue;
-                        if (filter.getExcludedSenderUUIDs().contains(sender))
-                            continue;
-                    }
-                }
-
-                if (receiver != null) {
-                    String name = receiver.equals(Main.ZERO_UUID) ? "<console>" : Bukkit.getPlayer(receiver).getName();
-                    if (!Bukkit.getOnlineMode()) {
-                        if (!filter.getReceivers().isEmpty() && !filter.getReceivers().contains(receiver.toString()) && !filter.getReceivers().contains(name))
-                            continue;
-                        if (filter.getExcludedReceivers().contains(name))
-                            continue;
-                    } else {
-                        if (!filter.getReceiverUUIDs().isEmpty() && !filter.getReceiverUUIDs().contains(receiver))
-                            continue;
-                        if (filter.getExcludedReceiverUUIDs().contains(receiver))
-                            continue;
+                    if (sender != null) {
+                        String name = sender.equals(Main.ZERO_UUID) ? "<console>" : Bukkit.getPlayer(sender).getName();
+                        if (!Bukkit.getOnlineMode()) {
+                            if (!filter.getSenders().isEmpty() && !filter.getSenders().contains(sender.toString()) && !filter.getSenders().contains(name))
+                                continue;
+                            if (filter.getExcludedSenders().contains(name))
+                                continue;
+                        } else {
+                            if (!filter.getSenderUUIDs().isEmpty() && !filter.getSenderUUIDs().contains(sender))
+                                continue;
+                            if (filter.getExcludedSenderUUIDs().contains(sender))
+                                continue;
+                        }
                     }
 
-                    if (sender != null && sender.equals(receiver) && filter.isOnlyHideForOtherPlayers())
-                        continue;
-                }
+                    if (receiver != null) {
+                        String name = receiver.equals(Main.ZERO_UUID) ? "<console>" : Bukkit.getPlayer(receiver).getName();
+                        if (!Bukkit.getOnlineMode()) {
+                            if (!filter.getReceivers().isEmpty() && !filter.getReceivers().contains(receiver.toString()) && !filter.getReceivers().contains(name))
+                                continue;
+                            if (filter.getExcludedReceivers().contains(name))
+                                continue;
+                        } else {
+                            if (!filter.getReceiverUUIDs().isEmpty() && !filter.getReceiverUUIDs().contains(receiver))
+                                continue;
+                            if (filter.getExcludedReceiverUUIDs().contains(receiver))
+                                continue;
+                        }
 
-                boolean regex = filter.isRegex();
-                boolean ignoreCase = filter.isIgnoreCase();
-                String filterMessage = filter.getMessage();
-                String replace = filter.getReplacement();
-                boolean onlyExecuteCommands = filter.isOnlyExecuteCommands();
-                List<CommandData> cmds = new ArrayList<>(filter.getCommands());
-                if (filter.isJson()) {
-                    if (json != null) {
-                        JsonResult result = Util.jsonMatches(filterMessage, json, regex, ignoreCase, filter.getJsonPrecisionLevel());
-                        if (result.matches) {
-                            if (!cmds.isEmpty()) {
-                                String[] replacements = replace != null ? getReplacementForCommand(replace, result.groups) : new String[]{plain, json};
-                                Placeholders.replace(cmds, sender, receiver, plain, json, replacements[0], replacements[1], regex ? result.groups : Arrays.asList());
-                                commands.addAll(cmds);
-                            }
+                        if (sender != null && sender.equals(receiver) && filter.isOnlyHideForOtherPlayers())
+                            continue;
+                    }
 
-                            filtered++;
-                            if (id != null)
-                                filteredIds.add(id);
-
-                            if (!onlyExecuteCommands) {
-                                if (replace == null)
-                                    hidden = true;
-
-                                if (replacement == null && replace != null) {
-                                    if (regex)
-                                        replacement = replaceGroups(replace, result.groups);
-                                    else
-                                        replacement = replace;
+                    boolean regex = filter.isRegex();
+                    boolean ignoreCase = filter.isIgnoreCase();
+                    String filterMessage = filter.getMessage();
+                    String replace = filter.getReplacement();
+                    boolean onlyExecuteCommands = filter.isOnlyExecuteCommands();
+                    List<CommandData> cmds = new ArrayList<>(filter.getCommands());
+                    if (filter.isJson()) {
+                        if (json != null) {
+                            JsonResult result = Util.jsonMatches(filterMessage, json, regex, ignoreCase, filter.getJsonPrecisionLevel());
+                            if (result.matches) {
+                                if (!cmds.isEmpty()) {
+                                    String[] replacements = replace != null ? getReplacementForCommand(replace, result.groups) : new String[]{plain, json};
+                                    Placeholders.replace(cmds, sender, receiver, plain, json, replacements[0], replacements[1], regex ? result.groups : Arrays.asList());
+                                    commands.addAll(cmds);
                                 }
 
-                                if (breakIfFound && replacement != null)
-                                    break;
-                            }
-                        }
-                    } else
-                        ignored++;
-                } else if (plain != null) {
-                    if (regex) {
-                        Matcher matcher = Pattern.compile(filterMessage, ignoreCase ? Pattern.CASE_INSENSITIVE : 0).matcher(plain);
-                        if (matcher.matches()) {
-                            List<String> groups = new ArrayList<>();
-                            for (int i = 0; i <= matcher.groupCount(); i++)
-                                groups.add(matcher.group(i));
+                                filtered++;
+                                if (id != null)
+                                    filteredIds.add(id);
 
+                                if (!onlyExecuteCommands) {
+                                    if (replace == null)
+                                        hidden = true;
+
+                                    if (replacement == null && replace != null) {
+                                        if (regex)
+                                            replacement = replaceGroups(replace, result.groups);
+                                        else
+                                            replacement = replace;
+                                    }
+
+                                    if (breakIfFound && replacement != null)
+                                        break;
+                                }
+                            }
+                        } else
+                            ignored++;
+                    } else if (plain != null) {
+                        if (regex) {
+                            Matcher matcher = Pattern.compile(filterMessage, ignoreCase ? Pattern.CASE_INSENSITIVE : 0).matcher(plain);
+                            if (matcher.matches()) {
+                                List<String> groups = new ArrayList<>();
+                                for (int i = 0; i <= matcher.groupCount(); i++)
+                                    groups.add(matcher.group(i));
+
+                                if (!cmds.isEmpty()) {
+                                    String[] replacements = replace != null ? getReplacementForCommand(replace, groups) : new String[]{plain, json};
+                                    Placeholders.replace(cmds, sender, receiver, plain, json, replacements[0], replacements[1], groups);
+                                    commands.addAll(cmds);
+                                }
+
+                                filtered++;
+                                if (id != null)
+                                    filteredIds.add(id);
+
+                                if (!onlyExecuteCommands) {
+                                    if (replace == null)
+                                        hidden = true;
+
+                                    if (replacement == null && replace != null)
+                                        replacement = replaceGroups(replace, groups);
+
+                                    if (breakIfFound && replacement != null)
+                                        break;
+                                }
+                            }
+                        } else if (ignoreCase ? plain.equalsIgnoreCase(filterMessage) : plain.equals(filterMessage)) {
                             if (!cmds.isEmpty()) {
-                                String[] replacements = replace != null ? getReplacementForCommand(replace, groups) : new String[]{plain, json};
-                                Placeholders.replace(cmds, sender, receiver, plain, json, replacements[0], replacements[1], groups);
+                                String[] replacements = replace != null ? getReplacementForCommand(replace, null) : new String[]{plain, json};
+                                Placeholders.replace(cmds, sender, receiver, plain, json, replacements[0], replacements[1], Arrays.asList());
                                 commands.addAll(cmds);
                             }
 
@@ -181,36 +204,15 @@ public class Util {
                                     hidden = true;
 
                                 if (replacement == null && replace != null)
-                                    replacement = replaceGroups(replace, groups);
+                                    replacement = replace;
 
                                 if (breakIfFound && replacement != null)
                                     break;
                             }
                         }
-                    } else if (ignoreCase ? plain.equalsIgnoreCase(filterMessage) : plain.equals(filterMessage)) {
-                        if (!cmds.isEmpty()) {
-                            String[] replacements = replace != null ? getReplacementForCommand(replace, null) : new String[]{plain, json};
-                            Placeholders.replace(cmds, sender, receiver, plain, json, replacements[0], replacements[1], Arrays.asList());
-                            commands.addAll(cmds);
-                        }
-
-                        filtered++;
-                        if (id != null)
-                            filteredIds.add(id);
-
-                        if (!onlyExecuteCommands) {
-                            if (replace == null)
-                                hidden = true;
-
-                            if (replacement == null && replace != null)
-                                replacement = replace;
-
-                            if (breakIfFound && replacement != null)
-                                break;
-                        }
-                    }
-                } else
-                    ignored++;
+                    } else
+                        ignored++;
+                }
             }
         }
 

@@ -12,7 +12,7 @@
 		+ [Only self commands](#only-self-commands)
 		+ [Console commands](#console-commands)
 	- [Custom filters](#custom-filters)
-	  - [Commands](#commands-2)
+	  - [Commands](#commands-1)
 	  - [Examples](#examples)
 	- [Additional information](#additional-information)
 	- [1.16+](#1.16+)

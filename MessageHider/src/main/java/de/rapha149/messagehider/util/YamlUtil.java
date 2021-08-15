@@ -293,7 +293,7 @@ public class YamlUtil {
             private String message;
             private String replacement;
             private boolean onlyExecuteCommands;
-            private List<String> commands;
+            private List<CommandData> commands;
 
             private transient List<UUID> senderUUIDs;
             private transient List<UUID> excludedSenderUUIDs;
@@ -315,6 +315,7 @@ public class YamlUtil {
                 message = "";
                 replacement = null;
                 commands = new ArrayList<>();
+                commands.add(new CommandData());
 
                 senderUUIDs = new ArrayList<>();
                 excludedSenderUUIDs = new ArrayList<>();
@@ -324,7 +325,7 @@ public class YamlUtil {
 
             public FilterData(String id, boolean json, int jsonPrecisionLevel, boolean regex, boolean ignoreCase,
                               boolean onlyHideForOtherPlayers, Integer priority, String message, String replacement,
-                              boolean onlyExecuteCommands, List<String> commands) {
+                              boolean onlyExecuteCommands, List<CommandData> commands) {
                 this.id = id;
                 this.json = json;
                 this.jsonPrecisionLevel = jsonPrecisionLevel;
@@ -349,7 +350,7 @@ public class YamlUtil {
 
             public FilterData(String id, boolean json, int jsonPrecisionLevel, boolean regex, boolean ignoreCase,
                               boolean onlyHideForOtherPlayers, Integer priority, String message, String replacement,
-                              boolean onlyExecuteCommands, List<String> commands,
+                              boolean onlyExecuteCommands, List<CommandData> commands,
                               List<String> senders, List<String> excludedSenders, List<String> receivers, List<String> excludedReceivers) {
                 this.id = id;
                 this.json = json;
@@ -489,11 +490,11 @@ public class YamlUtil {
                 this.onlyExecuteCommands = onlyExecuteCommands;
             }
 
-            public List<String> getCommands() {
+            public List<CommandData> getCommands() {
                 return commands;
             }
 
-            public void setCommands(List<String> commands) {
+            public void setCommands(List<CommandData> commands) {
                 this.commands = commands;
             }
 
@@ -511,6 +512,47 @@ public class YamlUtil {
 
             public List<UUID> getExcludedReceiverUUIDs() {
                 return excludedReceiverUUIDs;
+            }
+
+            public static class CommandData {
+
+                private String command;
+                private CommandType type;
+                private float delay;
+
+                public CommandData() {
+                    command = "cmd";
+                    type = CommandType.CONSOLE;
+                    delay = 0;
+                }
+
+                public String getCommand() {
+                    return command;
+                }
+
+                public void setCommand(String command) {
+                    this.command = command;
+                }
+
+                public CommandType getType() {
+                    return type;
+                }
+
+                public void setType(CommandType type) {
+                    this.type = type;
+                }
+
+                public float getDelay() {
+                    return delay;
+                }
+
+                public void setDelay(float delay) {
+                    this.delay = delay;
+                }
+
+                public enum CommandType {
+                    CONSOLE, PLAYER
+                }
             }
         }
     }

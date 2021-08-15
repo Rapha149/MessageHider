@@ -6,6 +6,7 @@ import de.rapha149.messagehider.util.Util;
 import de.rapha149.messagehider.util.Util.FilterCheckResult;
 import de.rapha149.messagehider.util.Util.FilterCheckResult.FilterStatus;
 import de.rapha149.messagehider.util.YamlUtil;
+import de.rapha149.messagehider.util.YamlUtil.YamlData.FilterData.CommandData.CommandType;
 import io.netty.channel.*;
 import net.md_5.bungee.api.chat.*;
 import net.md_5.bungee.chat.ComponentSerializer;
@@ -106,9 +107,11 @@ public class Events implements Listener {
                         FilterCheckResult result = Util.checkFilters(true, plain, json, sender, receiver);
                         MessageHiderCommand.log(receiver, sender, plain, json, result);
 
-                        if (!result.getCommands().isEmpty())
-                            Bukkit.getScheduler().runTask(Main.getInstance(), () ->
-                                    result.getCommands().forEach(command -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command)));
+                        if (!result.getCommands().isEmpty()) {
+                            result.getCommands().forEach(command -> Bukkit.getScheduler().runTaskLater(Main.getInstance(), () -> Bukkit.dispatchCommand(
+                                    command.getType() == CommandType.CONSOLE ? Bukkit.getConsoleSender(): player,
+                                    command.getCommand()), (int) (command.getDelay() * 20F)));
+                        }
 
                         if (result.getStatus() == FilterStatus.REPLACED) {
                             ReflectionUtil.setField(msg, "a", null);

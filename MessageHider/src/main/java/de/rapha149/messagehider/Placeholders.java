@@ -1,5 +1,6 @@
 package de.rapha149.messagehider;
 
+import de.rapha149.messagehider.util.YamlUtil.YamlData.FilterData.CommandData;
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.Bukkit;
@@ -25,8 +26,8 @@ public class Placeholders {
     private static String messageReplacedJson = "";
     private static List<String> regexGroups = Arrays.asList();
 
-    public static List<String> replace(List<String> list, UUID sender, UUID receiver, String messageSentPlain, String messageSentJson,
-                                       String messageReplacedPlain, String messageReplacedJson, List<String> regexGroups) {
+    public static void replace(List<CommandData> list, UUID sender, UUID receiver, String messageSentPlain, String messageSentJson,
+                                            String messageReplacedPlain, String messageReplacedJson, List<String> regexGroups) {
         String senderName = sender != null ? (sender.equals(Main.ZERO_UUID) ? "[CONSOLE]" : Bukkit.getOfflinePlayer(sender).getName()) : "[SENDER_NAME]";
         String senderUUID = sender != null ? (sender.equals(Main.ZERO_UUID) ? "[CONSOLE]" : sender.toString()) : "[SENDER_UUID]";
         String receiverName = receiver != null ? Bukkit.getOfflinePlayer(receiver).getName() : "[RECEIVER_NAME]";
@@ -41,7 +42,9 @@ public class Placeholders {
             Placeholders.messageReplacedPlain = messageReplacedPlain;
             Placeholders.messageReplacedJson = messageReplacedJson;
             Placeholders.regexGroups = regexGroups;
-            List<String> result = PlaceholderAPI.setPlaceholders(receiver != null ? Bukkit.getOfflinePlayer(receiver) : null, list);
+
+            OfflinePlayer player = receiver != null ? Bukkit.getOfflinePlayer(receiver) : null;
+            list.forEach(command -> command.setCommand(PlaceholderAPI.setPlaceholders(player, command.getCommand())));
 
             Placeholders.senderName = "";
             Placeholders.senderUUID = "";
@@ -52,10 +55,9 @@ public class Placeholders {
             Placeholders.messageReplacedPlain = "";
             Placeholders.messageReplacedJson = "";
             Placeholders.regexGroups = Arrays.asList();
-            return result;
         } else {
-            List<String> result = new ArrayList<>();
-            list.forEach(str -> result.add(str.replace("%mh_player_sender_name%", senderName)
+            list.forEach(command -> command.setCommand(command.getCommand()
+                    .replace("%mh_player_sender_name%", senderName)
                     .replace("%mh_player_sender_uuid%", senderUUID)
                     .replace("%mh_player_receiver_name%", receiverName)
                     .replace("%mh_player_receiver_uuid%", receiverUUID)
@@ -63,7 +65,6 @@ public class Placeholders {
                     .replace("%mh_message_sent_json%", messageSentJson)
                     .replace("%mh_message_replaced_plain%", messageReplacedPlain)
                     .replace("%mh_message_replaced_json%", messageReplacedJson)));
-            return result;
         }
     }
 

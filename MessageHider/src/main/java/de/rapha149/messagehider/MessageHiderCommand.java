@@ -7,6 +7,7 @@ import de.rapha149.messagehider.util.Util.FilterCheckResult;
 import de.rapha149.messagehider.util.Util.FilterCheckResult.FilterStatus;
 import de.rapha149.messagehider.util.YamlUtil;
 import de.rapha149.messagehider.util.YamlUtil.YamlData.FilterData;
+import de.rapha149.messagehider.util.YamlUtil.YamlData.FilterData.CommandData.CommandType;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -151,7 +152,9 @@ public class MessageHiderCommand implements CommandExecutor, TabCompleter {
                                         (player ? "" : "\n§f    " + result.getReplacement()));
                             if(!result.getCommands().isEmpty() && !player)
                                 sb.append("\n§7  - §bThe following commands would be executed:\n§f    /" +
-                                          String.join("\n§f    /", result.getCommands()));
+                                          result.getCommands().stream().map(cmd ->
+                                                  (cmd.getType() == CommandType.CONSOLE ? "[CONSOLE] /" : "[PLAYER] /") + cmd.getCommand())
+                                                  .collect(Collectors.joining("\n§f     ")));
                             sender.sendMessage(sb.toString());
 
                             if (result.getStatus() == FilterStatus.REPLACED && player) {
@@ -162,7 +165,9 @@ public class MessageHiderCommand implements CommandExecutor, TabCompleter {
 
                             if(!result.getCommands().isEmpty() && player)
                                 sender.sendMessage("§7  - §bThe following commands would be executed:\n§f/" +
-                                                   String.join("\n§f/", result.getCommands()));
+                                                   result.getCommands().stream().map(cmd ->
+                                                           (cmd.getType() == CommandType.CONSOLE ? "[CONSOLE] /" : "[PLAYER] /") + cmd.getCommand())
+                                                           .collect(Collectors.joining("\n§f")));
                         } else
                             sender.sendMessage(YamlUtil.getPrefix() + "§cPlease use §7/" + alias + " check <json|plain> <Filter ids> <Message>§c.");
                     } else

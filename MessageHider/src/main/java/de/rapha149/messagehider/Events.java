@@ -79,7 +79,7 @@ public class Events implements Listener {
                                 adventure = true;
 
                                 component = ReflectionUtil.getField(msg, "adventure$message");
-                                if(component != null) {
+                                if (component != null) {
                                     json = (String) ReflectionUtil.invokeMethod(ReflectionUtil.invokeStaticMethod(
                                             ReflectionUtil.getClass("net.kyori.adventure.text.serializer.gson.GsonComponentSerializer"), "gson"),
                                             "serialize", new Param(ReflectionUtil.getClass("net.kyori.adventure.text.Component"), component));
@@ -109,7 +109,7 @@ public class Events implements Listener {
 
                         if (!result.getCommands().isEmpty()) {
                             result.getCommands().forEach(command -> Bukkit.getScheduler().runTaskLater(Main.getInstance(), () -> Bukkit.dispatchCommand(
-                                    command.getType() == CommandType.CONSOLE ? Bukkit.getConsoleSender(): player,
+                                    command.getType() == CommandType.CONSOLE ? Bukkit.getConsoleSender() : player,
                                     command.getCommand()), (int) (command.getDelay() * 20F)));
                         }
 

@@ -315,7 +315,6 @@ public class YamlUtil {
                 message = "";
                 replacement = null;
                 commands = new ArrayList<>();
-                commands.add(new CommandData());
 
                 senderUUIDs = new ArrayList<>();
                 excludedSenderUUIDs = new ArrayList<>();

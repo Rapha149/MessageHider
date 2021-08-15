@@ -10,6 +10,8 @@ import de.rapha149.messagehider.Main;
 import de.rapha149.messagehider.Placeholders;
 import de.rapha149.messagehider.util.YamlUtil.YamlData.FilterData;
 import de.rapha149.messagehider.util.YamlUtil.YamlData.FilterData.CommandData;
+import de.rapha149.messagehider.util.YamlUtil.YamlData.FilterData.MessageData;
+import de.rapha149.messagehider.util.YamlUtil.YamlData.FilterData.PlayerData;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -89,17 +91,19 @@ public class Util {
                 if (ids.isEmpty() || (id != null && ids.contains(id))) {
                     usedIds.add(id);
 
+                    PlayerData players = filter.getPlayers();
+                    
                     if (sender != null) {
                         String name = sender.equals(Main.ZERO_UUID) ? "<console>" : Bukkit.getPlayer(sender).getName();
                         if (!Bukkit.getOnlineMode()) {
-                            if (!filter.getSenders().isEmpty() && !filter.getSenders().contains(sender.toString()) && !filter.getSenders().contains(name))
+                            if (!players.getSenders().isEmpty() && !players.getSenders().contains(sender.toString()) && !players.getSenders().contains(name))
                                 continue;
-                            if (filter.getExcludedSenders().contains(name))
+                            if (players.getExcludedSenders().contains(name))
                                 continue;
                         } else {
-                            if (!filter.getSenderUUIDs().isEmpty() && !filter.getSenderUUIDs().contains(sender))
+                            if (!players.getSenderUUIDs().isEmpty() && !players.getSenderUUIDs().contains(sender))
                                 continue;
-                            if (filter.getExcludedSenderUUIDs().contains(sender))
+                            if (players.getExcludedSenderUUIDs().contains(sender))
                                 continue;
                         }
                     }
@@ -107,14 +111,14 @@ public class Util {
                     if (receiver != null) {
                         String name = receiver.equals(Main.ZERO_UUID) ? "<console>" : Bukkit.getPlayer(receiver).getName();
                         if (!Bukkit.getOnlineMode()) {
-                            if (!filter.getReceivers().isEmpty() && !filter.getReceivers().contains(receiver.toString()) && !filter.getReceivers().contains(name))
+                            if (!players.getReceivers().isEmpty() && !players.getReceivers().contains(receiver.toString()) && !players.getReceivers().contains(name))
                                 continue;
-                            if (filter.getExcludedReceivers().contains(name))
+                            if (players.getExcludedReceivers().contains(name))
                                 continue;
                         } else {
-                            if (!filter.getReceiverUUIDs().isEmpty() && !filter.getReceiverUUIDs().contains(receiver))
+                            if (!players.getReceiverUUIDs().isEmpty() && !players.getReceiverUUIDs().contains(receiver))
                                 continue;
-                            if (filter.getExcludedReceiverUUIDs().contains(receiver))
+                            if (players.getExcludedReceiverUUIDs().contains(receiver))
                                 continue;
                         }
 
@@ -122,15 +126,16 @@ public class Util {
                             continue;
                     }
 
-                    boolean regex = filter.isRegex();
-                    boolean ignoreCase = filter.isIgnoreCase();
-                    String filterMessage = filter.getMessage();
-                    String replace = filter.getReplacement();
+                    MessageData message = filter.getMessage();
+                    boolean regex = message.isRegex();
+                    boolean ignoreCase = message.isIgnoreCase();
+                    String filterMessage = message.getText();
+                    String replace = message.getReplacement();
                     boolean onlyExecuteCommands = filter.isOnlyExecuteCommands();
                     List<CommandData> cmds = new ArrayList<>(filter.getCommands());
-                    if (filter.isJson()) {
+                    if (message.getJson().isEnabled()) {
                         if (json != null) {
-                            JsonResult result = Util.jsonMatches(filterMessage, json, regex, ignoreCase, filter.getJsonPrecisionLevel());
+                            JsonResult result = Util.jsonMatches(filterMessage, json, regex, ignoreCase, message.getJson().getJsonPrecisionLevel());
                             if (result.matches) {
                                 if (!cmds.isEmpty()) {
                                     String[] replacements = replace != null ? getReplacementForCommand(replace, result.groups) : new String[]{plain, json};

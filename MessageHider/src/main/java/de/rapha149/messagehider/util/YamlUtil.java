@@ -24,6 +24,7 @@ import java.util.*;
 public class YamlUtil {
 
     private static final List<Character> allowedCharsForIds;
+    private static final int configVersion = 2;
 
     static {
         List<Character> list = new ArrayList<>();
@@ -52,9 +53,27 @@ public class YamlUtil {
         if (!file.getParentFile().exists())
             file.getParentFile().mkdirs();
 
-        if (file.exists())
-            data = yaml.loadAs(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8), YamlData.class);
-        else
+        if (file.exists()) {
+            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
+            String line = br.readLine();
+            if (line != null && line.startsWith("# version=" + configVersion))
+                data = yaml.loadAs(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8), YamlData.class);
+            else {
+                File rename;
+                int number = 0;
+                while (true) {
+                    rename = new File(Main.getInstance().getDataFolder(), "config.yml.old" + (number > 0 ? number : ""));
+                    if (!rename.exists())
+                        break;
+                    number++;
+                }
+                file.renameTo(rename);
+                data = new YamlData();
+                Main.getInstance().getLogger().severe("Your config was outdated so it got regenerated. " +
+                                                      "The old config was renamed to \"" + rename.getName() + "\". " +
+                                                      "Please recreate custom filters by using \"/messagehider create\".");
+            }
+        } else
             data = new YamlData();
         save();
 
@@ -77,9 +96,9 @@ public class YamlUtil {
             }
 
             String filterSpecification = id != null ? "the filter " + id : "a filter";
-            if (filter.json) {
+            if (filter.message.json.enabled) {
                 try {
-                    if (!parser.parse(filter.message).isJsonObject())
+                    if (!parser.parse(filter.message.text).isJsonObject())
                         throw new JsonParseException("");
                 } catch (JsonParseException e) {
                     Main.getInstance().getLogger().warning("You got a json error in '" + filter.message + "' (Message of " + filterSpecification + ")");
@@ -88,11 +107,11 @@ public class YamlUtil {
                 }
             }
 
-            if (filter.replacement != null) {
-                String replacement = filter.getReplacement();
+            if (filter.message.replacement != null) {
+                String replacement = filter.message.replacement;
                 if (replacement.startsWith("{") && replacement.endsWith("}")) {
                     try {
-                        if (!parser.parse(filter.replacement).isJsonObject())
+                        if (!parser.parse(replacement).isJsonObject())
                             throw new JsonParseException("");
                     } catch (JsonParseException e) {
                         Main.getInstance().getLogger().warning("You got a json error in '" + filter.message + "' (Replacement of " + filterSpecification + ")");
@@ -125,7 +144,7 @@ public class YamlUtil {
 
     private static void save() throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(file));
-        writer.write(yaml.dumpAsMap(data));
+        writer.write("# version=" + configVersion + " DO NOT CHANGE THIS LINE\n" + yaml.dumpAsMap(data));
         writer.flush();
         writer.close();
     }
@@ -280,97 +299,43 @@ public class YamlUtil {
         public static class FilterData {
 
             private String id;
-            private boolean json;
-            private int jsonPrecisionLevel;
-            private boolean regex;
-            private boolean ignoreCase;
+            private MessageData message;
             private boolean onlyHideForOtherPlayers;
             private Integer priority;
-            private List<String> senders;
-            private List<String> excludedSenders;
-            private List<String> receivers;
-            private List<String> excludedReceivers;
-            private String message;
-            private String replacement;
             private boolean onlyExecuteCommands;
             private List<CommandData> commands;
-
-            private transient List<UUID> senderUUIDs;
-            private transient List<UUID> excludedSenderUUIDs;
-            private transient List<UUID> receiverUUIDs;
-            private transient List<UUID> excludedReceiverUUIDs;
+            private PlayerData players;
 
             public FilterData() {
                 id = null;
-                json = false;
-                jsonPrecisionLevel = 2;
-                regex = false;
-                ignoreCase = false;
+                message = new MessageData();
                 onlyHideForOtherPlayers = false;
                 priority = null;
-                senders = new ArrayList<>();
-                excludedSenders = new ArrayList<>();
-                receivers = new ArrayList<>();
-                excludedReceivers = new ArrayList<>();
-                message = "";
-                replacement = null;
                 commands = new ArrayList<>();
-
-                senderUUIDs = new ArrayList<>();
-                excludedSenderUUIDs = new ArrayList<>();
-                receiverUUIDs = new ArrayList<>();
-                excludedReceiverUUIDs = new ArrayList<>();
+                players = new PlayerData();
             }
 
-            public FilterData(String id, boolean json, int jsonPrecisionLevel, boolean regex, boolean ignoreCase,
-                              boolean onlyHideForOtherPlayers, Integer priority, String message, String replacement,
+            public FilterData(String id, MessageData message, boolean onlyHideForOtherPlayers, Integer priority,
                               boolean onlyExecuteCommands, List<CommandData> commands) {
                 this.id = id;
-                this.json = json;
-                this.jsonPrecisionLevel = jsonPrecisionLevel;
-                this.regex = regex;
-                this.ignoreCase = ignoreCase;
+                this.message = message;
                 this.onlyHideForOtherPlayers = onlyHideForOtherPlayers;
                 this.priority = priority;
-                this.senders = new ArrayList<>();
-                this.excludedSenders = new ArrayList<>();
-                this.receivers = new ArrayList<>();
-                this.excludedReceivers = new ArrayList<>();
-                this.message = message;
-                this.replacement = replacement;
                 this.onlyExecuteCommands = onlyExecuteCommands;
                 this.commands = commands;
-
-                senderUUIDs = new ArrayList<>();
-                excludedSenderUUIDs = new ArrayList<>();
-                receiverUUIDs = new ArrayList<>();
-                excludedReceiverUUIDs = new ArrayList<>();
+                this.players = new PlayerData();
             }
 
-            public FilterData(String id, boolean json, int jsonPrecisionLevel, boolean regex, boolean ignoreCase,
-                              boolean onlyHideForOtherPlayers, Integer priority, String message, String replacement,
+            public FilterData(String id, MessageData message, boolean onlyHideForOtherPlayers, Integer priority,
                               boolean onlyExecuteCommands, List<CommandData> commands,
-                              List<String> senders, List<String> excludedSenders, List<String> receivers, List<String> excludedReceivers) {
+                              PlayerData players) {
                 this.id = id;
-                this.json = json;
-                this.jsonPrecisionLevel = jsonPrecisionLevel;
-                this.regex = regex;
-                this.ignoreCase = ignoreCase;
+                this.message = message;
                 this.onlyHideForOtherPlayers = onlyHideForOtherPlayers;
                 this.priority = priority;
-                this.senders = senders;
-                this.excludedSenders = excludedSenders;
-                this.receivers = receivers;
-                this.excludedReceivers = excludedReceivers;
-                this.message = message;
-                this.replacement = replacement;
                 this.onlyExecuteCommands = onlyExecuteCommands;
                 this.commands = commands;
-
-                senderUUIDs = YamlUtil.getUUIDs(senders);
-                excludedSenderUUIDs = YamlUtil.getUUIDs(excludedSenders);
-                receiverUUIDs = YamlUtil.getUUIDs(receivers);
-                excludedReceiverUUIDs = YamlUtil.getUUIDs(excludedReceivers);
+                this.players = players;
             }
 
             public String getId() {
@@ -381,36 +346,12 @@ public class YamlUtil {
                 this.id = id;
             }
 
-            public boolean isJson() {
-                return json;
+            public MessageData getMessage() {
+                return message;
             }
 
-            public void setJson(boolean json) {
-                this.json = json;
-            }
-
-            public int getJsonPrecisionLevel() {
-                return jsonPrecisionLevel;
-            }
-
-            public void setJsonPrecisionLevel(int jsonPrecisionLevel) {
-                this.jsonPrecisionLevel = jsonPrecisionLevel;
-            }
-
-            public boolean isRegex() {
-                return regex;
-            }
-
-            public void setRegex(boolean regex) {
-                this.regex = regex;
-            }
-
-            public boolean isIgnoreCase() {
-                return ignoreCase;
-            }
-
-            public void setIgnoreCase(boolean ignoreCase) {
-                this.ignoreCase = ignoreCase;
+            public void setMessage(MessageData message) {
+                this.message = message;
             }
 
             public boolean isOnlyHideForOtherPlayers() {
@@ -429,58 +370,6 @@ public class YamlUtil {
                 this.priority = priority;
             }
 
-            public List<String> getSenders() {
-                return senders;
-            }
-
-            public void setSenders(List<String> senders) {
-                this.senders = senders;
-                senderUUIDs = YamlUtil.getUUIDs(senders);
-            }
-
-            public List<String> getExcludedSenders() {
-                return excludedSenders;
-            }
-
-            public void setExcludedSenders(List<String> excludedSenders) {
-                this.excludedSenders = excludedSenders;
-                excludedSenderUUIDs = YamlUtil.getUUIDs(excludedSenders);
-            }
-
-            public List<String> getReceivers() {
-                return receivers;
-            }
-
-            public void setReceivers(List<String> receivers) {
-                this.receivers = receivers;
-                receiverUUIDs = YamlUtil.getUUIDs(receivers);
-            }
-
-            public List<String> getExcludedReceivers() {
-                return excludedReceivers;
-            }
-
-            public void setExcludedReceivers(List<String> excludedReceivers) {
-                this.excludedReceivers = excludedReceivers;
-                excludedReceiverUUIDs = YamlUtil.getUUIDs(excludedReceivers);
-            }
-
-            public String getMessage() {
-                return message;
-            }
-
-            public void setMessage(String message) {
-                this.message = message;
-            }
-
-            public String getReplacement() {
-                return replacement;
-            }
-
-            public void setReplacement(String replacement) {
-                this.replacement = replacement;
-            }
-
             public boolean isOnlyExecuteCommands() {
                 return onlyExecuteCommands;
             }
@@ -497,20 +386,109 @@ public class YamlUtil {
                 this.commands = commands;
             }
 
-            public List<UUID> getSenderUUIDs() {
-                return senderUUIDs;
+            public PlayerData getPlayers() {
+                return players;
             }
 
-            public List<UUID> getExcludedSenderUUIDs() {
-                return excludedSenderUUIDs;
+            public void setPlayers(PlayerData players) {
+                this.players = players;
             }
 
-            public List<UUID> getReceiverUUIDs() {
-                return receiverUUIDs;
-            }
+            public static class MessageData {
 
-            public List<UUID> getExcludedReceiverUUIDs() {
-                return excludedReceiverUUIDs;
+                private String text;
+                private String replacement;
+                private boolean ignoreCase;
+                private boolean regex;
+                private JsonData json;
+
+                public MessageData() {
+                    text = "";
+                    replacement = null;
+                    ignoreCase = false;
+                    regex = false;
+                    json = new JsonData();
+                }
+
+                public MessageData(String text, String replacement, boolean ignoreCase, boolean regex, JsonData json) {
+                    this.text = text;
+                    this.replacement = replacement;
+                    this.ignoreCase = ignoreCase;
+                    this.regex = regex;
+                    this.json = json;
+                }
+
+                public String getText() {
+                    return text;
+                }
+
+                public void setText(String text) {
+                    this.text = text;
+                }
+
+                public String getReplacement() {
+                    return replacement;
+                }
+
+                public void setReplacement(String replacement) {
+                    this.replacement = replacement;
+                }
+
+                public boolean isIgnoreCase() {
+                    return ignoreCase;
+                }
+
+                public void setIgnoreCase(boolean ignoreCase) {
+                    this.ignoreCase = ignoreCase;
+                }
+
+                public boolean isRegex() {
+                    return regex;
+                }
+
+                public void setRegex(boolean regex) {
+                    this.regex = regex;
+                }
+
+                public JsonData getJson() {
+                    return json;
+                }
+
+                public void setJson(JsonData json) {
+                    this.json = json;
+                }
+
+                public static class JsonData {
+
+                    private boolean enabled;
+                    private int jsonPrecisionLevel;
+
+                    public JsonData() {
+                        enabled = false;
+                        jsonPrecisionLevel = 2;
+                    }
+
+                    public JsonData(boolean enabled, int jsonPrecisionLevel) {
+                        this.enabled = enabled;
+                        this.jsonPrecisionLevel = jsonPrecisionLevel;
+                    }
+
+                    public boolean isEnabled() {
+                        return enabled;
+                    }
+
+                    public void setEnabled(boolean enabled) {
+                        this.enabled = enabled;
+                    }
+
+                    public int getJsonPrecisionLevel() {
+                        return jsonPrecisionLevel;
+                    }
+
+                    public void setJsonPrecisionLevel(int jsonPrecisionLevel) {
+                        this.jsonPrecisionLevel = jsonPrecisionLevel;
+                    }
+                }
             }
 
             public static class CommandData {
@@ -551,6 +529,95 @@ public class YamlUtil {
 
                 public enum CommandType {
                     CONSOLE, PLAYER
+                }
+            }
+
+            public static class PlayerData {
+
+                private List<String> senders;
+                private List<String> excludedSenders;
+                private List<String> receivers;
+                private List<String> excludedReceivers;
+
+                private transient List<UUID> senderUUIDs;
+                private transient List<UUID> excludedSenderUUIDs;
+                private transient List<UUID> receiverUUIDs;
+                private transient List<UUID> excludedReceiverUUIDs;
+
+                public PlayerData() {
+                    this.senders = new ArrayList<>();
+                    this.excludedSenders = new ArrayList<>();
+                    this.receivers = new ArrayList<>();
+                    this.excludedReceivers = new ArrayList<>();
+
+                    senderUUIDs = new ArrayList<>();
+                    excludedSenderUUIDs = new ArrayList<>();
+                    receiverUUIDs = new ArrayList<>();
+                    excludedReceiverUUIDs = new ArrayList<>();
+                }
+
+                public PlayerData(List<String> senders, List<String> excludedSenders, List<String> receivers, List<String> excludedReceivers) {
+                    this.senders = senders;
+                    this.excludedSenders = excludedSenders;
+                    this.receivers = receivers;
+                    this.excludedReceivers = excludedReceivers;
+
+                    senderUUIDs = YamlUtil.getUUIDs(senders);
+                    excludedSenderUUIDs = YamlUtil.getUUIDs(excludedSenders);
+                    receiverUUIDs = YamlUtil.getUUIDs(receivers);
+                    excludedReceiverUUIDs = YamlUtil.getUUIDs(excludedReceivers);
+                }
+
+                public List<String> getSenders() {
+                    return senders;
+                }
+
+                public void setSenders(List<String> senders) {
+                    this.senders = senders;
+                    senderUUIDs = YamlUtil.getUUIDs(senders);
+                }
+
+                public List<String> getExcludedSenders() {
+                    return excludedSenders;
+                }
+
+                public void setExcludedSenders(List<String> excludedSenders) {
+                    this.excludedSenders = excludedSenders;
+                    excludedSenderUUIDs = YamlUtil.getUUIDs(excludedSenders);
+                }
+
+                public List<String> getReceivers() {
+                    return receivers;
+                }
+
+                public void setReceivers(List<String> receivers) {
+                    this.receivers = receivers;
+                    receiverUUIDs = YamlUtil.getUUIDs(receivers);
+                }
+
+                public List<String> getExcludedReceivers() {
+                    return excludedReceivers;
+                }
+
+                public void setExcludedReceivers(List<String> excludedReceivers) {
+                    this.excludedReceivers = excludedReceivers;
+                    excludedReceiverUUIDs = YamlUtil.getUUIDs(excludedReceivers);
+                }
+
+                public List<UUID> getSenderUUIDs() {
+                    return senderUUIDs;
+                }
+
+                public List<UUID> getExcludedSenderUUIDs() {
+                    return excludedSenderUUIDs;
+                }
+
+                public List<UUID> getReceiverUUIDs() {
+                    return receiverUUIDs;
+                }
+
+                public List<UUID> getExcludedReceiverUUIDs() {
+                    return excludedReceiverUUIDs;
                 }
             }
         }

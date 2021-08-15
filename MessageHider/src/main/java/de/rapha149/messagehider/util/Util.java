@@ -11,7 +11,7 @@ import de.rapha149.messagehider.Placeholders;
 import de.rapha149.messagehider.util.YamlUtil.YamlData.FilterData;
 import de.rapha149.messagehider.util.YamlUtil.YamlData.FilterData.CommandData;
 import de.rapha149.messagehider.util.YamlUtil.YamlData.FilterData.MessageData;
-import de.rapha149.messagehider.util.YamlUtil.YamlData.FilterData.PlayerData;
+import de.rapha149.messagehider.util.YamlUtil.YamlData.FilterData.TargetsData;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -91,7 +91,7 @@ public class Util {
                 if (ids.isEmpty() || (id != null && ids.contains(id))) {
                     usedIds.add(id);
 
-                    PlayerData players = filter.getPlayers();
+                    TargetsData players = filter.getTargets();
                     
                     if (sender != null) {
                         String name = sender.equals(Main.ZERO_UUID) ? "<console>" : Bukkit.getPlayer(sender).getName();

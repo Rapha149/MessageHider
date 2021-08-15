@@ -304,7 +304,7 @@ public class YamlUtil {
             private Integer priority;
             private boolean onlyExecuteCommands;
             private List<CommandData> commands;
-            private PlayerData players;
+            private TargetsData targets;
 
             public FilterData() {
                 id = null;
@@ -312,7 +312,7 @@ public class YamlUtil {
                 onlyHideForOtherPlayers = false;
                 priority = null;
                 commands = new ArrayList<>();
-                players = new PlayerData();
+                targets = new TargetsData();
             }
 
             public FilterData(String id, MessageData message, boolean onlyHideForOtherPlayers, Integer priority,
@@ -323,19 +323,19 @@ public class YamlUtil {
                 this.priority = priority;
                 this.onlyExecuteCommands = onlyExecuteCommands;
                 this.commands = commands;
-                this.players = new PlayerData();
+                this.targets = new TargetsData();
             }
 
             public FilterData(String id, MessageData message, boolean onlyHideForOtherPlayers, Integer priority,
                               boolean onlyExecuteCommands, List<CommandData> commands,
-                              PlayerData players) {
+                              TargetsData targets) {
                 this.id = id;
                 this.message = message;
                 this.onlyHideForOtherPlayers = onlyHideForOtherPlayers;
                 this.priority = priority;
                 this.onlyExecuteCommands = onlyExecuteCommands;
                 this.commands = commands;
-                this.players = players;
+                this.targets = targets;
             }
 
             public String getId() {
@@ -386,12 +386,12 @@ public class YamlUtil {
                 this.commands = commands;
             }
 
-            public PlayerData getPlayers() {
-                return players;
+            public TargetsData getTargets() {
+                return targets;
             }
 
-            public void setPlayers(PlayerData players) {
-                this.players = players;
+            public void setTargets(TargetsData targets) {
+                this.targets = targets;
             }
 
             public static class MessageData {
@@ -532,7 +532,7 @@ public class YamlUtil {
                 }
             }
 
-            public static class PlayerData {
+            public static class TargetsData {
 
                 private List<String> senders;
                 private List<String> excludedSenders;
@@ -544,7 +544,7 @@ public class YamlUtil {
                 private transient List<UUID> receiverUUIDs;
                 private transient List<UUID> excludedReceiverUUIDs;
 
-                public PlayerData() {
+                public TargetsData() {
                     this.senders = new ArrayList<>();
                     this.excludedSenders = new ArrayList<>();
                     this.receivers = new ArrayList<>();
@@ -556,7 +556,7 @@ public class YamlUtil {
                     excludedReceiverUUIDs = new ArrayList<>();
                 }
 
-                public PlayerData(List<String> senders, List<String> excludedSenders, List<String> receivers, List<String> excludedReceivers) {
+                public TargetsData(List<String> senders, List<String> excludedSenders, List<String> receivers, List<String> excludedReceivers) {
                     this.senders = senders;
                     this.excludedSenders = excludedSenders;
                     this.receivers = receivers;

@@ -5,7 +5,7 @@ import de.rapha149.messagehider.Updates;
 import de.rapha149.messagehider.util.YamlUtil.YamlData.FilterData;
 import de.rapha149.messagehider.util.YamlUtil.YamlData.FilterData.MessageData;
 import de.rapha149.messagehider.util.YamlUtil.YamlData.FilterData.MessageData.JsonData;
-import de.rapha149.messagehider.util.YamlUtil.YamlData.FilterData.PlayerData;
+import de.rapha149.messagehider.util.YamlUtil.YamlData.FilterData.TargetsData;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -33,7 +33,7 @@ public class Presets {
             CONSOLE_COMMANDS = new FilterData("console_commands", new MessageData(loadJson("console_commands.json"),
                     null, false, true, new JsonData(true, 1)),
                     false, null, false, Arrays.asList(),
-                    new PlayerData(Arrays.asList(Main.ZERO_UUID.toString()), Arrays.asList(), Arrays.asList(), Arrays.asList()));
+                    new TargetsData(Arrays.asList(Main.ZERO_UUID.toString()), Arrays.asList(), Arrays.asList(), Arrays.asList()));
         }
 
         if (Updates.isBukkitVersionAboveOrEqualTo("1.13")) {

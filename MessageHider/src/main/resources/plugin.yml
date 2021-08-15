@@ -7,7 +7,7 @@ softdepend: [PlaceholderAPI]
 commands:
   messagehider:
     description: MessageHider command for logging messages, creating empty filters or reloading the config.
-    usage: /messagehider <reload|log|create|check>
+    usage: /messagehider <reload|log|create|check|run>
     permission: messagehider
     aliases: [mh]
 
@@ -26,5 +26,9 @@ permissions:
       messagehider: true
   messagehider.check:
     description: Permission for '/messagehider check'.
+    children:
+      messagehider: true
+  messagehider.run:
+    description: Permission for '/messagehider run'.
     children:
       messagehider: true

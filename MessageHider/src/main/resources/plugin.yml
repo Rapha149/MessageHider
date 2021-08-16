@@ -24,6 +24,10 @@ permissions:
     description: Permission for '/messagehider create'.
     children:
       messagehider: true
+  messagehider.createcommand:
+    description: Permission for '/messagehider createcommand'.
+    children:
+      messagehider: true
   messagehider.check:
     description: Permission for '/messagehider check'.
     children:

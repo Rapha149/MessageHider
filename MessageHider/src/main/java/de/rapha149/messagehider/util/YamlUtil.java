@@ -20,6 +20,7 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class YamlUtil {
 
@@ -142,7 +143,7 @@ public class YamlUtil {
         uuidCache.clear();
     }
 
-    private static void save() throws IOException {
+    public static void save() throws IOException {
         OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(file));
         writer.write("# version=" + configVersion + " DO NOT CHANGE THIS LINE\n" + yaml.dumpAsMap(data));
         writer.flush();
@@ -163,6 +164,10 @@ public class YamlUtil {
             filters.add(Presets.CONSOLE_COMMANDS);
 
         return filters;
+    }
+
+    public static List<FilterData> getCustomFiltersByIds(List<String> ids) {
+        return data.filters.stream().filter(filter -> filter.id != null && ids.contains(filter.id)).collect(Collectors.toList());
     }
 
     public static void addFilter(FilterData filter) throws IOException {

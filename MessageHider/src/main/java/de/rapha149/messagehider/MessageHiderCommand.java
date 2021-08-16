@@ -37,7 +37,7 @@ public class MessageHiderCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String alias, String[] args) {
-        if (args.length >= 1 && args[0].toLowerCase().matches("reload|log|create|check|run")) {
+        if (args.length >= 1 && args[0].toLowerCase().matches("reload|log|create|createcommand|check|run")) {
             switch (args[0].toLowerCase()) {
                 case "reload":
                     if (sender.hasPermission("messagehider.reload")) {
@@ -102,6 +102,27 @@ public class MessageHiderCommand implements CommandExecutor, TabCompleter {
                             e.printStackTrace();
                             sender.sendMessage(YamlUtil.getPrefix() + "§cAn error occurred.");
                         }
+                    } else
+                        sender.sendMessage(YamlUtil.getPrefix() + "§cYou don't have enough permissions for this.");
+                    break;
+                case "createcommand":
+                    if (sender.hasPermission("messagehider.createcommand")) {
+                        if (args.length >= 2) {
+                            List<FilterData> filters = YamlUtil.getCustomFiltersByIds(Arrays.asList(args[1]));
+                            if (!filters.isEmpty()) {
+                                try {
+                                    filters.forEach(filter -> filter.getCommands().add(new CommandData()));
+                                    YamlUtil.save();
+                                    sender.sendMessage(YamlUtil.getPrefix() + "§2A command for the filter" +
+                                                       (filters.size() != 1 ? "s" : "") + " §a" + args[1] + " §2was created.");
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                    sender.sendMessage(YamlUtil.getPrefix() + "§cAn error occured.");
+                                }
+                            } else
+                                sender.sendMessage(YamlUtil.getPrefix() + "§cUnknown filter.");
+                        } else
+                            sender.sendMessage(YamlUtil.getPrefix() + "§cPlease use §7/" + alias + " createcommand <Filter>§c.");
                     } else
                         sender.sendMessage(YamlUtil.getPrefix() + "§cYou don't have enough permissions for this.");
                     break;
@@ -178,8 +199,7 @@ public class MessageHiderCommand implements CommandExecutor, TabCompleter {
                     if (sender.hasPermission("messagehider.run")) {
                         boolean isPlayer = sender instanceof Player;
                         if (args.length >= (isPlayer ? 2 : 3)) {
-                            List<FilterData> filters = YamlUtil.getCustomFilters().stream()
-                                    .filter(filter -> args[1].equals(filter.getId())).collect(Collectors.toList());
+                            List<FilterData> filters = YamlUtil.getCustomFiltersByIds(Arrays.asList(args[1].split(",")));
                             if (!filters.isEmpty()) {
                                 Player player, player1;
                                 if (args.length >= 3) {
@@ -224,7 +244,7 @@ public class MessageHiderCommand implements CommandExecutor, TabCompleter {
                     break;
             }
         } else
-            sender.sendMessage(YamlUtil.getPrefix() + "§cPlease use §7/" + alias + " <reload|log|create|check>§c.");
+            sender.sendMessage(YamlUtil.getPrefix() + "§cPlease use §7/" + alias + " <reload|log|create|createcommand|check>§c.");
         return true;
     }
 
@@ -238,6 +258,8 @@ public class MessageHiderCommand implements CommandExecutor, TabCompleter {
                 list.add("log");
             if (sender.hasPermission("messagehider.create"))
                 list.add("create");
+            if (sender.hasPermission("messagehider.createcommand"))
+                list.add("createcommand");
             if (sender.hasPermission("messagehider.check"))
                 list.add("check");
             if (sender.hasPermission("messagehider.run"))
@@ -247,6 +269,8 @@ public class MessageHiderCommand implements CommandExecutor, TabCompleter {
                 list.addAll(Arrays.asList("start", "stop"));
             if (args[0].equalsIgnoreCase("check") && sender.hasPermission("messagehider.check"))
                 list.addAll(Arrays.asList("json", "plain"));
+            if(args[0].equalsIgnoreCase("createcommand") && sender.hasPermission("messagehider.createcommand"))
+                YamlUtil.getCustomFilters().stream().map(FilterData::getId).filter(Objects::nonNull).distinct().forEach(list::add);
             if (args[0].equalsIgnoreCase("run") && sender.hasPermission("messagehider.run")) {
                 List<String> ids = YamlUtil.getFilters().stream().map(FilterData::getId).filter(Objects::nonNull).collect(Collectors.toList());
                 int index = args[1].lastIndexOf(',');

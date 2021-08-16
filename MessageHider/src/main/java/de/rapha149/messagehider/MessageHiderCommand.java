@@ -126,7 +126,7 @@ public class MessageHiderCommand implements CommandExecutor, TabCompleter {
                                 }
                             }
 
-                            FilterCheckResult result = Util.checkFilters(false, json ? null : message, json ? message : null, null, null, filterIds);
+                            FilterCheckResult result = Util.checkFilters(json ? null : message, json ? message : null, null, null, filterIds);
                             boolean player = sender instanceof Player;
                             StringBuilder sb = new StringBuilder(YamlUtil.getPrefix() + "§2Result:");
                             if (!result.getNotFoundIds().isEmpty())

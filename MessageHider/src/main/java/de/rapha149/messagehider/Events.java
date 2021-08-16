@@ -104,7 +104,7 @@ public class Events implements Listener {
                         }
                         UUID receiver = player.getUniqueId();
 
-                        FilterCheckResult result = Util.checkFilters(true, plain, json, sender, receiver);
+                        FilterCheckResult result = Util.checkFilters(plain, json, sender, receiver);
                         MessageHiderCommand.log(receiver, sender, plain, json, result);
 
                         if (!result.getCommands().isEmpty()) {

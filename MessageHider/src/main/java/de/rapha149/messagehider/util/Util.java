@@ -75,7 +75,7 @@ public class Util {
             return new String[]{colorized, colorized};
     }
 
-    public static FilterCheckResult checkFilters(boolean breakIfFound, String plain, String json, UUID sender, UUID receiver, String... filterIds) {
+    public static FilterCheckResult checkFilters(String plain, String json, UUID sender, UUID receiver, String... filterIds) {
         int ignored = 0;
         int filtered = 0;
         List<String> filteredIds = new ArrayList<>();
@@ -92,7 +92,7 @@ public class Util {
                     usedIds.add(id);
 
                     TargetsData players = filter.getTargets();
-                    
+
                     if (sender != null) {
                         String name = sender.equals(Main.ZERO_UUID) ? "<console>" : Bukkit.getPlayer(sender).getName();
                         if (!Bukkit.getOnlineMode()) {
@@ -147,19 +147,11 @@ public class Util {
                                 if (id != null)
                                     filteredIds.add(id);
 
-                                if (!onlyExecuteCommands) {
+                                if (!onlyExecuteCommands && !hidden && replacement == null) {
                                     if (replace == null)
                                         hidden = true;
-
-                                    if (replacement == null && replace != null) {
-                                        if (regex)
-                                            replacement = replaceGroups(replace, result.groups);
-                                        else
-                                            replacement = replace;
-                                    }
-
-                                    if (breakIfFound && replacement != null)
-                                        break;
+                                    else
+                                        replacement = regex ? replaceGroups(replace, result.groups) : replace;
                                 }
                             }
                         } else
@@ -182,15 +174,11 @@ public class Util {
                                 if (id != null)
                                     filteredIds.add(id);
 
-                                if (!onlyExecuteCommands) {
+                                if (!onlyExecuteCommands && !hidden && replacement == null) {
                                     if (replace == null)
                                         hidden = true;
-
-                                    if (replacement == null && replace != null)
+                                    else
                                         replacement = replaceGroups(replace, groups);
-
-                                    if (breakIfFound && replacement != null)
-                                        break;
                                 }
                             }
                         } else if (ignoreCase ? plain.equalsIgnoreCase(filterMessage) : plain.equals(filterMessage)) {
@@ -204,15 +192,11 @@ public class Util {
                             if (id != null)
                                 filteredIds.add(id);
 
-                            if (!onlyExecuteCommands) {
+                            if (!onlyExecuteCommands && !hidden && replacement == null) {
                                 if (replace == null)
                                     hidden = true;
-
-                                if (replacement == null && replace != null)
+                                else
                                     replacement = replace;
-
-                                if (breakIfFound && replacement != null)
-                                    break;
                             }
                         }
                     } else

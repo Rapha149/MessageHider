@@ -301,39 +301,43 @@ public class YamlUtil {
             private String id;
             private MessageData message;
             private boolean onlyHideForOtherPlayers;
-            private Integer priority;
             private boolean onlyExecuteCommands;
+            private boolean stopAfter;
+            private Integer priority;
             private List<CommandData> commands;
             private TargetsData targets;
 
             public FilterData() {
                 id = null;
                 message = new MessageData();
-                onlyHideForOtherPlayers = false;
                 priority = null;
+                onlyHideForOtherPlayers = false;
+                stopAfter = false;
                 commands = new ArrayList<>();
                 targets = new TargetsData();
             }
 
-            public FilterData(String id, MessageData message, boolean onlyHideForOtherPlayers, Integer priority,
-                              boolean onlyExecuteCommands, List<CommandData> commands) {
+            public FilterData(String id, MessageData message, boolean onlyHideForOtherPlayers,
+                              boolean onlyExecuteCommands, boolean stopAfter, Integer priority, List<CommandData> commands) {
                 this.id = id;
                 this.message = message;
                 this.onlyHideForOtherPlayers = onlyHideForOtherPlayers;
-                this.priority = priority;
                 this.onlyExecuteCommands = onlyExecuteCommands;
+                this.stopAfter = stopAfter;
+                this.priority = priority;
                 this.commands = commands;
                 this.targets = new TargetsData();
             }
 
-            public FilterData(String id, MessageData message, boolean onlyHideForOtherPlayers, Integer priority,
-                              boolean onlyExecuteCommands, List<CommandData> commands,
+            public FilterData(String id, MessageData message, boolean onlyHideForOtherPlayers,
+                              boolean onlyExecuteCommands, boolean stopAfter, Integer priority, List<CommandData> commands,
                               TargetsData targets) {
                 this.id = id;
                 this.message = message;
                 this.onlyHideForOtherPlayers = onlyHideForOtherPlayers;
-                this.priority = priority;
                 this.onlyExecuteCommands = onlyExecuteCommands;
+                this.stopAfter = stopAfter;
+                this.priority = priority;
                 this.commands = commands;
                 this.targets = targets;
             }
@@ -362,20 +366,28 @@ public class YamlUtil {
                 this.onlyHideForOtherPlayers = onlyHideForOtherPlayers;
             }
 
-            public Integer getPriority() {
-                return priority;
-            }
-
-            public void setPriority(Integer priority) {
-                this.priority = priority;
-            }
-
             public boolean isOnlyExecuteCommands() {
                 return onlyExecuteCommands;
             }
 
             public void setOnlyExecuteCommands(boolean onlyExecuteCommands) {
                 this.onlyExecuteCommands = onlyExecuteCommands;
+            }
+
+            public boolean isStopAfter() {
+                return stopAfter;
+            }
+
+            public void setStopAfter(boolean stopAfter) {
+                this.stopAfter = stopAfter;
+            }
+
+            public Integer getPriority() {
+                return priority;
+            }
+
+            public void setPriority(Integer priority) {
+                this.priority = priority;
             }
 
             public List<CommandData> getCommands() {

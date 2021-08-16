@@ -127,11 +127,12 @@ public class Util {
                     }
 
                     MessageData message = filter.getMessage();
-                    boolean regex = message.isRegex();
-                    boolean ignoreCase = message.isIgnoreCase();
                     String filterMessage = message.getText();
                     String replace = message.getReplacement();
+                    boolean ignoreCase = message.isIgnoreCase();
+                    boolean regex = message.isRegex();
                     boolean onlyExecuteCommands = filter.isOnlyExecuteCommands();
+                    boolean stopAfter = filter.isStopAfter();
                     List<CommandData> cmds = new ArrayList<>(filter.getCommands());
                     if (message.getJson().isEnabled()) {
                         if (json != null) {
@@ -153,6 +154,9 @@ public class Util {
                                     else
                                         replacement = regex ? replaceGroups(replace, result.groups) : replace;
                                 }
+
+                                if(stopAfter)
+                                    break;
                             }
                         } else
                             ignored++;
@@ -180,6 +184,9 @@ public class Util {
                                     else
                                         replacement = replaceGroups(replace, groups);
                                 }
+
+                                if(stopAfter)
+                                    break;
                             }
                         } else if (ignoreCase ? plain.equalsIgnoreCase(filterMessage) : plain.equals(filterMessage)) {
                             if (!cmds.isEmpty()) {
@@ -198,6 +205,9 @@ public class Util {
                                 else
                                     replacement = replace;
                             }
+
+                            if(stopAfter)
+                                break;
                         }
                     } else
                         ignored++;

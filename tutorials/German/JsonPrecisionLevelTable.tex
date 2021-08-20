@@ -1,0 +1,41 @@
+\documentclass[a4paper,12pt]{scrartcl}
+
+\usepackage[latin1]{inputenc}
+\usepackage[english]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{nopageno}
+\usepackage{tikz}
+
+\def\checkmark{\tikz\fill[scale=0.4](0,.35) -- (.25,0) -- (1,.7) -- (.25,.15) -- cycle;} 
+
+\begin{document}
+	\begin{tabular}{|l|l|c|c|c|c|}
+		\hline
+		\makecell{\textbf{Angegebenes JSON}} 
+			& \makecell{\textbf{Gesendetes JSON}} 
+			& \textbf{Level 0} 
+			& \textbf{Level 1}
+			& \textbf{Level 2}
+			& \textbf{Level 3} \\\specialrule{1.25pt}{0pt}{0pt}
+		
+		\makecell[l]{\{\\\hspace{10pt}"text":"Hello World",\\\hspace{10pt}"color":"green",\\\hspace{10pt}"bold":"true"\\\}}
+			& \makecell[l]{\{\\\hspace{10pt}"text":"Hello World",\\\hspace{10pt}"color":"green",\\\hspace{10pt}"italic":"true"\\\}}
+			& \checkmark & $\times$ & $\times$ & $\times$ \\\hline
+		
+		\makecell[l]{\{\\\hspace{10pt}"text":"Hello World",\\\hspace{10pt}"color":"green",\\\hspace{10pt}"bold":"true"\\\}}
+			& \makecell[l]{\{\\\hspace{10pt}"text":"Hello World",\\\hspace{10pt}"color":"green",\\\hspace{10pt}"bold":"true",\\\hspace{10pt}"italic":"true"\\\}}
+			& \checkmark & \checkmark & $\times$ & $\times$ \\\hline
+			
+		\makecell[l]{\{\\\hspace{10pt}"text":"Hello World",\\\hspace{10pt}"color":"green"\\\}}
+		& \makecell[l]{\{\\\hspace{10pt}"text":"Hello World",\\\hspace{10pt}"color":"green",\\\hspace{10pt}"italic":"false"\\\}}
+		& \checkmark & \checkmark & \checkmark & $\times$ \\\hline
+		
+		\makecell[l]{\{\\\hspace{10pt}"text":"Hello World",\\\hspace{10pt}"color":"green",\\\hspace{10pt}"bold":"true"\\\}}
+		& \makecell[l]{\{\\\hspace{10pt}"text":"Hello World",\\\hspace{10pt}"color":"green",\\\hspace{10pt}"bold":"true"\\\}}
+		& \checkmark & \checkmark & \checkmark & \checkmark \\\hline
+	\end{tabular}
+\end{document}
+ 

@@ -4,8 +4,8 @@ With this plugin for Minecraft you can filter the ingame messages you receive!
 
 ## Tutorials
 
-- [English](tutorials/ENGLISH.md)
-- [German/Deutsch](tutorials/GERMAN.md)
+- [English](tutorials/English/ENGLISH.md)
+- [German/Deutsch](tutorials/German/GERMAN.md)
 
 ## URLs
 

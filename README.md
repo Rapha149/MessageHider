@@ -1,6 +1,6 @@
 # MessageHider
 
-With this plugin for Minecraft you can filter the ingame messages you receive!
+With this plugin for Minecraft you can hide or replace the ingame messages you receive! You can also execute commands when a filter applies.
 
 ## Tutorials
 
@@ -12,3 +12,7 @@ With this plugin for Minecraft you can filter the ingame messages you receive!
 - [SpigotMC](https://www.spigotmc.org/resources/messagehider.91661)
 - [BukkitDev](https://dev.bukkit.org/projects/messagehider)
 - [bStats](https://bstats.org/plugin/bukkit/MessageHider/11112)
+
+## Credits
+
+- Thanks a lot to Mimi#1841 who helped me by suggesting new features for the plugin and improvements for the instructions.

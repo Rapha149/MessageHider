@@ -38,11 +38,11 @@ public class Presets {
 
         if (Updates.isBukkitVersionAboveOrEqualTo("1.13")) {
             IDLE_TIMEOUT = new FilterData("idle_timeout", new MessageData(loadJson("idle_timeout_1.13.json"),
-                    null, false, false, new JsonData(true, 3)),
+                    null, false, true, new JsonData(true, 3)),
                     true, false, false, null, Arrays.asList());
         } else if (Updates.isBukkitVersionAboveOrEqualTo("1.8")) {
             IDLE_TIMEOUT = new FilterData("idle_timeout", new MessageData(loadJson("idle_timeout_1.8.json"),
-                    null, false, false, new JsonData(true, 3)),
+                    null, false, true, new JsonData(true, 3)),
                     true, false, false, null, Arrays.asList());
         } else {
             IDLE_TIMEOUT = new FilterData("idle_timeout", new MessageData("commands.setidletimeout.success",

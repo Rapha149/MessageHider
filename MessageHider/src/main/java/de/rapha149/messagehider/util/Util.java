@@ -156,7 +156,7 @@ public class Util {
                                         replacement = regex ? replaceGroups(replace, result.groups) : replace;
                                 }
 
-                                if(stopAfter)
+                                if (stopAfter)
                                     break;
                             }
                         } else
@@ -186,7 +186,7 @@ public class Util {
                                         replacement = replaceGroups(replace, groups);
                                 }
 
-                                if(stopAfter)
+                                if (stopAfter)
                                     break;
                             }
                         } else if (ignoreCase ? plain.equalsIgnoreCase(filterMessage) : plain.equals(filterMessage)) {
@@ -207,7 +207,7 @@ public class Util {
                                     replacement = replace;
                             }
 
-                            if(stopAfter)
+                            if (stopAfter)
                                 break;
                         }
                     } else

@@ -221,7 +221,7 @@ public class Util {
     }
 
     public static JsonResult jsonMatches(String json1, String json2, boolean regex, boolean ignoreCase, int precisionLevel) {
-        List<String> groups = regex ? new ArrayList<>() : null;
+        List<String> groups = regex ? new ArrayList<>(Arrays.asList(json1)) : null;
 
         Type mapType = new TypeToken<Map<String, Object>>() {
         }.getType();

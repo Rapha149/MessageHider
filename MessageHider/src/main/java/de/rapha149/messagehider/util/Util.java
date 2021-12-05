@@ -47,7 +47,8 @@ public class Util {
 
     public static BaseComponent[] formatReplacementString(String replacement) {
         String colorized = ChatColor.translateAlternateColorCodes('&', replacement);
-        if (colorized.startsWith("{") && colorized.endsWith("}"))
+        if ((colorized.startsWith("{") && colorized.endsWith("}")) ||
+            (colorized.startsWith("[") && colorized.endsWith("]")))
             try {
                 return ComponentSerializer.parse(colorized);
             } catch (JsonSyntaxException e) {

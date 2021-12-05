@@ -15,4 +15,4 @@ With this plugin for Minecraft you can hide or replace the ingame messages you r
 
 ## Credits
 
-- Thanks a lot to Mimi#1841 who helped me by suggesting new features for the plugin and improvements for the instructions.
+- Thanks a lot to Mimi#1841 who helped me by suggesting new features for the plugin and improvements for the tutorials.

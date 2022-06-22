@@ -11,11 +11,25 @@ import net.minecraft.network.protocol.game.PacketPlayOutChat;
 import org.bukkit.craftbukkit.v1_18_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
+import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
 public class Wrapper1_18_R2 implements VersionWrapper {
+
+    private static final Field ADVENTURE_FIELD;
+
+    static {
+        Field adventureField;
+        try {
+            //noinspection JavaReflectionMemberAccess
+            adventureField = PacketPlayOutChat.class.getDeclaredField("adventure$message");
+        } catch (NoSuchFieldException e) {
+            adventureField = null;
+        }
+        ADVENTURE_FIELD = adventureField;
+    }
 
     @Override
     public Class<?> getJsonSyntaxException() {
@@ -45,11 +59,13 @@ public class Wrapper1_18_R2 implements VersionWrapper {
             };
         }
 
-        try {
-            Object adventure = packet.getClass().getDeclaredField("adventure$message").get(packet);
-            if (adventure != null)
-                return getTextFromAdventure(adventure);
-        } catch (NoSuchFieldException | IllegalAccessException ignore) {
+        if (ADVENTURE_FIELD != null) {
+            try {
+                Object adventure = ADVENTURE_FIELD.get(packet);
+                if (adventure != null)
+                    return getTextFromAdventure(adventure);
+            } catch (IllegalAccessException ignore) {
+            }
         }
 
         return new String[]{

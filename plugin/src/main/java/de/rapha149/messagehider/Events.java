@@ -7,6 +7,7 @@ import de.rapha149.messagehider.util.Util.FilterCheckResult;
 import de.rapha149.messagehider.util.Util.FilterCheckResult.FilterStatus;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPipeline;
 import io.netty.channel.ChannelPromise;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -51,17 +52,35 @@ public class Events implements Listener {
 
     public void reloadHandlers() {
         Bukkit.getOnlinePlayers().forEach(player -> {
-            WRAPPER.getPipeline(player).remove("MessageHider");
-            addHandler(player);
+            try {
+                WRAPPER.getPipeline(player).remove("MessageHider");
+                addHandler(player);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         });
     }
 
     public void removeHandlers() {
-        Bukkit.getOnlinePlayers().forEach(player -> WRAPPER.getPipeline(player).remove("MessageHider"));
+        Bukkit.getOnlinePlayers().forEach(player -> {
+            try {
+                WRAPPER.getPipeline(player).remove("MessageHider");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     private void addHandler(Player player) {
-        WRAPPER.getPipeline(player).addAfter("packet_handler", "MessageHider", new ChannelDuplexHandler() {
+        ChannelPipeline pipeline;
+        try {
+            pipeline = WRAPPER.getPipeline(player);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+
+        pipeline.addAfter("packet_handler", "MessageHider", new ChannelDuplexHandler() {
 
             @Override
             public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
@@ -72,8 +91,6 @@ public class Events implements Listener {
                         String plain = text[1];
 
                         UUID sender = WRAPPER.getUUID(msg);
-                        if (sender == null)
-                            sender = ZERO_UUID;
                         UUID receiver = player.getUniqueId();
 
                         FilterCheckResult result = Util.checkFilters(plain, json, sender, receiver);

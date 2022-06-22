@@ -8,7 +8,7 @@ import net.md_5.bungee.chat.ComponentSerializer;
 import net.minecraft.network.chat.IChatBaseComponent;
 import net.minecraft.network.chat.IChatBaseComponent.ChatSerializer;
 import net.minecraft.network.protocol.game.PacketPlayOutChat;
-import org.bukkit.craftbukkit.v1_18_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Field;
@@ -16,7 +16,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-public class Wrapper1_18_R1 implements VersionWrapper {
+public class Wrapper1_17_R1 implements VersionWrapper {
 
     private static final Field ADVENTURE_FIELD;
 

@@ -5,10 +5,10 @@ import io.netty.channel.ChannelPipeline;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
-import net.minecraft.network.chat.IChatBaseComponent;
-import net.minecraft.network.chat.IChatBaseComponent.ChatSerializer;
-import net.minecraft.network.protocol.game.PacketPlayOutChat;
-import org.bukkit.craftbukkit.v1_18_R1.entity.CraftPlayer;
+import net.minecraft.server.v1_14_R1.IChatBaseComponent;
+import net.minecraft.server.v1_14_R1.IChatBaseComponent.ChatSerializer;
+import net.minecraft.server.v1_14_R1.PacketPlayOutChat;
+import org.bukkit.craftbukkit.v1_14_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Field;
@@ -16,9 +16,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-public class Wrapper1_18_R1 implements VersionWrapper {
+public class Wrapper1_14_R1 implements VersionWrapper {
 
-    private static final Field ADVENTURE_FIELD;
+    private static final Field ADVENTURE_FIELD, COMPONENT_FIELD;
 
     static {
         Field adventureField;
@@ -29,6 +29,13 @@ public class Wrapper1_18_R1 implements VersionWrapper {
             adventureField = null;
         }
         ADVENTURE_FIELD = adventureField;
+
+        try {
+            COMPONENT_FIELD = PacketPlayOutChat.class.getDeclaredField("a");
+            COMPONENT_FIELD.setAccessible(true);
+        } catch (NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -38,7 +45,7 @@ public class Wrapper1_18_R1 implements VersionWrapper {
 
     @Override
     public ChannelPipeline getPipeline(Player player) {
-        return ((CraftPlayer) player).getHandle().b.a.k.pipeline();
+        return ((CraftPlayer) player).getHandle().playerConnection.networkManager.channel.pipeline();
     }
 
     @Override
@@ -47,11 +54,11 @@ public class Wrapper1_18_R1 implements VersionWrapper {
     }
 
     @Override
-    public String[] getText(Object obj) {
+    public String[] getText(Object obj) throws IllegalAccessException {
         if (!(obj instanceof PacketPlayOutChat packet))
             throw new IllegalArgumentException("Packet is not of type PacketPlayOutChat");
 
-        IChatBaseComponent component = packet.b();
+        IChatBaseComponent component = (IChatBaseComponent) COMPONENT_FIELD.get(packet);
         if (component != null) {
             return new String[]{
                     ChatSerializer.a(component),
@@ -76,10 +83,7 @@ public class Wrapper1_18_R1 implements VersionWrapper {
 
     @Override
     public UUID getUUID(Object obj) {
-        if (!(obj instanceof PacketPlayOutChat packet))
-            throw new IllegalArgumentException("Packet is not of type PacketPlayOutChat");
-
-        return packet.d();
+        return null;
     }
 
     @Override
@@ -87,7 +91,7 @@ public class Wrapper1_18_R1 implements VersionWrapper {
         if (!(obj instanceof PacketPlayOutChat packet))
             throw new IllegalArgumentException("Packet is not of type PacketPlayOutChat");
 
-        PacketPlayOutChat newPacket = new PacketPlayOutChat(null, packet.c(), packet.d());
+        PacketPlayOutChat newPacket = new PacketPlayOutChat(null, packet.d());
         newPacket.components = text;
         return newPacket;
     }

@@ -15,11 +15,11 @@ public interface VersionWrapper {
 
     Class<?> getJsonSyntaxException();
 
-    ChannelPipeline getPipeline(Player player);
+    ChannelPipeline getPipeline(Player player) throws Exception;
 
     List<Class<?>> getClasses();
 
-    String[] getText(Object obj);
+    String[] getText(Object obj) throws Exception;
 
     default String[] getTextFromAdventure(Object obj) {
         if(!(obj instanceof Component))
@@ -32,7 +32,7 @@ public interface VersionWrapper {
         };
     }
 
-    UUID getUUID(Object obj);
+    UUID getUUID(Object obj) throws Exception;
 
-    Object replaceText(Object obj, BaseComponent[] text);
+    Object replaceText(Object obj, BaseComponent[] text) throws Exception;
 }

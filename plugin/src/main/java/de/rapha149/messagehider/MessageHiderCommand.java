@@ -1,20 +1,20 @@
 package de.rapha149.messagehider;
 
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonParser;
+import de.rapha149.messagehider.util.Config;
+import de.rapha149.messagehider.util.Config.FilterData;
+import de.rapha149.messagehider.util.Config.FilterData.CommandData;
+import de.rapha149.messagehider.util.Config.FilterData.CommandData.CommandType;
 import de.rapha149.messagehider.util.Util;
 import de.rapha149.messagehider.util.Util.FilterCheckResult;
 import de.rapha149.messagehider.util.Util.FilterCheckResult.FilterStatus;
-import de.rapha149.messagehider.util.YamlUtil;
-import de.rapha149.messagehider.util.YamlUtil.YamlData.FilterData;
-import de.rapha149.messagehider.util.YamlUtil.YamlData.FilterData.CommandData;
-import de.rapha149.messagehider.util.YamlUtil.YamlData.FilterData.CommandData.CommandType;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -23,6 +23,8 @@ import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static de.rapha149.messagehider.util.Util.PREFIX;
 
 public class MessageHiderCommand implements CommandExecutor, TabCompleter {
 
@@ -42,14 +44,14 @@ public class MessageHiderCommand implements CommandExecutor, TabCompleter {
                 case "reload":
                     if (sender.hasPermission("messagehider.reload")) {
                         try {
-                            YamlUtil.load();
-                            sender.sendMessage(YamlUtil.getPrefix() + "§2The config was reloaded.");
+                            Config.load();
+                            sender.sendMessage(PREFIX + "§2The config was reloaded.");
                         } catch (IOException e) {
                             e.printStackTrace();
-                            sender.sendMessage(YamlUtil.getPrefix() + "§cAn error occurred.");
+                            sender.sendMessage(PREFIX + "§cAn error occurred.");
                         }
                     } else
-                        sender.sendMessage(YamlUtil.getPrefix() + "§cYou don't have enough permissions for this.");
+                        sender.sendMessage(PREFIX + "§cYou don't have enough permissions for this.");
                     break;
                 case "log":
                     if (sender instanceof Player) {
@@ -60,71 +62,71 @@ public class MessageHiderCommand implements CommandExecutor, TabCompleter {
                                 switch (args[1].toLowerCase()) {
                                     case "start":
                                         if (!logging.containsKey(uuid)) {
-                                            File file = new File(Main.getInstance().getDataFolder(), "logs/" + player.getName() +
-                                                                                                     "_" + new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss").format(new Date()) + ".log");
+                                            File file = new File(MessageHider.getInstance().getDataFolder(),
+                                                    "logs/" + player.getName() + "_" + new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss").format(new Date()) + ".log");
                                             if (!file.getParentFile().exists())
                                                 file.getParentFile().mkdirs();
 
                                             logging.put(uuid, file);
                                             write(uuid, format.format(new Date()) + "\nStarted logging");
-                                            player.sendMessage(YamlUtil.getPrefix() + "§aYou are now logging messages sent to you.");
+                                            player.sendMessage(PREFIX + "§aYou are now logging messages sent to you.");
                                             player.spigot().sendMessage(new ComponentBuilder("§2Use ")
                                                     .append("§7/mh log stop").event(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/mh log stop"))
                                                     .append(" §2to stop logging.").reset().create());
                                         } else
-                                            player.sendMessage(YamlUtil.getPrefix() + "§6You are already logging messages.");
+                                            player.sendMessage(PREFIX + "§6You are already logging messages.");
                                         break;
                                     case "stop":
                                         if (logging.containsKey(uuid)) {
-                                            player.sendMessage(YamlUtil.getPrefix() + "§bStopped logging." +
+                                            player.sendMessage(PREFIX + "§bStopped logging." +
                                                                "\n§3Logged messages are located in §7" + logging.get(uuid).getParentFile().getPath() + "§3.");
-                                            Bukkit.getScheduler().runTask(Main.getInstance(), () -> {
+                                            Bukkit.getScheduler().runTask(MessageHider.getInstance(), () -> {
                                                 write(uuid, format.format(new Date()) + "\nStopped logging\n");
                                                 logging.remove(uuid);
                                             });
                                         } else
-                                            player.sendMessage(YamlUtil.getPrefix() + "§6You weren't logging messages.");
+                                            player.sendMessage(PREFIX + "§6You weren't logging messages.");
                                         break;
                                 }
                             } else
-                                player.sendMessage(YamlUtil.getPrefix() + "§cPlease use §7/" + alias + " log <start|stop>§c.");
+                                player.sendMessage(PREFIX + "§cPlease use §7/" + alias + " log <start|stop>§c.");
                         } else
-                            player.sendMessage(YamlUtil.getPrefix() + "§cYou don't have enough permissions for this.");
+                            player.sendMessage(PREFIX + "§cYou don't have enough permissions for this.");
                     } else
-                        sender.sendMessage(YamlUtil.getPrefix() + "§cOnly possible for players.");
+                        sender.sendMessage(PREFIX + "§cOnly possible for players.");
                     break;
                 case "create":
                     if (sender.hasPermission("messagehider.create")) {
                         try {
-                            YamlUtil.addFilter(new FilterData());
-                            sender.sendMessage(YamlUtil.getPrefix() + "§2An empty filter was created.");
+                            Config.addFilter(new FilterData());
+                            sender.sendMessage(PREFIX + "§2An empty filter was created.");
                         } catch (IOException e) {
                             e.printStackTrace();
-                            sender.sendMessage(YamlUtil.getPrefix() + "§cAn error occurred.");
+                            sender.sendMessage(PREFIX + "§cAn error occurred.");
                         }
                     } else
-                        sender.sendMessage(YamlUtil.getPrefix() + "§cYou don't have enough permissions for this.");
+                        sender.sendMessage(PREFIX + "§cYou don't have enough permissions for this.");
                     break;
                 case "createcommand":
                     if (sender.hasPermission("messagehider.createcommand")) {
                         if (args.length >= 2) {
-                            List<FilterData> filters = YamlUtil.getCustomFiltersByIds(Arrays.asList(args[1]));
+                            List<FilterData> filters = Config.getCustomFiltersByIds(Arrays.asList(args[1]));
                             if (!filters.isEmpty()) {
                                 try {
-                                    filters.forEach(filter -> filter.getCommands().add(new CommandData()));
-                                    YamlUtil.save();
-                                    sender.sendMessage(YamlUtil.getPrefix() + "§2A command for the filter" +
+                                    filters.forEach(filter -> filter.commands.add(new CommandData()));
+                                    Config.save();
+                                    sender.sendMessage(PREFIX + "§2A command for the filter" +
                                                        (filters.size() != 1 ? "s" : "") + " §a" + args[1] + " §2was created.");
                                 } catch (IOException e) {
                                     e.printStackTrace();
-                                    sender.sendMessage(YamlUtil.getPrefix() + "§cAn error occured.");
+                                    sender.sendMessage(PREFIX + "§cAn error occured.");
                                 }
                             } else
-                                sender.sendMessage(YamlUtil.getPrefix() + "§cUnknown filter.");
+                                sender.sendMessage(PREFIX + "§cUnknown filter.");
                         } else
-                            sender.sendMessage(YamlUtil.getPrefix() + "§cPlease use §7/" + alias + " createcommand <Filter>§c.");
+                            sender.sendMessage(PREFIX + "§cPlease use §7/" + alias + " createcommand <Filter>§c.");
                     } else
-                        sender.sendMessage(YamlUtil.getPrefix() + "§cYou don't have enough permissions for this.");
+                        sender.sendMessage(PREFIX + "§cYou don't have enough permissions for this.");
                     break;
                 case "check":
                     if (sender.hasPermission("messagehider.check")) {
@@ -139,17 +141,16 @@ public class MessageHiderCommand implements CommandExecutor, TabCompleter {
 
                             if (json) {
                                 try {
-                                    if (!new JsonParser().parse(message).isJsonObject())
-                                        throw new JsonParseException("");
-                                } catch (JsonParseException e) {
-                                    sender.sendMessage(YamlUtil.getPrefix() + "§cYour json is not valid.");
+                                    new JSONObject(message);
+                                } catch (JSONException e) {
+                                    sender.sendMessage(PREFIX + "§cYour json is not valid.");
                                     return true;
                                 }
                             }
 
                             FilterCheckResult result = Util.checkFilters(json ? null : message, json ? message : null, null, null, filterIds);
                             boolean player = sender instanceof Player;
-                            StringBuilder sb = new StringBuilder(YamlUtil.getPrefix() + "§2Result:");
+                            StringBuilder sb = new StringBuilder(PREFIX + "§2Result:");
                             if (!result.getNotFoundIds().isEmpty())
                                 sb.append("\n§7  - §6These filter ids were not found: §e" + String.join("§8, §e", result.getNotFoundIds()));
                             if (result.getIgnored() > 0)
@@ -175,37 +176,37 @@ public class MessageHiderCommand implements CommandExecutor, TabCompleter {
                             if (!result.getCommands().isEmpty() && !player)
                                 sb.append("\n§7  - §bThe following commands would be executed:\n§f    /" +
                                           result.getCommands().stream().map(cmd ->
-                                                  (cmd.getType() == CommandType.CONSOLE ? "[CONSOLE] /" : "[PLAYER] /") + cmd.getCommand())
+                                                          (cmd.type == CommandType.CONSOLE ? "[CONSOLE] /" : "[PLAYER] /") + cmd.command)
                                                   .collect(Collectors.joining("\n§f     ")));
                             sender.sendMessage(sb.toString());
 
                             if (result.getStatus() == FilterStatus.REPLACED && player) {
                                 BaseComponent[] replacement = Util.formatReplacementString(result.getReplacement());
                                 if (replacement != null)
-                                    sender.spigot().sendMessage(replacement);
+                                    ((Player) sender).spigot().sendMessage(replacement);
                             }
 
                             if (!result.getCommands().isEmpty() && player)
                                 sender.sendMessage("§7  - §bThe following commands would be executed:\n§f/" +
                                                    result.getCommands().stream().map(cmd ->
-                                                           (cmd.getType() == CommandType.CONSOLE ? "[CONSOLE] /" : "[PLAYER] /") + cmd.getCommand())
+                                                                   (cmd.type == CommandType.CONSOLE ? "[CONSOLE] /" : "[PLAYER] /") + cmd.command)
                                                            .collect(Collectors.joining("\n§f")));
                         } else
-                            sender.sendMessage(YamlUtil.getPrefix() + "§cPlease use §7/" + alias + " check <json|plain> <Filter ids> <Message>§c.");
+                            sender.sendMessage(PREFIX + "§cPlease use §7/" + alias + " check <json|plain> <Filter ids> <Message>§c.");
                     } else
-                        sender.sendMessage(YamlUtil.getPrefix() + "§cYou don't have enough permissions for this.");
+                        sender.sendMessage(PREFIX + "§cYou don't have enough permissions for this.");
                     break;
                 case "run":
                     if (sender.hasPermission("messagehider.run")) {
                         boolean isPlayer = sender instanceof Player;
                         if (args.length >= (isPlayer ? 2 : 3)) {
-                            List<FilterData> filters = YamlUtil.getCustomFiltersByIds(Arrays.asList(args[1].split(",")));
+                            List<FilterData> filters = Config.getCustomFiltersByIds(Arrays.asList(args[1].split(",")));
                             if (!filters.isEmpty()) {
                                 Player player, player1;
                                 if (args.length >= 3) {
                                     player = Bukkit.getPlayerExact(args[2]);
                                     if (player == null) {
-                                        sender.sendMessage(YamlUtil.getPrefix() + "§cUnknown player.");
+                                        sender.sendMessage(PREFIX + "§cUnknown player.");
                                         return true;
                                     }
                                 } else
@@ -213,7 +214,7 @@ public class MessageHiderCommand implements CommandExecutor, TabCompleter {
                                 if (args.length >= 4) {
                                     player1 = Bukkit.getPlayerExact(args[3]);
                                     if (player1 == null) {
-                                        player1.sendMessage(YamlUtil.getPrefix() + "§cUnknown sender.");
+                                        player1.sendMessage(PREFIX + "§cUnknown sender.");
                                         return true;
                                     }
                                 } else
@@ -221,30 +222,30 @@ public class MessageHiderCommand implements CommandExecutor, TabCompleter {
 
                                 int commandCount = 0;
                                 for (FilterData filter : filters) {
-                                    List<CommandData> commands = new ArrayList<>(filter.getCommands());
+                                    List<CommandData> commands = new ArrayList<>(filter.commands);
                                     commandCount += commands.size();
                                     Placeholders.replace(commands, player.getUniqueId(), player1 != null ? player1.getUniqueId() : null,
                                             "", "", "", "", Arrays.asList());
-                                    commands.forEach(cmd -> Bukkit.getScheduler().runTaskLater(Main.getInstance(), () -> Bukkit.dispatchCommand(
-                                            cmd.getType() == CommandType.CONSOLE ? Bukkit.getConsoleSender() : player,
-                                            cmd.getCommand()), (int) (cmd.getDelay() * 20F)));
+                                    commands.forEach(cmd -> Bukkit.getScheduler().runTaskLater(MessageHider.getInstance(), () -> Bukkit.dispatchCommand(
+                                            cmd.type == CommandType.CONSOLE ? Bukkit.getConsoleSender() : player,
+                                            cmd.command), (int) (cmd.delay * 20F)));
                                 }
 
-                                sender.sendMessage(YamlUtil.getPrefix() + "§2" + filters.size() + " filter" +
+                                sender.sendMessage(PREFIX + "§2" + filters.size() + " filter" +
                                                    (filters.size() != 1 ? "s" : "") + " §aand §2" + commandCount +
                                                    " command" + (commandCount != 1 ? "s" : "") + " §aare being executed" +
                                                    (player != sender ? " from §2" + player.getName() + "§a" : "") + ".");
                             } else
-                                sender.sendMessage(YamlUtil.getPrefix() + "§cUnknown filter id.");
+                                sender.sendMessage(PREFIX + "§cUnknown filter id.");
                         } else
-                            sender.sendMessage(YamlUtil.getPrefix() + "§cPlease use §7/" + alias + " run <Filters> " +
+                            sender.sendMessage(PREFIX + "§cPlease use §7/" + alias + " run <Filters> " +
                                                (isPlayer ? "[Player]" : "<Player>") + " [Sender]§c.");
                     } else
-                        sender.sendMessage(YamlUtil.getPrefix() + "§cYou don't have enough permissions for this.");
+                        sender.sendMessage(PREFIX + "§cYou don't have enough permissions for this.");
                     break;
             }
         } else
-            sender.sendMessage(YamlUtil.getPrefix() + "§cPlease use §7/" + alias + " <reload|log|create|createcommand|check>§c.");
+            sender.sendMessage(PREFIX + "§cPlease use §7/" + alias + " <reload|log|create|createcommand|check>§c.");
         return true;
     }
 
@@ -269,16 +270,16 @@ public class MessageHiderCommand implements CommandExecutor, TabCompleter {
                 list.addAll(Arrays.asList("start", "stop"));
             if (args[0].equalsIgnoreCase("check") && sender.hasPermission("messagehider.check"))
                 list.addAll(Arrays.asList("json", "plain"));
-            if(args[0].equalsIgnoreCase("createcommand") && sender.hasPermission("messagehider.createcommand"))
-                YamlUtil.getCustomFilters().stream().map(FilterData::getId).filter(Objects::nonNull).distinct().forEach(list::add);
+            if (args[0].equalsIgnoreCase("createcommand") && sender.hasPermission("messagehider.createcommand"))
+                Config.get().filters.stream().map(filter -> filter.id).filter(Objects::nonNull).distinct().forEach(list::add);
             if (args[0].equalsIgnoreCase("run") && sender.hasPermission("messagehider.run")) {
-                List<String> ids = YamlUtil.getFilters().stream().map(FilterData::getId).filter(Objects::nonNull).collect(Collectors.toList());
+                List<String> ids = Config.getFilters().stream().map(filter -> filter.id).filter(Objects::nonNull).collect(Collectors.toList());
                 int index = args[1].lastIndexOf(',');
                 if (ids.contains(args[1].substring(index + 1)))
                     list.add(args[1] + ",");
                 else {
                     String input = args[1].substring(0, index == -1 ? 0 : index);
-                    YamlUtil.getFilters().stream().map(FilterData::getId)
+                    Config.getFilters().stream().map(filter -> filter.id)
                             .filter(Objects::nonNull).map(id -> input + (input.isEmpty() ? "" : ",") + id).forEach(list::add);
                 }
             }
@@ -287,13 +288,13 @@ public class MessageHiderCommand implements CommandExecutor, TabCompleter {
                 if (args[2].isEmpty() || args[2].equals("-"))
                     list.add("-");
 
-                List<String> ids = YamlUtil.getFilters().stream().map(FilterData::getId).filter(Objects::nonNull).collect(Collectors.toList());
+                List<String> ids = Config.getFilters().stream().map(filter -> filter.id).filter(Objects::nonNull).collect(Collectors.toList());
                 int index = args[2].lastIndexOf(',');
                 if (ids.contains(args[2].substring(index + 1)))
                     list.add(args[2] + ",");
                 else {
                     String input = args[2].substring(0, index == -1 ? 0 : index);
-                    YamlUtil.getFilters().stream().map(FilterData::getId)
+                    Config.getFilters().stream().map(filter -> filter.id)
                             .filter(Objects::nonNull).map(id -> input + (input.isEmpty() ? "" : ",") + id).forEach(list::add);
                 }
             }
@@ -320,7 +321,7 @@ public class MessageHiderCommand implements CommandExecutor, TabCompleter {
         if (result.getStatus() == FilterStatus.REPLACED)
             sb.append(" (Replaced)");
         if (sender != null)
-            sb.append("\nSent from: " + (sender.equals(Main.ZERO_UUID) ? "<console>" : sender));
+            sb.append("\nSent from: " + (sender.equals(Util.ZERO_UUID) ? "<console>" : sender));
         sb.append("\nPlain: " + plain + "\nJSON: " + json);
         if (result.getReplacement() != null)
             sb.append("\nReplaced by: " + result.getReplacement());

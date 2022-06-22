@@ -1,11 +1,10 @@
 package de.rapha149.messagehider.util;
 
-import de.rapha149.messagehider.Main;
 import de.rapha149.messagehider.Updates;
-import de.rapha149.messagehider.util.YamlUtil.YamlData.FilterData;
-import de.rapha149.messagehider.util.YamlUtil.YamlData.FilterData.MessageData;
-import de.rapha149.messagehider.util.YamlUtil.YamlData.FilterData.MessageData.JsonData;
-import de.rapha149.messagehider.util.YamlUtil.YamlData.FilterData.TargetsData;
+import de.rapha149.messagehider.util.Config.FilterData;
+import de.rapha149.messagehider.util.Config.FilterData.MessageData;
+import de.rapha149.messagehider.util.Config.FilterData.MessageData.JsonData;
+import de.rapha149.messagehider.util.Config.FilterData.TargetsData;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -33,7 +32,7 @@ public class Presets {
             CONSOLE_COMMANDS = new FilterData("console_commands", new MessageData(loadJson("console_commands.json"),
                     null, false, true, new JsonData(true, 1)),
                     false, false, false, null, Arrays.asList(),
-                    new TargetsData(Arrays.asList(Main.ZERO_UUID.toString()), Arrays.asList(), Arrays.asList(), Arrays.asList()));
+                    new TargetsData(Arrays.asList(Util.ZERO_UUID.toString()), Arrays.asList(), Arrays.asList(), Arrays.asList()));
         }
 
         if (Updates.isBukkitVersionAboveOrEqualTo("1.13")) {

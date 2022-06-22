@@ -1,8 +1,7 @@
 package de.rapha149.messagehider;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
 import org.bukkit.Bukkit;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,6 +11,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class Updates {
 
@@ -27,7 +27,7 @@ public class Updates {
 
     public static String getAvailableVersion(boolean warning) {
         if (System.currentTimeMillis() > lastFetched + 7200000) {
-            Main main = Main.getInstance();
+            MessageHider main = MessageHider.getInstance();
             try {
                 String version;
 
@@ -35,11 +35,7 @@ public class Updates {
                     URLConnection conn = new URL("https://api.spiget.org/v2/resources/" + RESOURCE_ID + "/versions/latest").openConnection();
                     conn.addRequestProperty("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:86.0) Gecko/20100101 Firefox/86.0");
                     conn.connect();
-                    JsonElement root = new JsonParser().parse(new InputStreamReader(conn.getInputStream()));
-                    if (root != null && root.isJsonObject())
-                        version = root.getAsJsonObject().get("name").getAsString();
-                    else
-                        throw new IllegalStateException("JsonElement is not JsonObject");
+                    version = new JSONObject(new BufferedReader(new InputStreamReader(conn.getInputStream())).lines().collect(Collectors.joining())).getString("name");
                 } catch (ConnectException e) {
                     if (warning)
                         main.getLogger().warning("Could not access https://spiget.org/, instead legacy spigot api is used to check for updates.");

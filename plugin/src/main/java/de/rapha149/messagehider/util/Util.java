@@ -3,34 +3,35 @@ package de.rapha149.messagehider.util;
 import com.google.common.base.Equivalence;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
-import com.google.gson.reflect.TypeToken;
-import de.rapha149.messagehider.Main;
 import de.rapha149.messagehider.Placeholders;
-import de.rapha149.messagehider.util.YamlUtil.YamlData.FilterData;
-import de.rapha149.messagehider.util.YamlUtil.YamlData.FilterData.CommandData;
-import de.rapha149.messagehider.util.YamlUtil.YamlData.FilterData.MessageData;
-import de.rapha149.messagehider.util.YamlUtil.YamlData.FilterData.TargetsData;
+import de.rapha149.messagehider.util.Config.FilterData;
+import de.rapha149.messagehider.util.Config.FilterData.CommandData;
+import de.rapha149.messagehider.util.Config.FilterData.MessageData;
+import de.rapha149.messagehider.util.Config.FilterData.TargetsData;
+import de.rapha149.messagehider.version.VersionWrapper;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.json.JSONObject;
 
-import java.lang.reflect.Type;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class Util {
 
-    private static Gson gson = new Gson();
+    public static final UUID ZERO_UUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
+
+    public static VersionWrapper WRAPPER;
+    public static String PREFIX = "";
 
     public static String replaceGroups(String input, List<String> groups) {
         StringBuilder sb = new StringBuilder();
@@ -51,9 +52,12 @@ public class Util {
             (colorized.startsWith("[") && colorized.endsWith("]")))
             try {
                 return ComponentSerializer.parse(colorized);
-            } catch (JsonSyntaxException e) {
-                e.printStackTrace();
-                return null;
+            } catch (Exception e) {
+                if (e.getClass() == WRAPPER.getJsonSyntaxException()) {
+                    e.printStackTrace();
+                    return null;
+                }
+                throw e;
             }
         else
             return new ComponentBuilder(colorized).create();
@@ -68,9 +72,12 @@ public class Util {
             try {
                 String plain = new TextComponent(ComponentSerializer.parse(colorized)).toPlainText();
                 return new String[]{plain, colorized};
-            } catch (JsonSyntaxException e) {
-                e.printStackTrace();
-                return null;
+            } catch (Exception e) {
+                if (e.getClass() == WRAPPER.getJsonSyntaxException()) {
+                    e.printStackTrace();
+                    return null;
+                }
+                throw e;
             }
         } else
             return new String[]{colorized, colorized};
@@ -86,58 +93,60 @@ public class Util {
         String replacement = null;
         List<CommandData> commands = new ArrayList<>();
 
-        for (FilterData filter : YamlUtil.getFilters()) {
-            if (filter.getMessage() != null) {
-                String id = filter.getId();
+        for (FilterData filter : Config.getFilters()) {
+            if (filter.message != null) {
+                String id = filter.id;
                 if (ids.isEmpty() || (id != null && ids.contains(id))) {
                     usedIds.add(id);
 
-                    TargetsData players = filter.getTargets();
+                    TargetsData players = filter.targets;
 
                     if (sender != null) {
-                        String name = sender.equals(Main.ZERO_UUID) ? "<console>" : Bukkit.getPlayer(sender).getName();
-                        if (!Bukkit.getOnlineMode()) {
-                            if (!players.getSenders().isEmpty() && !players.getSenders().contains(sender.toString()) && !players.getSenders().contains(name))
+                        String name = sender.equals(ZERO_UUID) ? "<console>" : Bukkit.getPlayer(sender).getName();
+                        String senderStr = sender.equals(ZERO_UUID) ? "<console>" : sender.toString();
+                        if (Bukkit.getOnlineMode()) {
+                            if (!players.senders.isEmpty() && !players.senders.contains(senderStr) && !players.senders.contains(name))
                                 continue;
-                            if (players.getExcludedSenders().contains(name))
+                            if (players.excludedSenders.contains(senderStr) || players.excludedSenders.contains(name))
                                 continue;
                         } else {
-                            if (!players.getSenderUUIDs().isEmpty() && !players.getSenderUUIDs().contains(sender))
+                            if (!players.senders.isEmpty() && !players.senders.contains(senderStr))
                                 continue;
-                            if (players.getExcludedSenderUUIDs().contains(sender))
+                            if (players.excludedSenders.contains(senderStr))
                                 continue;
                         }
                     }
 
                     if (receiver != null) {
-                        String name = receiver.equals(Main.ZERO_UUID) ? "<console>" : Bukkit.getPlayer(receiver).getName();
-                        if (!Bukkit.getOnlineMode()) {
-                            if (!players.getReceivers().isEmpty() && !players.getReceivers().contains(receiver.toString()) && !players.getReceivers().contains(name))
+                        String name = receiver.equals(ZERO_UUID) ? "<console>" : Bukkit.getPlayer(receiver).getName();
+                        String receiverStr = receiver.equals(ZERO_UUID) ? "<console>" : receiver.toString();
+                        if (Bukkit.getOnlineMode()) {
+                            if (!players.receivers.isEmpty() && !players.receivers.contains(receiverStr) && !players.receivers.contains(name))
                                 continue;
-                            if (players.getExcludedReceivers().contains(name))
+                            if (players.excludedReceivers.contains(receiverStr) || players.excludedReceivers.contains(name))
                                 continue;
                         } else {
-                            if (!players.getReceiverUUIDs().isEmpty() && !players.getReceiverUUIDs().contains(receiver))
+                            if (!players.receivers.isEmpty() && !players.receivers.contains(receiverStr))
                                 continue;
-                            if (players.getExcludedReceiverUUIDs().contains(receiver))
+                            if (players.excludedReceivers.contains(receiverStr))
                                 continue;
                         }
 
-                        if (sender != null && sender.equals(receiver) && filter.isOnlyHideForOtherPlayers())
+                        if (sender != null && sender.equals(receiver) && filter.onlyHideForOtherPlayers)
                             continue;
                     }
 
-                    MessageData message = filter.getMessage();
-                    String filterMessage = message.getText();
-                    String replace = message.getReplacement();
-                    boolean ignoreCase = message.isIgnoreCase();
-                    boolean regex = message.isRegex();
-                    boolean onlyExecuteCommands = filter.isOnlyExecuteCommands();
-                    boolean stopAfter = filter.isStopAfter();
-                    List<CommandData> cmds = new ArrayList<>(filter.getCommands());
-                    if (message.getJson().isEnabled()) {
+                    MessageData message = filter.message;
+                    String filterMessage = message.text;
+                    String replace = message.replacement;
+                    boolean ignoreCase = message.ignoreCase;
+                    boolean regex = message.regex;
+                    boolean onlyExecuteCommands = filter.onlyExecuteCommands;
+                    boolean stopAfter = filter.stopAfter;
+                    List<CommandData> cmds = filter.commands.stream().map(CommandData::new).collect(Collectors.toList());
+                    if (message.json.enabled) {
                         if (json != null) {
-                            JsonResult result = Util.jsonMatches(filterMessage, json, regex, ignoreCase, message.getJson().getJsonPrecisionLevel());
+                            JsonResult result = Util.jsonMatches(filterMessage, json, regex, ignoreCase, message.json.jsonPrecisionLevel);
                             if (result.matches) {
                                 if (!cmds.isEmpty()) {
                                     String[] replacements = replace != null ? getReplacementForCommand(replace, result.groups) : new String[]{plain, json};
@@ -224,10 +233,8 @@ public class Util {
     public static JsonResult jsonMatches(String json1, String json2, boolean regex, boolean ignoreCase, int precisionLevel) {
         List<String> groups = regex ? new ArrayList<>(Arrays.asList(json1)) : null;
 
-        Type mapType = new TypeToken<Map<String, Object>>() {
-        }.getType();
-        Map<String, Object> map1 = gson.fromJson(json1, mapType);
-        Map<String, Object> map2 = gson.fromJson(json2, mapType);
+        Map<String, Object> map1 = new JSONObject(json1).toMap();
+        Map<String, Object> map2 = new JSONObject(json2).toMap();
         MapDifference<String, Object> difference = Maps.difference(flatten(map1), flatten(map2), new Equivalence<Object>() {
             @Override
             protected boolean doEquivalent(Object a, Object b) {
@@ -272,29 +279,24 @@ public class Util {
     }
 
     private static Map<String, Object> flatten(Map<String, Object> map) {
-        return map.entrySet()
-                .stream()
-                .flatMap(Util::flatten)
+        return map.entrySet().stream().flatMap(Util::flatten)
                 .collect(LinkedHashMap::new, (m, e) -> m.put("/" + e.getKey(), e.getValue()), LinkedHashMap::putAll);
     }
 
     private static Stream<Entry<String, Object>> flatten(Entry<String, Object> entry) {
-
         if (entry == null) {
             return Stream.empty();
         }
 
         if (entry.getValue() instanceof Map<?, ?>) {
             Map<?, ?> properties = (Map<?, ?>) entry.getValue();
-            return properties.entrySet()
-                    .stream()
+            return properties.entrySet().stream()
                     .flatMap(e -> flatten(new SimpleEntry<>(entry.getKey() + "/" + e.getKey(), e.getValue())));
         }
 
         if (entry.getValue() instanceof List<?>) {
             List<?> list = (List<?>) entry.getValue();
-            return IntStream.range(0, list.size())
-                    .mapToObj(i -> new SimpleEntry<String, Object>(entry.getKey() + "/" + i, list.get(i)))
+            return IntStream.range(0, list.size()).mapToObj(i -> new SimpleEntry<String, Object>(entry.getKey() + "/" + i, list.get(i)))
                     .flatMap(Util::flatten);
         }
 

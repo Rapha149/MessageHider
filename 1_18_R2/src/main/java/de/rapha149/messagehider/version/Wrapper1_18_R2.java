@@ -49,18 +49,18 @@ public class Wrapper1_18_R2 implements VersionWrapper {
         if (!(obj instanceof PacketPlayOutChat packet))
             throw new IllegalArgumentException("Packet is not of type PacketPlayOutChat");
 
-        IChatBaseComponent component = packet.b();
-        if (component != null) {
-            return new Text(ChatSerializer.a(component), component.getString());
-        }
-
         if (ADVENTURE_FIELD != null) {
             try {
-                Object adventure = ADVENTURE_FIELD.get(packet);
+                Object adventure = ADVENTURE_FIELD.get(obj);
                 if (adventure != null)
                     return getTextFromAdventure(adventure);
             } catch (IllegalAccessException ignore) {
             }
+        }
+
+        IChatBaseComponent component = packet.b();
+        if (component != null) {
+            return new Text(ChatSerializer.a(component), component.getString());
         }
 
         return new Text(ComponentSerializer.toString(packet.components), new TextComponent(packet.components).toPlainText());

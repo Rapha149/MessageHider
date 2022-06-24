@@ -182,10 +182,10 @@ Da die Befehle auch von Spieler und Nachricht abhängig sein sollen, gibt es bes
 - `%mh_message_replaced_json%` - Der Text, durch den die Nachricht ersetzt wurde, als JSON-Text. Wenn die Nachricht nicht ersetzt wurde, ist es die Nachricht, die gesendet wurde. Wenn der Text bei `replacement` nicht als JSON angegeben wurde, ist es ein einfacher Text.
 - `%mh_regex_{Gruppe}%` - Eine RegEx-Gruppe. Nur möglich, wenn RegEx beim Filter aktiviert ist. (Nur mit der PlaceholderAPI möglich)
 
-*Ohne PlaceholderAPI*
+*Ohne PlaceholderAPI*  
 Auch wenn die [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/) nicht installiert ist, klappen alle von diesem Plugin bereitgestellten Platzhalter (Außer `%mh_regex_{Gruppe}%`) 
 
-*Mit PlaceholderAPI*
+*Mit PlaceholderAPI*  
 Wenn die [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/) installiert ist, können die oben genannten Platzhalter und Platzhalter, die von anderen Erweiterungen/Plugins bereitgestellt wurden, in den Befehlen verwendet werden.
 
 **Beispiel**:

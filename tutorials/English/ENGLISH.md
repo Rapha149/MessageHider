@@ -119,9 +119,9 @@ There are the following settings: (They are sorted differently here than in the 
 
 - `stopAfter (true/false)` - If enabled, the message will not be hidden or replaced, only the commands will be executed. Also, other filters are applied if this is enabled and the filter matches.
 
-- ``priority (number/null)` - The priority according to which the filters will be applied. The lower the priority of a filter, the earlier it will be executed. By default, the priority is `null`, in which case the filter is executed last. The priority is only really important when messages are replaced, because then it depends on which filter replaces the message first.
+- `priority (number/null)` - The priority according to which the filters will be applied. The lower the priority of a filter, the earlier it will be executed. By default, the priority is `null`, in which case the filter is executed last. The priority is only really important when messages are replaced, because then it depends on which filter replaces the message first.
 
-- ``commands (List)` - A list of commands that are executed when the filter matches.
+- `commands (List)` - A list of commands that are executed when the filter matches.
 
    - `command` - The command that will be executed.
    - `type` - Either `CONSOLE` or `PLAYER`, depending on whether the command is to be executed by the console or by the player.
@@ -181,10 +181,10 @@ Since the commands should also depend on player and message, there are certain t
 - `%mh_message_replaced_json%` - The replacement, as JSON text. If the message was not replaced, it is the message that was sent. If the replacement was not specified as JSON, it’s the replacement as plain text.
 - `%mh_regex_{Group}%` - A regex group. Only possible if Regex is activated for the filter. (Can only be used with the PlaceholderAPI)
 
-*Ohne PlaceholderAPI*
+*Without PlaceholderAPI*  
 Even if the [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/) is not installed, all placeholders provided by this plugin will work (Except `%mh_regex_{Group}%`)
 
-*Mit PlaceholderAPI*
+*With PlaceholderAPI*  
 If the [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/) is installed, the placeholders mentioned above and placeholders provided by other extensions/plugins can be used in the commands.
 
 **Example**:

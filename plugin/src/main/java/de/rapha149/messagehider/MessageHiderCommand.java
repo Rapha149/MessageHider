@@ -7,9 +7,10 @@ import de.rapha149.messagehider.util.Config.FilterData.CommandData.CommandType;
 import de.rapha149.messagehider.util.Util;
 import de.rapha149.messagehider.util.Util.FilterCheckResult;
 import de.rapha149.messagehider.util.Util.FilterCheckResult.FilterStatus;
-import net.md_5.bungee.api.chat.BaseComponent;
+import de.rapha149.messagehider.version.MHPlayer;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
@@ -181,9 +182,9 @@ public class MessageHiderCommand implements CommandExecutor, TabCompleter {
                             sender.sendMessage(sb.toString());
 
                             if (result.getStatus() == FilterStatus.REPLACED && player) {
-                                BaseComponent[] replacement = Util.formatReplacementString(result.getReplacement());
+                                String replacement = Util.formatReplacementString(result.getReplacement());
                                 if (replacement != null)
-                                    ((Player) sender).spigot().sendMessage(replacement);
+                                    ((Player) sender).spigot().sendMessage(ComponentSerializer.parse(replacement));
                             }
 
                             if (!result.getCommands().isEmpty() && player)
@@ -224,7 +225,7 @@ public class MessageHiderCommand implements CommandExecutor, TabCompleter {
                                 for (FilterData filter : filters) {
                                     List<CommandData> commands = new ArrayList<>(filter.commands);
                                     commandCount += commands.size();
-                                    Placeholders.replace(commands, player.getUniqueId(), player1 != null ? player1.getUniqueId() : null,
+                                    Placeholders.replace(commands, new MHPlayer(player.getUniqueId()), player1 != null ? new MHPlayer(player1.getUniqueId()) : null,
                                             "", "", "", "", Arrays.asList());
                                     commands.forEach(cmd -> Bukkit.getScheduler().runTaskLater(MessageHider.getInstance(), () -> Bukkit.dispatchCommand(
                                             cmd.type == CommandType.CONSOLE ? Bukkit.getConsoleSender() : player,
@@ -314,19 +315,19 @@ public class MessageHiderCommand implements CommandExecutor, TabCompleter {
         return Arrays.asList();
     }
 
-    public static void log(UUID uuid, UUID sender, String plain, String json, FilterCheckResult result) {
+    public static void log(MHPlayer player, MHPlayer sender, String plain, String json, FilterCheckResult result) {
         StringBuilder sb = new StringBuilder(format.format(new Date()));
         if (result.getStatus() == FilterStatus.HIDDEN)
             sb.append(" (Hidden)");
         if (result.getStatus() == FilterStatus.REPLACED)
             sb.append(" (Replaced)");
         if (sender != null)
-            sb.append("\nSent from: " + (sender.equals(Util.ZERO_UUID) ? "<console>" : sender));
+            sb.append("\nSent from: " + sender.representation);
         sb.append("\nPlain: " + plain + "\nJSON: " + json);
         if (result.getReplacement() != null)
             sb.append("\nReplaced by: " + result.getReplacement());
 
-        write(uuid, sb.toString());
+        write(player.uuid, sb.toString());
     }
 
     private static void write(UUID uuid, String str) {

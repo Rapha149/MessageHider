@@ -2,6 +2,7 @@ package de.rapha149.messagehider;
 
 import de.rapha149.messagehider.util.Config.FilterData.CommandData;
 import de.rapha149.messagehider.util.Util;
+import de.rapha149.messagehider.version.MHPlayer;
 import me.clip.placeholderapi.PlaceholderAPI;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.Bukkit;
@@ -10,7 +11,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,12 +26,12 @@ public class Placeholders {
     private static String messageReplacedJson = "";
     private static List<String> regexGroups = Arrays.asList();
 
-    public static void replace(List<CommandData> list, UUID sender, UUID receiver, String messageSentPlain, String messageSentJson,
+    public static void replace(List<CommandData> list, MHPlayer sender, MHPlayer receiver, String messageSentPlain, String messageSentJson,
                                String messageReplacedPlain, String messageReplacedJson, List<String> regexGroups) {
-        String senderName = sender != null ? (sender.equals(Util.ZERO_UUID) ? "[CONSOLE]" : Bukkit.getOfflinePlayer(sender).getName()) : "[SENDER_NAME]";
-        String senderUUID = sender != null ? (sender.equals(Util.ZERO_UUID) ? "[CONSOLE]" : sender.toString()) : "[SENDER_UUID]";
-        String receiverName = receiver != null ? Bukkit.getOfflinePlayer(receiver).getName() : "[RECEIVER_NAME]";
-        String receiverUUID = receiver != null ? receiver.toString() : "[RECEIVER_UUID]";
+        String senderName = sender != null ? (sender.uuid.equals(Util.ZERO_UUID) ? "[CONSOLE]" : sender.name) : "[SENDER_NAME]";
+        String senderUUID = sender != null ? (sender.uuid.equals(Util.ZERO_UUID) ? "[CONSOLE]" : sender.uuid.toString()) : "[SENDER_UUID]";
+        String receiverName = receiver != null ? receiver.name : "[RECEIVER_NAME]";
+        String receiverUUID = receiver != null ? receiver.uuid.toString() : "[RECEIVER_UUID]";
         if (MessageHider.getInstance().placeholderAPISupport) {
             Placeholders.senderName = senderName;
             Placeholders.senderUUID = senderUUID;
@@ -43,7 +43,7 @@ public class Placeholders {
             Placeholders.messageReplacedJson = messageReplacedJson;
             Placeholders.regexGroups = regexGroups;
 
-            OfflinePlayer player = receiver != null ? Bukkit.getOfflinePlayer(receiver) : null;
+            OfflinePlayer player = receiver != null ? Bukkit.getOfflinePlayer(receiver.uuid) : null;
             list.forEach(command -> command.command = PlaceholderAPI.setPlaceholders(player, command.command));
 
             Placeholders.senderName = "";

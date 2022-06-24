@@ -5,11 +5,12 @@ import de.rapha149.messagehider.util.Config.FilterData.CommandData.CommandType;
 import de.rapha149.messagehider.util.Util;
 import de.rapha149.messagehider.util.Util.FilterCheckResult;
 import de.rapha149.messagehider.util.Util.FilterCheckResult.FilterStatus;
+import de.rapha149.messagehider.version.MHPlayer;
+import de.rapha149.messagehider.version.Text;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.ChannelPromise;
-import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -19,9 +20,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
-import java.util.UUID;
-
-import static de.rapha149.messagehider.util.Util.*;
+import static de.rapha149.messagehider.util.Util.PREFIX;
+import static de.rapha149.messagehider.util.Util.WRAPPER;
 
 public class Events implements Listener {
 
@@ -86,12 +86,12 @@ public class Events implements Listener {
             public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
                 try {
                     if (WRAPPER.getClasses().contains(msg.getClass())) {
-                        String[] text = WRAPPER.getText(msg);
-                        String json = text[0];
-                        String plain = text[1];
+                        Text text = WRAPPER.getText(msg);
+                        String json = text.json;
+                        String plain = text.plain;
 
-                        UUID sender = WRAPPER.getUUID(msg);
-                        UUID receiver = player.getUniqueId();
+                        MHPlayer sender = WRAPPER.getSender(msg);
+                        MHPlayer receiver = new MHPlayer(player.getUniqueId());
 
                         FilterCheckResult result = Util.checkFilters(plain, json, sender, receiver);
                         MessageHiderCommand.log(receiver, sender, plain, json, result);
@@ -103,7 +103,7 @@ public class Events implements Listener {
                         }
 
                         if (result.getStatus() == FilterStatus.REPLACED) {
-                            BaseComponent[] replacement = Util.formatReplacementString(result.getReplacement());
+                            String replacement = Util.formatReplacementString(result.getReplacement());
                             if (replacement == null)
                                 return;
                             msg = WRAPPER.replaceText(msg, replacement);

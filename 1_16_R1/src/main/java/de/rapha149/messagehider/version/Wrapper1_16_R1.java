@@ -2,7 +2,6 @@ package de.rapha149.messagehider.version;
 
 import com.google.gson.JsonSyntaxException;
 import io.netty.channel.ChannelPipeline;
-import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 import net.minecraft.server.v1_16_R1.IChatBaseComponent;
@@ -56,18 +55,14 @@ public class Wrapper1_16_R1 implements VersionWrapper {
     }
 
     @Override
-    public String[] getText(Object obj) throws IllegalAccessException {
+    public Text getText(Object obj) throws IllegalAccessException {
         if (!(obj instanceof PacketPlayOutChat))
             throw new IllegalArgumentException("Packet is not of type PacketPlayOutChat");
 
         PacketPlayOutChat packet = (PacketPlayOutChat) obj;
         IChatBaseComponent component = (IChatBaseComponent) COMPONENT_FIELD.get(packet);
-        if (component != null) {
-            return new String[]{
-                    ChatSerializer.a(component),
-                    component.getString()
-            };
-        }
+        if (component != null)
+            return new Text(ChatSerializer.a(component), component.getString());
 
         if (ADVENTURE_FIELD != null) {
             try {
@@ -78,28 +73,23 @@ public class Wrapper1_16_R1 implements VersionWrapper {
             }
         }
 
-        return new String[]{
-                ComponentSerializer.toString(packet.components),
-                new TextComponent(packet.components).toPlainText()
-        };
+        return new Text(ComponentSerializer.toString(packet.components), new TextComponent(packet.components).toPlainText());
     }
 
     @Override
-    public UUID getUUID(Object obj) throws IllegalAccessException {
+    public MHPlayer getSender(Object obj) throws IllegalAccessException {
         if (!(obj instanceof PacketPlayOutChat))
             throw new IllegalArgumentException("Packet is not of type PacketPlayOutChat");
 
-        return (UUID) UUID_FIELD.get(obj);
+        return new MHPlayer((UUID) UUID_FIELD.get(obj));
     }
 
     @Override
-    public Object replaceText(Object obj, BaseComponent[] text) throws IllegalAccessException {
+    public Object replaceText(Object obj, String json) throws IllegalAccessException {
         if (!(obj instanceof PacketPlayOutChat))
             throw new IllegalArgumentException("Packet is not of type PacketPlayOutChat");
 
         PacketPlayOutChat packet = (PacketPlayOutChat) obj;
-        PacketPlayOutChat newPacket = new PacketPlayOutChat(null, packet.d(), (UUID) UUID_FIELD.get(packet));
-        newPacket.components = text;
-        return newPacket;
+        return new PacketPlayOutChat(ChatSerializer.a(json), packet.d(), (UUID) UUID_FIELD.get(packet));
     }
 }

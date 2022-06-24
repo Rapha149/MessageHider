@@ -8,9 +8,8 @@ import de.rapha149.messagehider.util.Config.FilterData;
 import de.rapha149.messagehider.util.Config.FilterData.CommandData;
 import de.rapha149.messagehider.util.Config.FilterData.MessageData;
 import de.rapha149.messagehider.util.Config.FilterData.TargetsData;
+import de.rapha149.messagehider.version.MHPlayer;
 import de.rapha149.messagehider.version.VersionWrapper;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.Bukkit;
@@ -46,21 +45,16 @@ public class Util {
         return sb + input.substring(current);
     }
 
-    public static BaseComponent[] formatReplacementString(String replacement) {
+    public static String formatReplacementString(String replacement) {
         String colorized = ChatColor.translateAlternateColorCodes('&', replacement);
         if ((colorized.startsWith("{") && colorized.endsWith("}")) ||
-            (colorized.startsWith("[") && colorized.endsWith("]")))
-            try {
-                return ComponentSerializer.parse(colorized);
-            } catch (Exception e) {
-                if (e.getClass() == WRAPPER.getJsonSyntaxException()) {
-                    e.printStackTrace();
-                    return null;
-                }
-                throw e;
-            }
-        else
-            return new ComponentBuilder(colorized).create();
+            (colorized.startsWith("[") && colorized.endsWith("]"))) {
+            return colorized;
+        } else {
+            JSONObject json = new JSONObject();
+            json.put("text", colorized);
+            return json.toString();
+        }
     }
 
     private static String[] getReplacementForCommand(String replacement, List<String> regexGroups) {
@@ -83,7 +77,7 @@ public class Util {
             return new String[]{colorized, colorized};
     }
 
-    public static FilterCheckResult checkFilters(String plain, String json, UUID sender, UUID receiver, String... filterIds) {
+    public static FilterCheckResult checkFilters(String plain, String json, MHPlayer sender, MHPlayer receiver, String... filterIds) {
         int ignored = 0;
         int filtered = 0;
         List<String> filteredIds = new ArrayList<>();
@@ -102,33 +96,33 @@ public class Util {
                     TargetsData players = filter.targets;
 
                     if (sender != null) {
-                        String name = sender.equals(ZERO_UUID) ? "<console>" : Bukkit.getPlayer(sender).getName();
-                        String senderStr = sender.equals(ZERO_UUID) ? "<console>" : sender.toString();
+                        String name = sender.name;
+                        String representation = sender.representation;
                         if (Bukkit.getOnlineMode()) {
-                            if (!players.senders.isEmpty() && !players.senders.contains(senderStr) && !players.senders.contains(name))
+                            if (!players.senders.isEmpty() && !players.senders.contains(representation) && !players.senders.contains(name))
                                 continue;
-                            if (players.excludedSenders.contains(senderStr) || players.excludedSenders.contains(name))
+                            if (players.excludedSenders.contains(representation) || players.excludedSenders.contains(name))
                                 continue;
                         } else {
-                            if (!players.senders.isEmpty() && !players.senders.contains(senderStr))
+                            if (!players.senders.isEmpty() && !players.senders.contains(representation))
                                 continue;
-                            if (players.excludedSenders.contains(senderStr))
+                            if (players.excludedSenders.contains(representation))
                                 continue;
                         }
                     }
 
                     if (receiver != null) {
-                        String name = receiver.equals(ZERO_UUID) ? "<console>" : Bukkit.getPlayer(receiver).getName();
-                        String receiverStr = receiver.equals(ZERO_UUID) ? "<console>" : receiver.toString();
+                        String name = receiver.name;
+                        String representation = receiver.representation;
                         if (Bukkit.getOnlineMode()) {
-                            if (!players.receivers.isEmpty() && !players.receivers.contains(receiverStr) && !players.receivers.contains(name))
+                            if (!players.receivers.isEmpty() && !players.receivers.contains(representation) && !players.receivers.contains(name))
                                 continue;
-                            if (players.excludedReceivers.contains(receiverStr) || players.excludedReceivers.contains(name))
+                            if (players.excludedReceivers.contains(representation) || players.excludedReceivers.contains(name))
                                 continue;
                         } else {
-                            if (!players.receivers.isEmpty() && !players.receivers.contains(receiverStr))
+                            if (!players.receivers.isEmpty() && !players.receivers.contains(representation))
                                 continue;
-                            if (players.excludedReceivers.contains(receiverStr))
+                            if (players.excludedReceivers.contains(representation))
                                 continue;
                         }
 

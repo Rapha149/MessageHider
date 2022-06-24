@@ -54,18 +54,14 @@ public class Wrapper1_15_R1 implements VersionWrapper {
     }
 
     @Override
-    public String[] getText(Object obj) throws IllegalAccessException {
+    public Text getText(Object obj) throws IllegalAccessException {
         if (!(obj instanceof PacketPlayOutChat))
             throw new IllegalArgumentException("Packet is not of type PacketPlayOutChat");
 
         PacketPlayOutChat packet = (PacketPlayOutChat) obj;
         IChatBaseComponent component = (IChatBaseComponent) COMPONENT_FIELD.get(packet);
-        if (component != null) {
-            return new String[]{
-                    ChatSerializer.a(component),
-                    component.getString()
-            };
-        }
+        if (component != null)
+            return new Text(ChatSerializer.a(component), component.getString());
 
         if (ADVENTURE_FIELD != null) {
             try {
@@ -76,24 +72,19 @@ public class Wrapper1_15_R1 implements VersionWrapper {
             }
         }
 
-        return new String[]{
-                ComponentSerializer.toString(packet.components),
-                new TextComponent(packet.components).toPlainText()
-        };
+        return new Text(ComponentSerializer.toString(packet.components), new TextComponent(packet.components).toPlainText());
     }
 
     @Override
-    public UUID getUUID(Object obj) {
+    public MHPlayer getSender(Object obj) {
         return null;
     }
 
     @Override
-    public Object replaceText(Object obj, BaseComponent[] text) {
+    public Object replaceText(Object obj, String json) {
         if (!(obj instanceof PacketPlayOutChat))
             throw new IllegalArgumentException("Packet is not of type PacketPlayOutChat");
 
-        PacketPlayOutChat newPacket = new PacketPlayOutChat(null, ((PacketPlayOutChat) obj).d());
-        newPacket.components = text;
-        return newPacket;
+        return new PacketPlayOutChat(ChatSerializer.a(json), ((PacketPlayOutChat) obj).d());
     }
 }

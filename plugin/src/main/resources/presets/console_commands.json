@@ -3,7 +3,9 @@
   "color": "gray",
   "translate": "chat\\.type\\.admin",
   "with": [
-    {},
+    {
+      "text": "Server"
+    },
     {
       "translate": "commands\\.(\\w|\\.)+"
     }

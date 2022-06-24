@@ -80,10 +80,10 @@ public class MessageHiderCommand implements CommandExecutor, TabCompleter {
                                         if (logging.containsKey(uuid)) {
                                             player.sendMessage(PREFIX + "§bStopped logging." +
                                                                "\n§3Logged messages are located in §7" + logging.get(uuid).getParentFile().getPath() + "§3.");
-                                            Bukkit.getScheduler().runTask(MessageHider.getInstance(), () -> {
+                                            Bukkit.getScheduler().runTaskLater(MessageHider.getInstance(), () -> {
                                                 write(uuid, format.format(new Date()) + "\nStopped logging\n");
                                                 logging.remove(uuid);
-                                            });
+                                            }, 20);
                                         } else
                                             player.sendMessage(PREFIX + "§6You weren't logging messages.");
                                         break;

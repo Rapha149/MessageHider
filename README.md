@@ -10,7 +10,6 @@ With this plugin for Minecraft you can hide or replace the ingame messages you r
 ## URLs
 
 - [SpigotMC](https://www.spigotmc.org/resources/messagehider.91661)
-- [BukkitDev](https://dev.bukkit.org/projects/messagehider)
 - [bStats](https://bstats.org/plugin/bukkit/MessageHider/11112)
 
 ## Credits

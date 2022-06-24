@@ -57,9 +57,10 @@ public class Wrapper1_16_R3 implements VersionWrapper {
 
     @Override
     public String[] getText(Object obj) throws IllegalAccessException {
-        if (!(obj instanceof PacketPlayOutChat packet))
+        if (!(obj instanceof PacketPlayOutChat))
             throw new IllegalArgumentException("Packet is not of type PacketPlayOutChat");
 
+        PacketPlayOutChat packet = (PacketPlayOutChat) obj;
         IChatBaseComponent component = (IChatBaseComponent) COMPONENT_FIELD.get(packet);
         if (component != null) {
             return new String[]{
@@ -85,17 +86,18 @@ public class Wrapper1_16_R3 implements VersionWrapper {
 
     @Override
     public UUID getUUID(Object obj) throws IllegalAccessException {
-        if (!(obj instanceof PacketPlayOutChat packet))
+        if (!(obj instanceof PacketPlayOutChat))
             throw new IllegalArgumentException("Packet is not of type PacketPlayOutChat");
 
-        return (UUID) UUID_FIELD.get(packet);
+        return (UUID) UUID_FIELD.get(obj);
     }
 
     @Override
     public Object replaceText(Object obj, BaseComponent[] text) throws IllegalAccessException {
-        if (!(obj instanceof PacketPlayOutChat packet))
+        if (!(obj instanceof PacketPlayOutChat))
             throw new IllegalArgumentException("Packet is not of type PacketPlayOutChat");
 
+        PacketPlayOutChat packet = (PacketPlayOutChat) obj;
         PacketPlayOutChat newPacket = new PacketPlayOutChat(null, packet.d(), (UUID) UUID_FIELD.get(packet));
         newPacket.components = text;
         return newPacket;

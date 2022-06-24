@@ -9,6 +9,7 @@ import de.rapha149.messagehider.util.Config.FilterData.CommandData;
 import de.rapha149.messagehider.util.Config.FilterData.MessageData;
 import de.rapha149.messagehider.util.Config.FilterData.TargetsData;
 import de.rapha149.messagehider.version.MHPlayer;
+import de.rapha149.messagehider.version.MessageType;
 import de.rapha149.messagehider.version.VersionWrapper;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
@@ -77,7 +78,7 @@ public class Util {
             return new String[]{colorized, colorized};
     }
 
-    public static FilterCheckResult checkFilters(String plain, String json, MHPlayer sender, MHPlayer receiver, String... filterIds) {
+    public static FilterCheckResult checkFilters(String plain, String json, MessageType type, MHPlayer sender, MHPlayer receiver, String... filterIds) {
         int ignored = 0;
         int filtered = 0;
         List<String> filteredIds = new ArrayList<>();
@@ -94,7 +95,6 @@ public class Util {
                     usedIds.add(id);
 
                     TargetsData players = filter.targets;
-
                     if (sender != null) {
                         String name = sender.name;
                         String representation = sender.representation;
@@ -131,6 +131,9 @@ public class Util {
                     }
 
                     MessageData message = filter.message;
+                    if (message.type != null && message.type != type)
+                        continue;
+
                     String filterMessage = message.text;
                     String replace = message.replacement;
                     boolean ignoreCase = message.ignoreCase;

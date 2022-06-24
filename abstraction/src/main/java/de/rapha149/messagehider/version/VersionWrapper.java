@@ -29,5 +29,7 @@ public interface VersionWrapper {
 
     MHPlayer getSender(Object obj) throws Exception;
 
+    MessageType getMessageType(Object obj) throws Exception;
+
     Object replaceText(Object obj, String json) throws Exception;
 }

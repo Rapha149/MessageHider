@@ -99,6 +99,17 @@ public class Wrapper1_19_R1 implements VersionWrapper {
     }
 
     @Override
+    public MessageType getMessageType(Object obj) {
+        if (obj instanceof ClientboundPlayerChatPacket packet)
+            return MessageType.getById(packet.e());
+
+        if (obj instanceof ClientboundSystemChatPacket packet)
+            return MessageType.getById(packet.c());
+
+        throw new IllegalArgumentException("Packet is not of type PacketPlayOutChat");
+    }
+
+    @Override
     public Object replaceText(Object obj, String json) {
         if (obj instanceof ClientboundPlayerChatPacket packet)
             return new ClientboundPlayerChatPacket(packet.c(), Optional.of(ChatSerializer.a(json)), packet.e(), packet.f(), packet.g(), packet.h());

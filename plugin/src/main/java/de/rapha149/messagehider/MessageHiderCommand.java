@@ -8,6 +8,7 @@ import de.rapha149.messagehider.util.Util;
 import de.rapha149.messagehider.util.Util.FilterCheckResult;
 import de.rapha149.messagehider.util.Util.FilterCheckResult.FilterStatus;
 import de.rapha149.messagehider.version.MHPlayer;
+import de.rapha149.messagehider.version.MessageType;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.chat.ComponentSerializer;
@@ -149,7 +150,7 @@ public class MessageHiderCommand implements CommandExecutor, TabCompleter {
                                 }
                             }
 
-                            FilterCheckResult result = Util.checkFilters(json ? null : message, json ? message : null, null, null, filterIds);
+                            FilterCheckResult result = Util.checkFilters(json ? null : message, json ? message : null, null, null, null, filterIds);
                             boolean player = sender instanceof Player;
                             StringBuilder sb = new StringBuilder(PREFIX + "§2Result:");
                             if (!result.getNotFoundIds().isEmpty())
@@ -315,7 +316,7 @@ public class MessageHiderCommand implements CommandExecutor, TabCompleter {
         return Arrays.asList();
     }
 
-    public static void log(MHPlayer player, MHPlayer sender, String plain, String json, FilterCheckResult result) {
+    public static void log(MHPlayer player, MHPlayer sender, String plain, String json, MessageType type, FilterCheckResult result) {
         StringBuilder sb = new StringBuilder(format.format(new Date()));
         if (result.getStatus() == FilterStatus.HIDDEN)
             sb.append(" (Hidden)");
@@ -323,7 +324,7 @@ public class MessageHiderCommand implements CommandExecutor, TabCompleter {
             sb.append(" (Replaced)");
         if (sender != null)
             sb.append("\nSent from: " + sender.representation);
-        sb.append("\nPlain: " + plain + "\nJSON: " + json);
+        sb.append("\nType: " + type + "\nPlain: " + plain + "\nJSON: " + json);
         if (result.getReplacement() != null)
             sb.append("\nReplaced by: " + result.getReplacement());
 

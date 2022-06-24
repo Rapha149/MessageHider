@@ -6,6 +6,7 @@ import de.rapha149.messagehider.util.Util;
 import de.rapha149.messagehider.util.Util.FilterCheckResult;
 import de.rapha149.messagehider.util.Util.FilterCheckResult.FilterStatus;
 import de.rapha149.messagehider.version.MHPlayer;
+import de.rapha149.messagehider.version.MessageType;
 import de.rapha149.messagehider.version.Text;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -89,12 +90,13 @@ public class Events implements Listener {
                         Text text = WRAPPER.getText(msg);
                         String json = text.json;
                         String plain = text.plain;
+                        MessageType type = WRAPPER.getMessageType(msg);
 
                         MHPlayer sender = WRAPPER.getSender(msg);
                         MHPlayer receiver = new MHPlayer(player.getUniqueId());
 
-                        FilterCheckResult result = Util.checkFilters(plain, json, sender, receiver);
-                        MessageHiderCommand.log(receiver, sender, plain, json, result);
+                        FilterCheckResult result = Util.checkFilters(plain, json, type, sender, receiver);
+                        MessageHiderCommand.log(receiver, sender, plain, json, type, result);
 
                         if (!result.getCommands().isEmpty()) {
                             result.getCommands().forEach(command -> Bukkit.getScheduler().runTaskLater(MessageHider.getInstance(), () -> Bukkit.dispatchCommand(

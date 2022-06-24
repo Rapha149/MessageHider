@@ -2,7 +2,6 @@ package de.rapha149.messagehider.version;
 
 import com.google.gson.JsonSyntaxException;
 import io.netty.channel.ChannelPipeline;
-import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 import net.minecraft.server.v1_15_R1.IChatBaseComponent;
@@ -14,7 +13,6 @@ import org.bukkit.entity.Player;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 public class Wrapper1_15_R1 implements VersionWrapper {
 
@@ -78,6 +76,14 @@ public class Wrapper1_15_R1 implements VersionWrapper {
     @Override
     public MHPlayer getSender(Object obj) {
         return null;
+    }
+
+    @Override
+    public MessageType getMessageType(Object obj) {
+        if (!(obj instanceof PacketPlayOutChat))
+            throw new IllegalArgumentException("Packet is not of type PacketPlayOutChat");
+
+        return MessageType.getById(((PacketPlayOutChat) obj).d().a());
     }
 
     @Override

@@ -79,6 +79,14 @@ public class Wrapper1_11_R1 implements VersionWrapper {
     }
 
     @Override
+    public MessageType getMessageType(Object obj) {
+        if (!(obj instanceof PacketPlayOutChat))
+            throw new IllegalArgumentException("Packet is not of type PacketPlayOutChat");
+
+        return MessageType.getById(((PacketPlayOutChat) obj).c());
+    }
+
+    @Override
     public Object replaceText(Object obj, String json) {
         if (!(obj instanceof PacketPlayOutChat))
             throw new IllegalArgumentException("Packet is not of type PacketPlayOutChat");

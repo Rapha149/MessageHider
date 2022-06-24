@@ -1,6 +1,7 @@
 package de.rapha149.messagehider.util;
 
 import de.rapha149.messagehider.MessageHider;
+import de.rapha149.messagehider.version.MessageType;
 import org.bukkit.ChatColor;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -33,7 +34,9 @@ public class Config {
         DumperOptions options = new DumperOptions();
         options.setDefaultFlowStyle(FlowStyle.BLOCK);
         options.setPrettyFlow(true);
-        yaml = new Yaml(new CustomClassLoaderConstructor(MessageHider.getInstance().getClass().getClassLoader()), new Representer(), options);
+        Representer representer = new Representer();
+        representer.setPropertyUtils(new CustomPropertyUtils());
+        yaml = new Yaml(new CustomClassLoaderConstructor(MessageHider.getInstance().getClass().getClassLoader()), representer, options);
 
         file = new File(MessageHider.getInstance().getDataFolder(), "config.yml");
         if (!file.getParentFile().exists())
@@ -122,7 +125,8 @@ public class Config {
 
     public static void save() throws IOException {
         try (OutputStreamWriter writer = new OutputStreamWriter(Files.newOutputStream(file.toPath()))) {
-            writer.write("# version=" + CONFIG_VERSION + " DO NOT CHANGE THIS LINE\n" + yaml.dumpAsMap(config));
+            writer.write("# version=" + CONFIG_VERSION + " DO NOT CHANGE THIS LINE\n" +
+                         yaml.dumpAsMap(config).replaceAll("\\[\\n\\s+\\]", "[]"));
         }
     }
 
@@ -251,6 +255,7 @@ public class Config {
             public String text;
             public String replacement;
             public boolean ignoreCase;
+            public MessageType type;
             public boolean regex;
             public JsonData json;
 
@@ -258,14 +263,16 @@ public class Config {
                 text = "";
                 replacement = null;
                 ignoreCase = false;
+                type = null;
                 regex = false;
                 json = new JsonData();
             }
 
-            public MessageData(String text, String replacement, boolean ignoreCase, boolean regex, JsonData json) {
+            public MessageData(String text, String replacement, boolean ignoreCase, MessageType type, boolean regex, JsonData json) {
                 this.text = text;
                 this.replacement = replacement;
                 this.ignoreCase = ignoreCase;
+                this.type = type;
                 this.regex = regex;
                 this.json = json;
             }

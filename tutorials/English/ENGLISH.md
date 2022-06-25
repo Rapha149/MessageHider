@@ -21,7 +21,7 @@
 ## General
 
 First of all: Thank you for using this plugin and reading this tutorial!  
-A few information in advance:
+A little bit of information in advance:
 
 - In general, if you want to send me anything, please create an issue here. Please get in touch in the following cases:
     - If you want to translate this tutorial into another language, which would be very cool!
@@ -101,7 +101,7 @@ To enable the presets, you can simply change the `false` to a `true` for the res
 
 #### `idleTimeout`
 
-If this preset is enabled,Allgemein you will no longer see messages like  
+If this preset is enabled, you will no longer see messages like  
 *\[Server: The player idle timeout is now X minutes\]*  
 If you change the idle timeout by yourself you will receive the feedback message, but not if the server (the console) or
 another player changes it. This is extremely useful if you play on a hosting provider
@@ -127,7 +127,7 @@ with `/messagehider create`, which will create an empty filter.
 There are the following settings: (They are sorted differently here than in the config, because it is alphabetical in
 the config)
 
-- `id (Text)` - The id of the filter. This is only used for `/messagehider check` and `/messagehider run`, if you don’t
+- `id (text)` - The id of the filter. This is only used for `/messagehider check` and `/messagehider run`, if you don’t
   need it you can just leave it at `null`. You can use the same id for multiple filters but it is not recommended. Only
   letters, numbers and underscores may be used for the id.
 
@@ -143,7 +143,7 @@ the config)
       before, the message will still be replaced, but after the message has been replaced once, it will not be changed
       further.
 
-    - `ignoreCase (true/false)` - If enabled, case is ignored when filtering. If JSON is enabled, this counts applies
+    - `ignoreCase (true/false)` - If enabled, case is ignored when filtering. If JSON is enabled, this applies
       for the values, not for the keys.
   
     - `type` - The type of the message. Possible values:
@@ -188,7 +188,7 @@ the config)
               exists on the left side, but not on the right side (sent message), the filter will not match.
             + `2`: All keywords will be inspected, but keywords that exist on the right side but are `false` will be
               ignored.
-            + `3`: All keywords will beinspected without exception.
+            + `3`: All keywords will be inspected without exception.
 
           If a key on the left side should be ignored, `<ignore>` can be specified as value.  
           [Examples](#jsonprecisionlevel-examples) are below.
@@ -217,7 +217,7 @@ the config)
   For more information, see [below](#filter-commands).
 
 - `targets`  
-  For this settings either the player name, the UUID or `<console` can be specified. The lists will be ignored when they
+  For this settings either the player name, the UUID or `<console>` can be specified. The lists will be ignored when they
   are left empty and only count if you fill in one or more player names or respectively the console.
 
     - `senders (list)` - Only messages sent by the given players or the console will be filtered with this filter. (
@@ -267,8 +267,8 @@ commands:
     delay: 5.0
     # Sets a block after 5 seconds at the coordinates that formed the message.
   - command: kill %mh_player_sender_uuid%
-  type: CONSOLE
-  delay: 0.0
+    type: CONSOLE
+    delay: 0.0
   # Kills the player that sent the message.
 ```
 

@@ -105,10 +105,8 @@ public class Events implements Listener {
                         }
 
                         if (result.getStatus() == FilterStatus.REPLACED) {
-                            String replacement = Util.formatReplacementString(result.getReplacement());
-                            if (replacement == null)
-                                return;
-                            msg = WRAPPER.replaceText(msg, replacement);
+                            String replaceText = Util.formatReplacementString(result.getReplacement().text);
+                            msg = WRAPPER.replaceText(msg, result.getReplacement().withText(replaceText, json));
                         } else if (result.getStatus() == FilterStatus.HIDDEN)
                             return;
                     }

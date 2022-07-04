@@ -110,12 +110,18 @@ public class Wrapper1_19_R1 implements VersionWrapper {
     }
 
     @Override
-    public Object replaceText(Object obj, String json) {
-        if (obj instanceof ClientboundPlayerChatPacket packet)
-            return new ClientboundPlayerChatPacket(packet.c(), Optional.of(ChatSerializer.a(json)), packet.e(), packet.f(), packet.g(), packet.h());
+    public Object replaceText(Object obj, Replacement replacement) {
+        Optional<Integer> type = replacement.type != null ? Optional.of(replacement.type.id) : Optional.empty();
+
+        if (obj instanceof ClientboundPlayerChatPacket packet) {
+            if (replacement.systemMessage)
+                return new ClientboundSystemChatPacket(ComponentSerializer.parse(replacement.text), type.orElse(packet.e()));
+
+            return new ClientboundPlayerChatPacket(packet.c(), Optional.of(ChatSerializer.a(replacement.text)), type.orElse(packet.e()), packet.f(), packet.g(), packet.h());
+        }
 
         if (obj instanceof ClientboundSystemChatPacket packet)
-            return new ClientboundSystemChatPacket(ComponentSerializer.parse(json), packet.c());
+            return new ClientboundSystemChatPacket(ComponentSerializer.parse(replacement.text), type.orElse(packet.c()));
 
         throw new IllegalArgumentException("Packet is not of type ClientboundPlayerChatPacket or ClientboundSystemChatPacket");
     }

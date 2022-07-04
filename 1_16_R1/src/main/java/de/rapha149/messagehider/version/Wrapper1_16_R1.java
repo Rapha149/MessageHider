@@ -4,6 +4,7 @@ import com.google.gson.JsonSyntaxException;
 import io.netty.channel.ChannelPipeline;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
+import net.minecraft.server.v1_16_R1.ChatMessageType;
 import net.minecraft.server.v1_16_R1.IChatBaseComponent;
 import net.minecraft.server.v1_16_R1.IChatBaseComponent.ChatSerializer;
 import net.minecraft.server.v1_16_R1.PacketPlayOutChat;
@@ -93,11 +94,12 @@ public class Wrapper1_16_R1 implements VersionWrapper {
     }
 
     @Override
-    public Object replaceText(Object obj, String json) throws IllegalAccessException {
+    public Object replaceText(Object obj, Replacement replacement) throws IllegalAccessException {
         if (!(obj instanceof PacketPlayOutChat))
             throw new IllegalArgumentException("Packet is not of type PacketPlayOutChat");
 
         PacketPlayOutChat packet = (PacketPlayOutChat) obj;
-        return new PacketPlayOutChat(ChatSerializer.a(json), packet.d(), (UUID) UUID_FIELD.get(packet));
+        ChatMessageType type = replacement.type != null ? ChatMessageType.a((byte) replacement.type.id) : packet.d();
+        return new PacketPlayOutChat(ChatSerializer.a(replacement.text), type, (UUID) UUID_FIELD.get(packet));
     }
 }

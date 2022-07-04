@@ -87,10 +87,11 @@ public class Wrapper1_11_R1 implements VersionWrapper {
     }
 
     @Override
-    public Object replaceText(Object obj, String json) {
+    public Object replaceText(Object obj, Replacement replacement) {
         if (!(obj instanceof PacketPlayOutChat))
             throw new IllegalArgumentException("Packet is not of type PacketPlayOutChat");
 
-        return new PacketPlayOutChat(ChatSerializer.a(json), ((PacketPlayOutChat) obj).c());
+        byte type = replacement.type != null ? (byte) replacement.type.id : ((PacketPlayOutChat) obj).c();
+        return new PacketPlayOutChat(ChatSerializer.a(replacement.text), type);
     }
 }

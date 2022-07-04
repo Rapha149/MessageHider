@@ -89,10 +89,11 @@ public class Wrapper1_10_R1 implements VersionWrapper {
     }
 
     @Override
-    public Object replaceText(Object obj, String json) throws IllegalAccessException {
+    public Object replaceText(Object obj, Replacement replacement) throws IllegalAccessException {
         if (!(obj instanceof PacketPlayOutChat))
             throw new IllegalArgumentException("Packet is not of type PacketPlayOutChat");
 
-        return new PacketPlayOutChat(ChatSerializer.a(json), TYPE_FIELD.getByte(obj));
+        byte type = replacement.type != null ? (byte) replacement.type.id : TYPE_FIELD.getByte(obj);
+        return new PacketPlayOutChat(ChatSerializer.a(replacement.text), type);
     }
 }

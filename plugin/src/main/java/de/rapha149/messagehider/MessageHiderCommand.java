@@ -9,6 +9,7 @@ import de.rapha149.messagehider.util.Util.FilterCheckResult;
 import de.rapha149.messagehider.util.Util.FilterCheckResult.FilterStatus;
 import de.rapha149.messagehider.version.MHPlayer;
 import de.rapha149.messagehider.version.MessageType;
+import de.rapha149.messagehider.version.Replacement;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.chat.ComponentSerializer;
@@ -172,9 +173,11 @@ public class MessageHiderCommand implements CommandExecutor, TabCompleter {
                                 sb.append("\n§7  - §bNo filters with ids cancelled the message.");
                             sb.append("\n§7  - §3" + result.getFilteredCount() + " §btotal filter" + (result.getFilteredCount() == 1 ? "" : "s") +
                                       " cancelled the message. (Including filters without ids)");
+
+                            Replacement replacement = result.getReplacement();
                             if (result.getStatus() == FilterStatus.REPLACED)
-                                sb.append("\n§7  - §bThe message would be replaced by:" +
-                                          (player ? "" : "\n§f    " + result.getReplacement()));
+                                sb.append("\n§7  - §bThe message would be replaced by: (Type: " + replacement.type + ")" +
+                                          (player ? "" : "\n§f    " + replacement.text));
                             if (!result.getCommands().isEmpty() && !player)
                                 sb.append("\n§7  - §bThe following commands would be executed:\n§f    /" +
                                           result.getCommands().stream().map(cmd ->
@@ -183,9 +186,9 @@ public class MessageHiderCommand implements CommandExecutor, TabCompleter {
                             sender.sendMessage(sb.toString());
 
                             if (result.getStatus() == FilterStatus.REPLACED && player) {
-                                String replacement = Util.formatReplacementString(result.getReplacement());
-                                if (replacement != null)
-                                    ((Player) sender).spigot().sendMessage(ComponentSerializer.parse(replacement));
+                                String replaceText = Util.formatReplacementString(replacement.text);
+                                if (replaceText != null)
+                                    ((Player) sender).spigot().sendMessage(ComponentSerializer.parse(replaceText));
                             }
 
                             if (!result.getCommands().isEmpty() && player)
@@ -325,8 +328,10 @@ public class MessageHiderCommand implements CommandExecutor, TabCompleter {
         if (sender != null)
             sb.append("\nSent from: " + sender.representation);
         sb.append("\nType: " + type + "\nPlain: " + plain + "\nJSON: " + json);
-        if (result.getReplacement() != null)
-            sb.append("\nReplaced by: " + result.getReplacement());
+
+        Replacement replacement = result.getReplacement();
+        if (replacement != null)
+            sb.append("\nReplaced by: " + Optional.ofNullable(replacement.text).orElse(json) + "\n   Type: " + replacement.type);
 
         write(player.uuid, sb.toString());
     }

@@ -11,7 +11,7 @@ public enum MessageType {
     EMOTE(6),
     TELLRAW(7);
 
-    private final int id;
+    public final int id;
 
     MessageType(int id) {
         this.id = id;

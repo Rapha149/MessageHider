@@ -31,5 +31,5 @@ public interface VersionWrapper {
 
     MessageType getMessageType(Object obj) throws Exception;
 
-    Object replaceText(Object obj, String json) throws Exception;
+    Object replaceText(Object obj, Replacement replacement) throws Exception;
 }

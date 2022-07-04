@@ -2,6 +2,7 @@ package de.rapha149.messagehider.util;
 
 import de.rapha149.messagehider.MessageHider;
 import de.rapha149.messagehider.version.MessageType;
+import de.rapha149.messagehider.version.Replacement;
 import org.bukkit.ChatColor;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,7 +23,7 @@ import java.util.stream.Collectors;
 public class Config {
 
     private static final Pattern ALLOWED_CHARS_PATTERN = Pattern.compile("[\\w\\d]+");
-    private static final int CONFIG_VERSION = 2;
+    private static final String CONFIG_VERSION = "2.1";
 
     private static File file;
     private static Yaml yaml;
@@ -45,8 +46,15 @@ public class Config {
         if (file.exists()) {
             BufferedReader br = new BufferedReader(new InputStreamReader(Files.newInputStream(file.toPath()), StandardCharsets.UTF_8));
             String line = br.readLine();
-            if (line != null && line.startsWith("# version=" + CONFIG_VERSION))
-                config = yaml.loadAs(new InputStreamReader(Files.newInputStream(file.toPath()), StandardCharsets.UTF_8), Config.class);
+            String content = br.lines().collect(Collectors.joining("\n"));
+            if (line != null && line.startsWith("# version=2 ")) {
+                line = "# version=" + CONFIG_VERSION + " ";
+                String indent = String.join("", Collections.nCopies(options.getIndent(), " "));
+                content = content.replaceAll("( +)replacement: (.+)", "$1replace:\n$1" + indent + "enabled: true\n$1" + indent + "text: $2");
+            }
+
+            if (line != null && line.startsWith("# version=" + CONFIG_VERSION + " "))
+                config = yaml.loadAs(content, Config.class);
             else {
                 File renamed;
                 int number = 0;
@@ -91,11 +99,11 @@ public class Config {
                 }
             }
 
-            if (filter.message.replacement != null) {
-                String replacement = filter.message.replacement;
-                if (replacement.startsWith("{") && replacement.endsWith("}")) {
+            if (filter.message.replace.text != null) {
+                String text = filter.message.replace.text;
+                if (text.startsWith("{") && text.endsWith("}")) {
                     try {
-                        new JSONObject(replacement);
+                        new JSONObject(text);
                     } catch (JSONException e) {
                         logger.warning("You got a json error in '" + filter.message + "' (Replacement of " + filterSpecification + ")");
                         iterator.remove();
@@ -253,7 +261,7 @@ public class Config {
         public static class MessageData {
 
             public String text;
-            public String replacement;
+            public Replacement replace;
             public boolean ignoreCase;
             public MessageType type;
             public boolean regex;
@@ -261,16 +269,16 @@ public class Config {
 
             public MessageData() {
                 text = "";
-                replacement = null;
+                replace = new Replacement();
                 ignoreCase = false;
                 type = null;
                 regex = false;
                 json = new JsonData();
             }
 
-            public MessageData(String text, String replacement, boolean ignoreCase, MessageType type, boolean regex, JsonData json) {
+            public MessageData(String text, Replacement replace, boolean ignoreCase, MessageType type, boolean regex, JsonData json) {
                 this.text = text;
-                this.replacement = replacement;
+                this.replace = replace;
                 this.ignoreCase = ignoreCase;
                 this.type = type;
                 this.regex = regex;

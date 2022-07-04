@@ -10,6 +10,7 @@ import de.rapha149.messagehider.util.Config.FilterData.MessageData;
 import de.rapha149.messagehider.util.Config.FilterData.TargetsData;
 import de.rapha149.messagehider.version.MHPlayer;
 import de.rapha149.messagehider.version.MessageType;
+import de.rapha149.messagehider.version.Replacement;
 import de.rapha149.messagehider.version.VersionWrapper;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
@@ -34,6 +35,9 @@ public class Util {
     public static String PREFIX = "";
 
     public static String replaceGroups(String input, List<String> groups) {
+        if (input == null)
+            return null;
+
         StringBuilder sb = new StringBuilder();
         Matcher matcher = Pattern.compile("(?<!\\$)\\$(\\d)").matcher(input);
         int current = 0;
@@ -47,6 +51,9 @@ public class Util {
     }
 
     public static String formatReplacementString(String replacement) {
+        if (replacement == null)
+            return null;
+
         String colorized = ChatColor.translateAlternateColorCodes('&', replacement);
         if ((colorized.startsWith("{") && colorized.endsWith("}")) ||
             (colorized.startsWith("[") && colorized.endsWith("]"))) {
@@ -85,7 +92,7 @@ public class Util {
         List<String> ids = Arrays.asList(filterIds);
         List<String> usedIds = new ArrayList<>();
         boolean hidden = false;
-        String replacement = null;
+        Replacement replacement = null;
         List<CommandData> commands = new ArrayList<>();
 
         for (FilterData filter : Config.getFilters()) {
@@ -135,7 +142,7 @@ public class Util {
                         continue;
 
                     String filterMessage = message.text;
-                    String replace = message.replacement;
+                    Replacement replace = message.replace;
                     boolean ignoreCase = message.ignoreCase;
                     boolean regex = message.regex;
                     boolean onlyExecuteCommands = filter.onlyExecuteCommands;
@@ -146,7 +153,7 @@ public class Util {
                             JsonResult result = Util.jsonMatches(filterMessage, json, regex, ignoreCase, message.json.jsonPrecisionLevel);
                             if (result.matches) {
                                 if (!cmds.isEmpty()) {
-                                    String[] replacements = replace != null ? getReplacementForCommand(replace, result.groups) : new String[]{plain, json};
+                                    String[] replacements = replace.text != null ? getReplacementForCommand(replace.text, result.groups) : new String[]{plain, json};
                                     Placeholders.replace(cmds, sender, receiver, plain, json, replacements[0], replacements[1], regex ? result.groups : Arrays.asList());
                                     commands.addAll(cmds);
                                 }
@@ -156,10 +163,10 @@ public class Util {
                                     filteredIds.add(id);
 
                                 if (!onlyExecuteCommands && !hidden && replacement == null) {
-                                    if (replace == null)
+                                    if (!replace.enabled)
                                         hidden = true;
                                     else
-                                        replacement = regex ? replaceGroups(replace, result.groups) : replace;
+                                        replacement = regex ? replace.withText(replaceGroups(replace.text, result.groups), json) : replace;
                                 }
 
                                 if (stopAfter)
@@ -176,7 +183,7 @@ public class Util {
                                     groups.add(matcher.group(i));
 
                                 if (!cmds.isEmpty()) {
-                                    String[] replacements = replace != null ? getReplacementForCommand(replace, groups) : new String[]{plain, json};
+                                    String[] replacements = replace.text != null ? getReplacementForCommand(replace.text, groups) : new String[]{plain, json};
                                     Placeholders.replace(cmds, sender, receiver, plain, json, replacements[0], replacements[1], groups);
                                     commands.addAll(cmds);
                                 }
@@ -186,10 +193,10 @@ public class Util {
                                     filteredIds.add(id);
 
                                 if (!onlyExecuteCommands && !hidden && replacement == null) {
-                                    if (replace == null)
+                                    if (!replace.enabled)
                                         hidden = true;
                                     else
-                                        replacement = replaceGroups(replace, groups);
+                                        replacement = replace.withText(replaceGroups(replace.text, groups), json);
                                 }
 
                                 if (stopAfter)
@@ -197,7 +204,7 @@ public class Util {
                             }
                         } else if (ignoreCase ? plain.equalsIgnoreCase(filterMessage) : plain.equals(filterMessage)) {
                             if (!cmds.isEmpty()) {
-                                String[] replacements = replace != null ? getReplacementForCommand(replace, null) : new String[]{plain, json};
+                                String[] replacements = replace.text != null ? getReplacementForCommand(replace.text, null) : new String[]{plain, json};
                                 Placeholders.replace(cmds, sender, receiver, plain, json, replacements[0], replacements[1], Arrays.asList());
                                 commands.addAll(cmds);
                             }
@@ -207,10 +214,10 @@ public class Util {
                                 filteredIds.add(id);
 
                             if (!onlyExecuteCommands && !hidden && replacement == null) {
-                                if (replace == null)
+                                if (!replace.enabled)
                                     hidden = true;
                                 else
-                                    replacement = replace;
+                                    replacement = replace.withFallback(json);
                             }
 
                             if (stopAfter)
@@ -323,11 +330,11 @@ public class Util {
         private List<String> filteredIds;
         private int ignored;
         List<String> notFoundIds;
-        private String replacement;
+        private Replacement replacement;
         private List<CommandData> commands;
 
         private FilterCheckResult(int filteredCount, List<String> filteredIds, int ignored, List<String> notFoundIds,
-                                  boolean hidden, String replacement, List<CommandData> commands) {
+                                  boolean hidden, Replacement replacement, List<CommandData> commands) {
             status = hidden ? FilterStatus.HIDDEN : (replacement != null ? FilterStatus.REPLACED : FilterStatus.NORMAL);
             this.filteredCount = filteredCount;
             this.filteredIds = filteredIds;
@@ -357,7 +364,7 @@ public class Util {
             return notFoundIds;
         }
 
-        public String getReplacement() {
+        public Replacement getReplacement() {
             return replacement;
         }
 

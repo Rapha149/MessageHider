@@ -1,6 +1,6 @@
 name: MessageHider
 author: Rapha149
-version: 1.8.4
+version: 1.9
 main: de.rapha149.messagehider.MessageHider
 softdepend: [PlaceholderAPI]
 

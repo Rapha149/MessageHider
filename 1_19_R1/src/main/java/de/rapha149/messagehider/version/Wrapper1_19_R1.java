@@ -84,7 +84,7 @@ public class Wrapper1_19_R1 implements VersionWrapper {
             return new Text(packet.content(), new TextComponent(ComponentSerializer.parse(packet.content())).toPlainText());
         }
 
-        throw new IllegalArgumentException("Packet is not of type PacketPlayOutChat");
+        throw new IllegalArgumentException("Packet is not of type ClientboundPlayerChatPacket or ClientboundSystemChatPacket");
     }
 
     @Override
@@ -95,7 +95,7 @@ public class Wrapper1_19_R1 implements VersionWrapper {
         if (obj instanceof ClientboundSystemChatPacket)
             return null;
 
-        throw new IllegalArgumentException("Packet is not of type PacketPlayOutChat");
+        throw new IllegalArgumentException("Packet is not of type ClientboundPlayerChatPacket or ClientboundSystemChatPacket");
     }
 
     @Override
@@ -106,7 +106,7 @@ public class Wrapper1_19_R1 implements VersionWrapper {
         if (obj instanceof ClientboundSystemChatPacket packet)
             return MessageType.getById(packet.c());
 
-        throw new IllegalArgumentException("Packet is not of type PacketPlayOutChat");
+        throw new IllegalArgumentException("Packet is not of type ClientboundPlayerChatPacket or ClientboundSystemChatPacket");
     }
 
     @Override
@@ -117,6 +117,6 @@ public class Wrapper1_19_R1 implements VersionWrapper {
         if (obj instanceof ClientboundSystemChatPacket packet)
             return new ClientboundSystemChatPacket(ComponentSerializer.parse(json), packet.c());
 
-        throw new IllegalArgumentException("Packet is not of type PacketPlayOutChat");
+        throw new IllegalArgumentException("Packet is not of type ClientboundPlayerChatPacket or ClientboundSystemChatPacket");
     }
 }

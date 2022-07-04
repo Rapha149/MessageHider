@@ -136,26 +136,46 @@ the config)
     - `text (text)` - The message to filter for. If JSON is enabled, in JSON format. If the filter is only to be
       executed via `/messagehider run`, `null` can be specified.
 
-    - `replacement (text)` - The text to replace the message with if the filter matches. The text can be specified as
-      JSON or as normal text. Also you can use colors with & characters. If `regex` is enabled, `$1`, `$2` and `$n` can
-      be used to access the first, second and `n`th group of the pattern. If `null` is specified as replacement (
-      default), the message will be hidden as normal and not replaced. If another filter would have hidden the message
-      before, the message will still be replaced, but after the message has been replaced once, it will not be changed
-      further.
+    - `replace`
+        - `enabled (true/false)` - Whether to replace the message instead of hiding it.
+        - `text (text)` - The text to replace the message with if the filter matches. The text can be specified as
+          JSON or as normal text. Also you can use colors with & characters. If `regex` is enabled, `$1`, `$2` and `$n`
+          can
+          be used to access the first, second and `n`th group of the pattern. If `null` is specified (default), the text
+          of the message won't be altered. You can use that if you want to change the message type
+          for example.  
+          If another filter would have hidden the message before, the message will still be replaced, but after the
+          message has been replaced once, it will not be changed
+          further.
+        - `type` - The new type of the message. Possible values:
+            - `null` - The type won't be changed (default).
+            - `CHAT` - Chat messages.
+            - `SYSTEM` - System messages.
+            - `GAME_INFO` - Messages above the hotbar.
+            - `SAY` - Messages originating from the /say command.
+            - `MSG` - Messages originating from the /msg command.
+            - `TEAMMSG` - Messages originating from the /teammsg command.
+            - `EMOTE` - Messages originating from the /emote command.
+            - `TELLRAW` - Messages originating from the /tellraw command.
+        - `systemMessage (true/false)` - Whether to replace a player message (chat, /say, ...) with a normal system
+          message. This only applies in 1.19+.  
+          When you alter the text of player messages it is recommended to enable
+          this because otherwise there will be an indication that the message was altered and the player also has access
+          to the former message. It is recommended to also change the message type when enabling this.
 
     - `ignoreCase (true/false)` - If enabled, case is ignored when filtering. If JSON is enabled, this applies
       for the values, not for the keys.
-  
+
     - `type` - The type of the message. Possible values:
-      - `null` - Ignored.
-      - `CHAT` - Chat messages.
-      - `SYSTEM` - System messages.
-      - `GAME_INFO` - Messages above the hotbar.
-      - `SAY` - Messages originating from the /say command.
-      - `MSG` - Messages originating from the /msg command.
-      - `TEAMMSG` - Messages originating from the /teammsg command.
-      - `EMOTE` - Messages originating from the /emote command.
-      - `TELLRAW` - Messages originating from the /tellraw command.
+        - `null` - Ignored (default).
+        - `CHAT` - Chat messages.
+        - `SYSTEM` - System messages.
+        - `GAME_INFO` - Messages above the hotbar.
+        - `SAY` - Messages originating from the /say command.
+        - `MSG` - Messages originating from the /msg command.
+        - `TEAMMSG` - Messages originating from the /teammsg command.
+        - `EMOTE` - Messages originating from the /emote command.
+        - `TELLRAW` - Messages originating from the /tellraw command.
 
     - `regex (true/false)` - If enabled, the plain message or JSON values are inspected according to regex. A guide to
       regex is available at [RegExr](https://regexr.com/). Note: Punctuation characters like dots are interpreted
@@ -167,7 +187,7 @@ the config)
           because the period would represent any character otherwise.
         - `(\w{3,16}) (joined|left) the game` - `\w{3,16}` represents a letter sequence that is 3 to 16 characters
           long (Minecraft player names). Because it’s preceded and followed by parentheses, it can be called later again
-          as a group (with `$1`), as mentioned above for `replacement`.  
+          as a group (with `$1`), as mentioned above for `replace`.  
           `joined|left` represents either `joined` or `left`. There are parentheses here because we either want `joined`
           or `left` but not either `(\w{3,16}) joined` or `left the game`. Of course it could be called with `$2` either
           way.
@@ -217,7 +237,8 @@ the config)
   For more information, see [below](#filter-commands).
 
 - `targets`  
-  For this settings either the player name, the UUID or `<console>` can be specified. The lists will be ignored when they
+  For this settings either the player name, the UUID or `<console>` can be specified. The lists will be ignored when
+  they
   are left empty and only count if you fill in one or more player names or respectively the console.
 
     - `senders (list)` - Only messages sent by the given players or the console will be filtered with this filter. (
@@ -284,7 +305,11 @@ commands:
 id: idle_timeout
 message:
   text: '{"italic": true, "color": "gray", "translate": "chat\\.type\\.admin", "with": [{"text": "Server"}, {"translate": "commands\\.setidletimeout\\.success", "with": ["\\d+"]}]}'
-  replacement: null
+  replace:
+    enabled: false
+    text: null
+    type: null
+    systemMessage: false
   ignoreCase: false
   type: null
   regex: true
@@ -295,12 +320,12 @@ onlyHideForOtherPlayers: false
 onlyExecuteCommands: false
 stopAfter: false
 priority: null
-commands: []
+commands: [ ]
 targets:
-  excludedReceivers: []
-  excludedSenders: []
-  receivers: []
-  senders: []
+  excludedReceivers: [ ]
+  excludedSenders: [ ]
+  receivers: [ ]
+  senders: [ ]
 ```
 
 Explanation for `jsonPrecisionLevel`: It is `3` because this message is exactly like that.  
@@ -313,7 +338,11 @@ since it is JSON, we need to escape the backslash again, so two backslashes.
 id: gamemode_change
 message:
   text: '{"italic": true, "color": "gray", "translate": "chat\\.type\\.admin", "with": [{},{"translate": "commands\\.gamemode\\.success\\.\\w+"}]}'
-  replacement: null
+  replace:
+    enabled: false
+    text: null
+    type: null
+    systemMessage: false
   ignoreCase: false
   type: null
   regex: true
@@ -324,12 +353,12 @@ onlyHideForOtherPlayers: false
 onlyExecuteCommands: false
 stopAfter: false
 priority: null
-commands: []
+commands: [ ]
 targets:
-  excludedReceivers: []
-  excludedSenders: []
-  receivers: []
-  senders: []
+  excludedReceivers: [ ]
+  excludedSenders: [ ]
+  receivers: [ ]
+  senders: [ ]
 ```
 
 Explanation for `jsonPrecisionLevel`: It is `1` because at `with` the first values of the array were given only as `{}`.
@@ -341,7 +370,11 @@ Because it is `1`, what would actually be in there is ignored.
 id: only_self_commands
 message:
   text: '{"italic": true, "color": "gray", "translate": "chat\\.type\\.admin", "with": [{},{"translate": "commands\\.(\\w|\\.)+"}]}'
-  replacement: null
+  replace:
+    enabled: false
+    text: null
+    type: null
+    systemMessage: false
   ignoreCase: false
   type: null
   regex: true
@@ -352,12 +385,12 @@ onlyHideForOtherPlayers: false
 onlyExecuteCommands: false
 stopAfter: false
 priority: null
-commands: []
+commands: [ ]
 targets:
-  excludedReceivers: []
-  excludedSenders: []
-  receivers: []
-  senders: []
+  excludedReceivers: [ ]
+  excludedSenders: [ ]
+  receivers: [ ]
+  senders: [ ]
 ```
 
 ##### Preset: Console commands
@@ -366,7 +399,11 @@ targets:
 id: console_commands
 message:
   text: '{"italic":true,"color":"gray","translate":"chat\\.type\\.admin","with":[{"text":"Server"},{"translate":"commands\\.(\\w|\\.)+"}]}'
-  replacement: null
+  replace:
+    enabled: false
+    text: null
+    type: null
+    systemMessage: false
   ignoreCase: false
   type: null
   regex: true
@@ -377,11 +414,11 @@ onlyHideForOtherPlayers: false
 onlyExecuteCommands: false
 stopAfter: false
 priority: null
-commands: []
+commands: [ ]
 targets:
-  excludedReceivers: []
-  excludedSenders: []
-  receivers: []
+  excludedReceivers: [ ]
+  excludedSenders: [ ]
+  receivers: [ ]
   senders:
     - <console>
 ```
@@ -392,7 +429,11 @@ targets:
 id: example
 message:
   text: 'Hello :)'
-  replacement: null
+  replace:
+    enabled: false
+    text: null
+    type: null
+    systemMessage: false
   ignoreCase: false
   type: null
   regex: false
@@ -403,7 +444,7 @@ onlyHideForOtherPlayers: false
 onlyExecuteCommands: false
 stopAfter: false
 priority: null
-commands: []
+commands: [ ]
 targets:
   excludedReceivers:
     - Rapha149
@@ -442,8 +483,11 @@ Some filters and functions like `senders` are only available for 1.16+. This is 
 out who sent a message.
 
 #### 1.19+
-As of 1.19, the previously one packet has been split into two packets. Therefore, for non-player messages there is no possibility to find out from whom the message originates. This applies to commands, for example.  
-In 1.19, strangely enough, this also applies to chat messages, which is why they can't be assigned to a player either. What
+
+As of 1.19, the previously one packet has been split into two packets. Therefore, for non-player messages there is no
+possibility to find out from whom the message originates. This applies to commands, for example.  
+In 1.19, strangely enough, this also applies to chat messages, which is why they can't be assigned to a player either.
+What
 can be assigned is for example messages that originate from `/say`.
 
 **For plugin programmers**  

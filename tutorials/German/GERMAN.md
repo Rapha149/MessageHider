@@ -83,7 +83,7 @@ Die Konfiguration (Config) befindet sich bei `plugins/MessageHider/config.yml`.
 Wenn die Konfiguration das erste mal generiert wird, sieht sie so aus:
 
 ```yml
-messageFilters: []
+messageFilters: [ ]
 prefix: '&8[&cMH&8] '
 checkForUpdates: true
 presets:
@@ -147,12 +147,30 @@ ist)
     - `text (Text)` - Die Nachricht, nach der gefiltert werden soll. Wenn JSON aktiviert, im JSON-Format. Wenn der
       Filter nur über `/messagehider run` ausgeführt werden soll, kann `null` angegeben werden.
 
-    - `replacement (Text)` - Der Text, durch den die Nachricht ersetzt werden soll, wenn der Filter passt. Der Text kann
-      als JSON oder als normaler Text angegeben werden. Auch kann man mit &-Zeichen Farben benutzen. Wenn RegEx
-      aktiviert ist, kann mit `$1`, `$2` und `$n` auf die erste, zweite und `n`te Gruppe des Patterns zugegriffen
-      werden. Wenn `null` angegeben wird (Standard), wird die Nachricht wie normal versteckt und nicht ersetzt. Wenn ein
-      anderer Filter vorher schon die Nachricht versteckt hat, wird die Nachricht nicht mehr ersetzt, die Nachricht wird
-      aber auch nicht von anderen Filtern versteckt, wenn ein Filter die Nachricht schon ersetzt hat.
+    - `replace`
+        - `enabled (true/false)` - Ob die Nachricht ersetzt werden soll. Wenn nicht, wird sie wie normal versteckt.
+        - `text (Text)` - Der Text, durch den die Nachricht ersetzt werden soll, wenn der Filter passt. Der Text kann
+          als JSON oder als normaler Text angegeben werden. Auch kann man mit &-Zeichen Farben benutzen. Wenn RegEx
+          aktiviert ist, kann mit `$1`, `$2` und `$n` auf die erste, zweite und `n`te Gruppe des Patterns zugegriffen
+          werden. Wenn `null` angegeben wird (Standard), wird der Nachrichtentext nicht geändert. Dadurch kann man zum
+          Beispiel den Nachrichtentyp ändern.  
+          Wenn ein anderer Filter vorher schon die Nachricht versteckt hat, wird die Nachricht nicht mehr ersetzt, die
+          Nachricht wird aber auch nicht von anderen Filtern versteckt, wenn ein Filter die Nachricht schon ersetzt hat.
+        - `type` - Der neue Typ der Nachricht. Mögliche Werte:
+            - `null` - Nachrichtentyp nicht ändern (Standard)
+            - `CHAT` - Nachricht im Chat
+            - `SYSTEM` - Systemnachricht
+            - `GAME_INFO` - Nachricht über der Hotbar
+            - `SAY` - Nachricht vom Say-Befehl
+            - `MSG` - Nachricht vom Msg-Befehl
+            - `TEAMMSG` - Nachricht vom TeamMsg-Befehl
+            - `EMOTE` - Nachricht vom Emote-Befehl
+            - `TELLRAW` - Nachricht vom Tellraw-Befehl
+        - `systemMessage (true/false)` - Ob eine Spielernachricht (Chat, /say, ...) durch eine normale Systemnachricht
+          ersetzt werden soll. Dies gilt nur für 1.19+.  
+          Wenn du den Text von Spielernachrichten änderst, ist es empfehlenswert, dies zu aktivieren,
+          denn sonst wird angezeigt, dass die Nachricht geändert wurde, und der Spieler hat auch Zugriff auf die
+          auf die frühere Nachricht. Es wird empfohlen, auch den Nachrichtentyp zu ändern, wenn du dies aktivierst.
 
     - `ignoreCase (true/false)` - Wenn aktiviert, wird die Groß- und Kleinschreibung beim Filtern ignoriert. Wenn JSON
       aktiviert ist, zählt dies nur für die Werte, nicht für die Schlüsselwörter.
@@ -178,7 +196,7 @@ ist)
         - `Das Würfelergebnis ist [1-6]\.` - `[1-6]` steht für eine Zahl von 1 bis 6. Vor dem Punkt ist `\`, da der
           Punkt sonst für jedes Zeichen stehen würde.
         - `(\w{3,16}) (joined|left) the game` - `\w{3,16}` steht für eine Buchstabenfolge, die 3 bis 16 Zeichen lang
-          ist (Minecraft-Namen). Weil davor und dahinter Klammern sind, kann es, wie oben bei `replacement` erwähnt,
+          ist (Minecraft-Namen). Weil davor und dahinter Klammern sind, kann es, wie oben bei `replace` erwähnt,
           später als Gruppe wieder aufgerufen werden (mit `$1`).  
           `joined|left` steht für entweder `joined` oder `left`. Hier sind Klammern, weil wir nur entweder `joined`
           und `left` haben wollen und nicht entweder `(\w{3,16}) joined` oder `left the game`. Natürlich kann es
@@ -262,7 +280,7 @@ können. Diese Platzhalter werden vom Plugin bereitgestellt:
 - `%mh_message_replaced_plain%` - Der Text, durch den die Nachricht ersetzt wurde, als einfacher Text. Wenn die
   Nachricht nicht ersetzt wurde, ist es die Nachricht, die gesendet wurde.
 - `%mh_message_replaced_json%` - Der Text, durch den die Nachricht ersetzt wurde, als JSON-Text. Wenn die Nachricht
-  nicht ersetzt wurde, ist es die Nachricht, die gesendet wurde. Wenn der Text bei `replacement` nicht als JSON
+  nicht ersetzt wurde, ist es die Nachricht, die gesendet wurde. Wenn der Text bei `replace` nicht als JSON
   angegeben wurde, ist es ein einfacher Text.
 - `%mh_regex_{Gruppe}%` - Eine RegEx-Gruppe. Nur möglich, wenn RegEx beim Filter aktiviert ist. (Nur mit der
   PlaceholderAPI möglich)
@@ -306,7 +324,11 @@ commands:
 id: idle_timeout
 message:
   text: '{"italic": true, "color": "gray", "translate": "chat\\.type\\.admin", "with": [{"text": "Server"}, {"translate": "commands\\.setidletimeout\\.success", "with": ["\\d+"]}]}'
-  replacement: null
+  replace:
+    enabled: false
+    text: null
+    type: null
+    systemMessage: false
   ignoreCase: false
   type: null
   regex: true
@@ -317,12 +339,12 @@ onlyHideForOtherPlayers: false
 onlyExecuteCommands: false
 stopAfter: false
 priority: null
-commands: []
+commands: [ ]
 targets:
-  excludedReceivers: []
-  excludedSenders: []
-  receivers: []
-  senders: []
+  excludedReceivers: [ ]
+  excludedSenders: [ ]
+  receivers: [ ]
+  senders: [ ]
 ```
 
 Erklärung für `jsonPrecisionLevel`: Es ist `3`, weil diese Nachricht exakt so ist.  
@@ -335,7 +357,11 @@ davor tun). Und da es JSON ist, müssen wir den Rückwärtsschrägstrich erneut 
 id: gamemode_change
 message:
   text: '{"italic": true, "color": "gray", "translate": "chat\\.type\\.admin", "with": [{},{"translate": "commands\\.gamemode\\.success\\.\\w+"}]}'
-  replacement: null
+  replace:
+    enabled: false
+    text: null
+    type: null
+    systemMessage: false
   ignoreCase: false
   type: null
   regex: true
@@ -346,12 +372,12 @@ onlyHideForOtherPlayers: false
 onlyExecuteCommands: false
 stopAfter: false
 priority: null
-commands: []
+commands: [ ]
 targets:
-  excludedReceivers: []
-  excludedSenders: []
-  receivers: []
-  senders: []
+  excludedReceivers: [ ]
+  excludedSenders: [ ]
+  receivers: [ ]
+  senders: [ ]
 ```
 
 Erklärung für `jsonPrecisionLevel`: Es ist `1`, weil bei `with` die ersten Werte des Arrays nur als `{}` angegeben
@@ -363,7 +389,11 @@ wurden. Weil es `1` ist, wird das, was da eigentlich drin stehen würde, ignorie
 id: only_self_commands
 message:
   text: '{"italic": true, "color": "gray", "translate": "chat\\.type\\.admin", "with": [{},{"translate": "commands\\.(\\w|\\.)+"}]}'
-  replacement: null
+  replace:
+    enabled: false
+    text: null
+    type: null
+    systemMessage: false
   ignoreCase: false
   type: null
   regex: true
@@ -374,12 +404,12 @@ onlyHideForOtherPlayers: false
 onlyExecuteCommands: false
 stopAfter: false
 priority: null
-commands: []
+commands: [ ]
 targets:
-  excludedReceivers: []
-  excludedSenders: []
-  receivers: []
-  senders: []
+  excludedReceivers: [ ]
+  excludedSenders: [ ]
+  receivers: [ ]
+  senders: [ ]
 ```
 
 ##### Voreinstellung: Console Commands
@@ -388,7 +418,11 @@ targets:
 id: console_commands
 message:
   text: '{"italic":true,"color":"gray","translate":"chat\\.type\\.admin","with":[{"text":"Server"},{"translate":"commands\\.(\\w|\\.)+"}]}'
-  replacement: null
+  replace:
+    enabled: false
+    text: null
+    type: null
+    systemMessage: false
   ignoreCase: false
   type: null
   regex: true
@@ -399,11 +433,11 @@ onlyHideForOtherPlayers: false
 onlyExecuteCommands: false
 stopAfter: false
 priority: null
-commands: []
+commands: [ ]
 targets:
-  excludedReceivers: []
-  excludedSenders: []
-  receivers: []
+  excludedReceivers: [ ]
+  excludedSenders: [ ]
+  receivers: [ ]
   senders:
     - <console>
 ```
@@ -414,7 +448,11 @@ targets:
 id: beispiel
 message:
   text: 'Hello :)'
-  replacement: null
+  replace:
+    enabled: false
+    text: null
+    type: null
+    systemMessage: false
   ignoreCase: false
   type: null
   regex: false
@@ -425,7 +463,7 @@ onlyHideForOtherPlayers: false
 onlyExecuteCommands: false
 stopAfter: false
 priority: null
-commands: []
+commands: [ ]
 targets:
   excludedReceivers:
     - Rapha149
